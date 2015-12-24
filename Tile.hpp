@@ -14,7 +14,7 @@ public:
 
     void Render(SDL_Renderer* ren);
 private:
-    int tiles;
+    int offset;
     SDL_Renderer* mRenderer;
     SDL_Texture* mtexture;
     int mXtile, mYtile;

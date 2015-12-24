@@ -9,6 +9,9 @@
 #include "Player.hpp"
 #include "Tile.hpp"
 #include "Map.hpp"
+#include "Rectangle.hpp"
+#include "Vector2D.hpp"
+#include "Point.hpp"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
@@ -32,8 +35,8 @@ int main(int argc, char** argv) {
     }
 
     int playerx, playery;
-    playerx = (SCREEN_WIDTH / 2) - 8;
-    playery = (SCREEN_HEIGHT / 2) - 8;
+    playerx = (SCREEN_WIDTH / 2) + 8;
+    playery = (SCREEN_HEIGHT / 2) + 8;
 
     SDL_Window* win = SDL_CreateWindow("Balls", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);

@@ -6,7 +6,6 @@ Tile::Tile(const std::string& filename, SDL_Renderer* ren) :
 {
     int w;
     SDL_QueryTexture(mtexture, NULL, NULL, &w, NULL);
-    tiles = w / 8;
 }
 
 Tile::~Tile() {

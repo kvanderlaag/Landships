@@ -3,7 +3,6 @@
 
 #include "Utility.hpp"
 #include "Map.hpp"
-#include "Collider.hpp"
 
 #include <memory>
 
@@ -40,8 +39,6 @@ public:
 
     void Render();
 
-    void CheckCollision(const Collider& other);
-
     void Move(int maxX, int maxY, uint32_t ticks);
 
 private:
@@ -52,8 +49,6 @@ private:
 
     float mTurretAngle;
     float mTurretRotationVel;
-
-    std::unique_ptr<Collider> mCollider;
 
     int mWidth, mHeight;
     SDL_Texture* mtexture;

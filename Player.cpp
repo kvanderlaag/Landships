@@ -16,7 +16,6 @@ Player::Player(const std::string& filename, SDL_Renderer* ren, const Map& m) :
 {
     SDL_QueryTexture(mtexture, NULL, NULL, &mWidth, &mHeight);
     mWidth = mWidth / (mWidth / 16);
-    mCollider = std::unique_ptr<Collider>(new Collider(mWidth, mHeight, mX, mY, mAngle, mRenderer));
 }
 
 Player::~Player() {
@@ -49,12 +48,10 @@ void Player::SetYVel(float newvel) {
 
 void Player::SetX(float newx) {
     mX = newx;
-    mCollider->SetX(newx);
 }
 
 void Player::SetY(float newy) {
     mY = newy;
-    mCollider->SetY(newy);
 }
 
 SDL_Texture* Player::GetTexture() {
@@ -97,8 +94,8 @@ void Player::Render() {
     srcRect.h = mHeight;
     srcRect.w = mWidth;
 
-    dstRect.x = mX;
-    dstRect.y = mY;
+    dstRect.x = mX - (mWidth / 2);
+    dstRect.y = mY - (mHeight / 2);
     dstRect.h = mHeight;
     dstRect.w = mWidth;
     SDL_RenderCopyEx(mRenderer, mtexture, &srcRect, &dstRect, mAngle - 270, NULL, SDL_FLIP_NONE);
@@ -109,19 +106,6 @@ void Player::Render() {
     srcRect.w = mWidth;
     SDL_RenderCopyEx(mRenderer, mtexture, &srcRect, &dstRect, mTurretAngle - 270, NULL, SDL_FLIP_NONE);
 
-    mCollider->Render();
-}
-
-void Player::CheckCollision(const Collider& other) {
-    std::vector<float> velocity = { mXvel, mYvel };
-    Collision coll = mCollider->IsColliding(other, velocity);
-    if (coll.WillIntersect() || coll.Intersecting()) {
-        std::vector<float> mt = coll.GetMinimumTranslationVector();
-        if (mt.size() == 2) {
-            mX += mt[0];
-            mY += mt[1];
-        }
-    }
 }
 
 void Player::Move(int maxX, int maxY, uint32_t ticks) {
@@ -136,7 +120,6 @@ void Player::Move(int maxX, int maxY, uint32_t ticks) {
     if (mAngle > 360) {
         mAngle = mAngle - 360;
     }
-    mCollider->SetAngle(mAngle);
 
     mTurretAngle += (rotationPerFrame + turretRotationPerFrame);
     if (mTurretAngle < 0) {
@@ -151,29 +134,19 @@ void Player::Move(int maxX, int maxY, uint32_t ticks) {
     mXvel = std::cos(a) * forwardPerFrame;
     mYvel = std::sin(a) * forwardPerFrame;
     if (mXvel != 0) {
-        if (mXvel < 0 && mX > 0) {
+        if (mXvel < 0 && mX > (mWidth / 2)) {
             mX += mXvel;
-            mCollider->SetX(mCollider->GetX() + mXvel);
         }
-        else if (mXvel > 0 && mX + mWidth < maxX) {
+        else if (mXvel > 0 && mX + (mWidth / 2) < maxX) {
             mX += mXvel;
-            mCollider->SetX(mCollider->GetX() + mXvel);
         }
     }
     if (mYvel != 0) {
-        if (mYvel < 0 && mY > 0) {
+        if (mYvel < 0 && mY > (mHeight / 2)) {
             mY += mYvel;
-            mCollider->SetY(mCollider->GetY() + mYvel);
         }
-        else if (mYvel > 0 && mY + mHeight < maxY) {
+        else if (mYvel > 0 && mY + (mHeight / 2) < maxY) {
             mY += mYvel;
-            mCollider->SetY(mCollider->GetY() + mYvel);
         }
     }
-
-    for (const Collider* c : parentMap->GetColliders()) {
-        CheckCollision(*c);
-    }
-
-
 }

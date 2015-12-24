@@ -24,8 +24,6 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
             tiles[col][row] = -1;
             col++;
         } else {
-
-            mColliders.push_back(new Collider(8, 8, col * 8, row * 8, 0, mRenderer));
             if (tile == '0') {
                 tiles[col][row] = 0;
                 col++;
@@ -63,10 +61,6 @@ Map::~Map()
     //dtor
 }
 
-const std::vector<Collider*> Map::GetColliders() const {
-    return mColliders;
-}
-
 void Map::Render() {
     for (int row = 0; row < 30; row++) {
         for (int col = 0; col < 40; col++) {
@@ -89,13 +83,6 @@ void Map::Render() {
                 dstRect.h = 8;
 
                 SDL_RenderCopy(mRenderer, mTexture, &srcRect, &dstRect);
-
-                #ifdef _COLLISION_DEBUG
-                for (Collider* c : mColliders) {
-                    c->Render();
-                }
-                #endif
-
 
         }
     }
