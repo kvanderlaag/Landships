@@ -1,5 +1,7 @@
 #include "Map.hpp"
 
+//#define _COLLISION_DEBUG
+
 Map::Map(const std::string& filename, const std::string& texturefile, SDL_Renderer* ren) :
     mRenderer(ren),
     mTexture(Utility::LoadTexture(ren, texturefile))
@@ -21,33 +23,37 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
         } else if  (tile == ' ') {
             tiles[col][row] = -1;
             col++;
-        } else if (tile == '0') {
-            tiles[col][row] = 0;
-            col++;
-        } else if (tile == '1') {
-            tiles[col][row] = 1;
-            col++;
-        } else if (tile == '2') {
-            tiles[col][row] = 2;
-            col++;
-        } else if (tile == '3') {
-            tiles[col][row] = 3;
-            col++;
-        } else if (tile == '4') {
-            tiles[col][row] = 4;
-            col++;
-        } else if (tile == '5') {
-            tiles[col][row] = 5;
-            col++;
-        } else if (tile == '6') {
-            tiles[col][row] = 6;
-            col++;
-        } else if (tile == '7') {
-            tiles[col][row] = 7;
-            col++;
-        } else if (tile == '8') {
-            tiles[col][row] = 8;
-            col++;
+        } else {
+
+            mColliders.push_back(new Collider(8, 8, col * 8, row * 8, 0, mRenderer));
+            if (tile == '0') {
+                tiles[col][row] = 0;
+                col++;
+            } else if (tile == '1') {
+                tiles[col][row] = 1;
+                col++;
+            } else if (tile == '2') {
+                tiles[col][row] = 2;
+                col++;
+            } else if (tile == '3') {
+                tiles[col][row] = 3;
+                col++;
+            } else if (tile == '4') {
+                tiles[col][row] = 4;
+                col++;
+            } else if (tile == '5') {
+                tiles[col][row] = 5;
+                col++;
+            } else if (tile == '6') {
+                tiles[col][row] = 6;
+                col++;
+            } else if (tile == '7') {
+                tiles[col][row] = 7;
+                col++;
+            } else if (tile == '8') {
+                tiles[col][row] = 8;
+                col++;
+            }
         }
     }
 }
@@ -55,6 +61,10 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
 Map::~Map()
 {
     //dtor
+}
+
+const std::vector<Collider*> Map::GetColliders() const {
+    return mColliders;
 }
 
 void Map::Render() {
@@ -79,6 +89,12 @@ void Map::Render() {
                 dstRect.h = 8;
 
                 SDL_RenderCopy(mRenderer, mTexture, &srcRect, &dstRect);
+
+                #ifdef _COLLISION_DEBUG
+                for (Collider* c : mColliders) {
+                    c->Render();
+                }
+                #endif
 
 
         }

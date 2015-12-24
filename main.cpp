@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <cstdio>
 
 #include "Player.hpp"
@@ -15,31 +16,41 @@
 #define MAX_MOVE 1
 #define MAX_ROTATE 2
 
+#define RENDER_INTERVAL 16
+
 int main(int argc, char** argv) {
 
     uint32_t ticks = SDL_GetTicks();
-    uint32_t time_elapsed = 0;
+    uint32_t old_time = SDL_GetTicks();
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
     IMG_Init(IMG_INIT_PNG);
+    if (TTF_Init() != 0) {
+        std::cout << "Error initializing SDL_TTF: " << SDL_GetError() << std::endl;
+        SDL_Quit();
+        return 1;
+    }
 
     int playerx, playery;
     playerx = (SCREEN_WIDTH / 2) - 8;
     playery = (SCREEN_HEIGHT / 2) - 8;
 
     SDL_Window* win = SDL_CreateWindow("Balls", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
-    SDL_ShowCursor(0);
+    //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
+    //SDL_ShowCursor(0);
 
-    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_PRESENTVSYNC);
+    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 
-    Player p("Tank.png", ren);
-    p.SetX(playerx);
-    p.SetY(playery);
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
+    SDL_RenderSetLogicalSize(ren, 320, 240);
 
     std::string basePath = SDL_GetBasePath();
     basePath += "map.d";
     Map m(basePath, "WallTiles.png", ren);
+
+    Player p("Tank.png", ren, m);
+    p.SetX(playerx);
+    p.SetY(playery);
 
     if (p.GetTexture() == nullptr) {
         std::cout << "Error loading player sprite: " << SDL_GetError() << std::endl;
@@ -65,9 +76,11 @@ int main(int argc, char** argv) {
     bool running = true;
 
     while (running == true) {
+        uint32_t new_time = SDL_GetTicks();
+        uint32_t frame_time = new_time - old_time;
+        old_time = new_time;
 
-        time_elapsed += SDL_GetTicks() - ticks;
-        ticks = SDL_GetTicks();
+
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
@@ -129,20 +142,10 @@ int main(int argc, char** argv) {
             }
         }
 
+        p.Move(SCREEN_WIDTH, SCREEN_HEIGHT, frame_time);
 
-        /*if (cycle) {
-            red--;
-        } else {
-            red++;
-        }*/
+        if (SDL_TICKS_PASSED(new_time - ticks, RENDER_INTERVAL)) {
 
-        p.Move(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-        /*if (red == 0 || red == 0xFF) {
-            cycle = !cycle;
-        }*/
-
-        if (time_elapsed >= (1000/60)) {
 
             SDL_Surface* surf = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
 
@@ -152,12 +155,42 @@ int main(int argc, char** argv) {
 
             SDL_FreeSurface(surf);
 
+
+
+
             SDL_RenderClear(ren);
             SDL_RenderCopy(ren, tex, NULL, NULL);
             m.Render();
             p.Render();
+
+            /* FPS Texture */
+            SDL_Color c = {255, 255, 255, 255};
+            std::string basePath = SDL_GetBasePath();
+            uint32_t fps = 1000 / (new_time + (SDL_GetTicks() - new_time) - ticks);
+            //if (frame_time > 0)
+            //    fps = 1000 / frame_time;
+            std::stringstream strFPS;
+            strFPS << "FPS: " << fps;
+            SDL_Texture* fps_tex = Utility::RenderText(strFPS.str(), basePath + "sample.ttf", c, 10, ren);
+            int fps_w, fps_h;
+            SDL_QueryTexture(fps_tex, NULL, NULL, &fps_w, &fps_h);
+            SDL_Rect srcRect, dstRect;
+            srcRect.x = 0;
+            srcRect.y = 0;
+            srcRect.h = fps_h;
+            srcRect.w = fps_w;
+
+            dstRect.x = 8;
+            dstRect.y = 8;
+            dstRect.h = fps_h;
+            dstRect.w = fps_w;
+            /* End of FPS texture */
+            SDL_RenderCopy(ren, fps_tex, &srcRect, &dstRect);
             SDL_RenderPresent(ren);
+            ticks = SDL_GetTicks();
         }
+
+
     }
 
     SDL_DestroyWindow(win);
