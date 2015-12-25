@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstdio>
+#include <climits>
 
 #include "Player.hpp"
 #include "Tile.hpp"
@@ -12,6 +13,7 @@
 #include "Rectangle.hpp"
 #include "Vector2D.hpp"
 #include "Point.hpp"
+#include "Collider.hpp"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
@@ -26,21 +28,46 @@ int main(int argc, char** argv) {
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
 
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
-    IMG_Init(IMG_INIT_PNG);
-    if (TTF_Init() != 0) {
-        std::cout << "Error initializing SDL_TTF: " << SDL_GetError() << std::endl;
-        SDL_Quit();
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |SDL_INIT_JOYSTICK) < 0) {
+        std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
         return 1;
     }
 
-    int playerx, playery;
-    playerx = (SCREEN_WIDTH / 2) + 8;
-    playery = (SCREEN_HEIGHT / 2) + 8;
+    if (IMG_Init(IMG_INIT_PNG) < 0) {
+        std::cout << "Error initializing SDL_IMG: " << SDL_GetError() << std::endl;
+        SDL_Quit();
+        return 2;
+    }
 
-    SDL_Window* win = SDL_CreateWindow("Balls", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (TTF_Init() != 0) {
+        std::cout << "Error initializing SDL_TTF: " << SDL_GetError() << std::endl;
+        IMG_Quit();
+        SDL_Quit();
+        return 3;
+    }
+
+
+    // Initialize joysticks
+    bool joystick = true;
+    const int JOYSTICK_DEADZONE = 8000;
+    SDL_Joystick* gController = NULL;
+
+    if (SDL_NumJoysticks() < 1) {
+        joystick = false;
+    } else {
+        gController = SDL_JoystickOpen(0);
+        if (gController == NULL) {
+            joystick = false;
+        }
+    }
+
+    int playerx, playery;
+    playerx = (SCREEN_WIDTH / 2);
+    playery = (SCREEN_HEIGHT / 2);
+
+    SDL_Window* win = SDL_CreateWindow("Balls", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN_DESKTOP);
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
-    //SDL_ShowCursor(0);
+    SDL_ShowCursor(0);
 
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 
@@ -51,7 +78,7 @@ int main(int argc, char** argv) {
     basePath += "map.d";
     Map m(basePath, "WallTiles.png", ren);
 
-    Player p("Tank.png", ren, m);
+    Player p("Tank.png", ren);
     p.SetX(playerx);
     p.SetY(playery);
 
@@ -76,6 +103,22 @@ int main(int argc, char** argv) {
         rmask = 0x000000ff;
     #endif // SDL_BIG_ENDIAN
 
+    std::vector<Player*> vMoving;
+    std::vector<Collider*> vStationary;
+
+    vMoving.push_back(&p);
+
+    std::vector<Collider>& mapColliders = m.GetColliders();
+
+    for (Collider& c : mapColliders) {
+        vStationary.push_back(&c);
+    }
+
+    std::vector<RenderableObject*> vRenderable;
+
+    vRenderable.push_back(&p);
+    vRenderable.push_back(&m);
+
     bool running = true;
 
     while (running == true) {
@@ -88,10 +131,25 @@ int main(int argc, char** argv) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 running = false;
+            } else if (e.type == SDL_JOYAXISMOTION) {
+                if (e.jaxis.which == 0) {
+                    if (e.jaxis.axis == 0) {
+                        // X-axis
+                        if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
+                            p.SetRotationVel(MAX_ROTATE * ((e.jaxis.value > 0) - (e.jaxis.value < 0)) * (std::abs(e.jaxis.value) / INT_MAX));
+                        }
+                    } else if (e.jaxis.axis == 1) {
+                        // Y-axis
+                        if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
+                            p.SetForwardVel(MAX_ROTATE * ((e.jaxis.value > 0) - (e.jaxis.value < 0)) * (std::abs(e.jaxis.value) / INT_MAX));
+                        }
+                    }
+                }
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
                 case SDLK_PAUSE:
                 case SDLK_END:
+                case SDLK_ESCAPE:
                     running = false;
                     break;
                 case SDLK_LEFT:
@@ -101,9 +159,11 @@ int main(int argc, char** argv) {
                     p.SetRotationVel(MAX_ROTATE);
                     break;
                 case SDLK_a:
+                case SDLK_TAB:
                     p.SetTurretRotationVel(-MAX_ROTATE);
                     break;
                 case SDLK_d:
+                case SDLK_BACKSPACE:
                     p.SetTurretRotationVel(MAX_ROTATE);
                     break;
                 case SDLK_UP:
@@ -124,10 +184,12 @@ int main(int argc, char** argv) {
                     if (p.GetRotationVel() > 0)
                         p.SetRotationVel(0);
                     break;
+                case SDLK_TAB:
                 case SDLK_a:
                     if (p.GetTurretRotationVel() < 0)
                         p.SetTurretRotationVel(0);
                     break;
+                case SDLK_BACKSPACE:
                 case SDLK_d:
                     if (p.GetTurretRotationVel() > 0)
                         p.SetTurretRotationVel(0);
@@ -145,7 +207,12 @@ int main(int argc, char** argv) {
             }
         }
 
-        p.Move(SCREEN_WIDTH, SCREEN_HEIGHT, frame_time);
+        for (Player* p : vMoving) {
+            for (Collider* c : vStationary) {
+                p->CheckCollision(*c, frame_time);
+            }
+        }
+        p.Update(frame_time);
 
         if (SDL_TICKS_PASSED(new_time - ticks, RENDER_INTERVAL)) {
 
@@ -163,10 +230,33 @@ int main(int argc, char** argv) {
 
             SDL_RenderClear(ren);
             SDL_RenderCopy(ren, tex, NULL, NULL);
-            m.Render();
-            p.Render();
+            for (RenderableObject* r : vRenderable) {
+                r->Render();
+            }
 
-            /* FPS Texture */
+            /* Test rectangle
+            SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
+            SDL_RenderDrawPoint(ren, p.GetX(), p.GetY());
+
+
+            r.Move(p.GetX(), p.GetY());
+            r.SetAngle(p.GetAngle());
+            std::vector<Point> RectPoints = r.GetPoints();
+            Vector2D upNormal = r.GetUpNormal();
+            Vector2D leftNormal = r.GetLeftNormal();
+            Point center = r.GetCenter();
+
+            SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
+            SDL_RenderDrawLine(ren, RectPoints[0].x, RectPoints[0].y, RectPoints[1].x, RectPoints[1].y);
+            SDL_RenderDrawLine(ren, RectPoints[1].x, RectPoints[1].y, RectPoints[2].x, RectPoints[2].y);
+            SDL_RenderDrawLine(ren, RectPoints[2].x, RectPoints[2].y, RectPoints[3].x, RectPoints[3].y);
+            SDL_RenderDrawLine(ren, RectPoints[3].x, RectPoints[3].y, RectPoints[0].x, RectPoints[0].y);
+
+            SDL_RenderDrawLine(ren, center.x, center.y - 8, center.x + upNormal.GetX() * 5, center.y - 8 + upNormal.GetY() * 5);
+            SDL_RenderDrawLine(ren, center.x - 8, center.y, center.x - 8 + leftNormal.GetX() * 5, center.y + leftNormal.GetY() * 5);
+            /* end of test rectangle */
+
+            /* FPS Texture
             SDL_Color c = {255, 255, 255, 255};
             std::string basePath = SDL_GetBasePath();
             uint32_t fps = 1000 / (new_time + (SDL_GetTicks() - new_time) - ticks);
@@ -174,8 +264,11 @@ int main(int argc, char** argv) {
             //    fps = 1000 / frame_time;
             std::stringstream strFPS;
             strFPS << "FPS: " << fps;
+
             SDL_Texture* fps_tex = Utility::RenderText(strFPS.str(), basePath + "sample.ttf", c, 10, ren);
+
             int fps_w, fps_h;
+
             SDL_QueryTexture(fps_tex, NULL, NULL, &fps_w, &fps_h);
             SDL_Rect srcRect, dstRect;
             srcRect.x = 0;
@@ -187,8 +280,37 @@ int main(int argc, char** argv) {
             dstRect.y = 8;
             dstRect.h = fps_h;
             dstRect.w = fps_w;
-            /* End of FPS texture */
+
             SDL_RenderCopy(ren, fps_tex, &srcRect, &dstRect);
+
+            /* End of FPS texture */
+
+            /* Angle text
+
+            std::stringstream strAngle;
+            strAngle << "Angle: " << p.GetAngle();
+
+            SDL_Texture* angle_tex = Utility::RenderText(strAngle.str(), basePath + "sample.ttf", c, 10, ren);
+
+            int angle_w, angle_h;
+            SDL_QueryTexture(angle_tex, NULL, NULL, &angle_w, &angle_h);
+
+            srcRect.x = 0;
+            srcRect.y = 0;
+            srcRect.h = angle_h;
+            srcRect.w = angle_w;
+
+            dstRect.x = 8;
+            dstRect.y = 16;
+            dstRect.h = angle_h;
+            dstRect.w = angle_w;
+
+            SDL_RenderCopy(ren, angle_tex, &srcRect, &dstRect);
+
+            /* End of angle text */
+
+
+
             SDL_RenderPresent(ren);
             ticks = SDL_GetTicks();
         }
@@ -196,6 +318,8 @@ int main(int argc, char** argv) {
 
     }
 
+    SDL_JoystickClose(gController);
+    gController = NULL;
     SDL_DestroyWindow(win);
     SDL_DestroyRenderer(ren);
 

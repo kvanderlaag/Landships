@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1450990560 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1451080117 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<string>
@@ -373,20 +373,25 @@
 	<iostream>
 	<sstream>
 	<cstdio>
+	<climits>
 	"Player.hpp"
 	"Tile.hpp"
 	"Map.hpp"
 	"Rectangle.hpp"
 	"Vector2D.hpp"
 	"Point.hpp"
+	"Collider.hpp"
 
-1450920445 d:\users\kvand_000\documents\github\tanks\player.hpp
+1451080124 d:\users\kvand_000\documents\github\tanks\player.hpp
+	"GameObject.hpp"
+	"RenderableObject.hpp"
 	"Utility.hpp"
 	"Map.hpp"
+	"Collider.hpp"
 	<memory>
 	<cmath>
 
-1450920297 d:\users\kvand_000\documents\github\tanks\utility.hpp
+1451073217 d:\users\kvand_000\documents\github\tanks\utility.hpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -394,38 +399,46 @@
 	<iostream>
 	<numeric>
 	<cmath>
+	"Vector2D.hpp"
+	"Rectangle.hpp"
 
 1450920354 d:\users\kvand_000\documents\github\tanks\tile.hpp
 	"Utility.hpp"
 	<map>
 
-1450920281 d:\users\kvand_000\documents\github\tanks\map.hpp
+1451079648 d:\users\kvand_000\documents\github\tanks\map.hpp
 	"Tile.hpp"
+	"Collider.hpp"
+	"RenderableObject.hpp"
 	<SDL2/SDL.h>
 	<fstream>
 	<vector>
 
-1450920257 source:d:\users\kvand_000\documents\github\tanks\map.cpp
+1451080290 source:d:\users\kvand_000\documents\github\tanks\map.cpp
 	"Map.hpp"
 
-1450983131 source:d:\users\kvand_000\documents\github\tanks\player.cpp
+1451080639 source:d:\users\kvand_000\documents\github\tanks\player.cpp
 	"Player.hpp"
 
 1450920476 source:d:\users\kvand_000\documents\github\tanks\tile.cpp
 	"Tile.hpp"
 
-1450920311 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
+1451073283 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
 	"Utility.hpp"
 
-1450983474 source:d:\users\kvand_000\documents\github\tanks\collider.cpp
+1451080276 source:d:\users\kvand_000\documents\github\tanks\collider.cpp
+	"Collider.hpp"
 
-1450910123 d:\users\kvand_000\documents\github\tanks\collider.hpp
-	"SDL2/SDL.h"
-	"Collision.hpp"
+1451080225 d:\users\kvand_000\documents\github\tanks\collider.hpp
+	"GameObject.hpp"
+	"Rectangle.hpp"
+	"Vector2D.hpp"
+	"CollisionInfo.hpp"
 	"Utility.hpp"
-	<cmath>
 	<cfloat>
+	<cmath>
 	<vector>
+	"Point.hpp"
 
 1376156543 d:\libraries\sdl\sdl2-2.0.3\i686-w64-mingw32\include\sdl2\sdl_ttf.h
 	"SDL.h"
@@ -439,10 +452,10 @@
 	<vector>
 	<cmath>
 
-1450986435 source:d:\users\kvand_000\documents\github\tanks\vector2d.cpp
+1451073173 source:d:\users\kvand_000\documents\github\tanks\vector2d.cpp
 	"Vector2D.hpp"
 
-1450984259 d:\users\kvand_000\documents\github\tanks\vector2d.hpp
+1451073158 d:\users\kvand_000\documents\github\tanks\vector2d.hpp
 	<cmath>
 	<algorithm>
 
@@ -451,22 +464,38 @@
 
 1450931217 d:\users\kvand_000\documents\github\tanks\point.hpp
 
-1450989905 source:d:\users\kvand_000\documents\github\tanks\rectangle.cpp
+1451069811 source:d:\users\kvand_000\documents\github\tanks\rectangle.cpp
 	"Rectangle.hpp"
 
-1450989897 d:\users\kvand_000\documents\github\tanks\rectangle.hpp
+1451020386 d:\users\kvand_000\documents\github\tanks\rectangle.hpp
 	"Point.hpp"
 	"Vector2D.hpp"
 	<vector>
 
-1450990955 source:d:\users\kvand_000\documents\github\tanks\gameobject.cpp
+1451071247 source:d:\users\kvand_000\documents\github\tanks\gameobject.cpp
 	"GameObject.hpp"
 
-1450991078 source:d:\users\kvand_000\documents\github\tanks\renderableobject.cpp
+1451020172 source:d:\users\kvand_000\documents\github\tanks\renderableobject.cpp
 	"RenderableObject.hpp"
 
-1450991085 d:\users\kvand_000\documents\github\tanks\gameobject.hpp
+1451080087 d:\users\kvand_000\documents\github\tanks\gameobject.hpp
+	<cstdint>
 
-1450991108 d:\users\kvand_000\documents\github\tanks\renderableobject.hpp
+1451020179 d:\users\kvand_000\documents\github\tanks\renderableobject.hpp
 	"GameObject.hpp"
+	<SDL2/SDL.h>
+
+1451072082 source:d:\users\kvand_000\documents\github\tanks\collisioninfo.cpp
+	"CollisionInfo.hpp"
+
+1451072083 d:\users\kvand_000\documents\github\tanks\collisioninfo.hpp
+	"Vector2D.hpp"
+
+1451079687 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
+	"Bullet.hpp"
+
+1451080069 d:\users\kvand_000\documents\github\tanks\bullet.hpp
+	"RenderableObject.hpp"
+	"Collider.hpp"
+	"Player.hpp"
 

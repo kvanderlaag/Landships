@@ -17,18 +17,20 @@ private:
 public:
 
     Rectangle(const Point& p1, const Point& p2, const Point& p3, const Point& p4);
-    Rectangle(const float x, const float y, const float w, const float h, const float a);
+    Rectangle(const float w, const float h, const float x, const float y, const float a);
 
     virtual ~Rectangle();
 
     const Vector2D GetUpNormal() const;
     const Vector2D GetLeftNormal() const;
 
+    const Point GetCenter() const;
+
     const float GetAngle() const;
 
     void Rotate(const float rotation);
     void SetAngle(const float a);
-    void Move(const float x, const float y);
+    void Move(const float newx, const float newy);
     void Resize(const float w, const float h);
 
     const std::vector<Point> GetPoints() const;

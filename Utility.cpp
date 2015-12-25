@@ -39,3 +39,31 @@ SDL_Texture* Utility::RenderText(const std::string& message, const std::string& 
 
     return tex;
 }
+
+void Utility::ProjectRectangle(const Vector2D& axis, const Rectangle& r, float& fMin, float& fMax) {
+    const std::vector<Point>& points = r.GetPoints();
+    Vector2D v(points[0].x, points[0].y);
+    float dotProduct = axis.Dot(v);
+    fMin = dotProduct;
+    fMax = dotProduct;
+    for (size_t i = 0; i < points.size(); ++i) {
+        v.SetX(points[i].x);
+        v.SetY(points[i].y);
+        dotProduct = v.Dot(axis);
+        if (dotProduct < fMin) {
+            fMin = dotProduct;
+        } else {
+            if (dotProduct > fMax) {
+                fMax = dotProduct;
+            }
+        }
+    }
+}
+
+float Utility::IntervalDistance(float minA, float maxA, float minB, float maxB) {
+    if (minA < minB) {
+        return minB - maxA;
+    } else {
+        return minA - maxB;
+    }
+}

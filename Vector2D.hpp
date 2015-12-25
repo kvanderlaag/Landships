@@ -42,7 +42,7 @@ public:
     const Vector2D Normalized() const;
 
     void Scale(float scalefactor);
-    float Dot(const Vector2D& other);
+    const float Dot(const Vector2D& other) const;
 
 };
 

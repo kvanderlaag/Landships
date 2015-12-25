@@ -1,19 +1,20 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
+#include "GameObject.hpp"
+#include "RenderableObject.hpp"
 #include "Utility.hpp"
 #include "Map.hpp"
+#include "Collider.hpp"
 
 #include <memory>
 
 #include <cmath>
 
-class Player {
+class Player : public RenderableObject {
 public:
-    Player(const std::string& filename, SDL_Renderer* ren, const Map& m);
+    Player(const std::string& filename, SDL_Renderer* ren);
     ~Player();
-    const float GetX() const;
-    const float GetY() const;
 
     void SetX(float newx);
     void SetY(float newy);
@@ -39,9 +40,15 @@ public:
 
     void Render();
 
-    void Move(int maxX, int maxY, uint32_t ticks);
+    const Collider& GetCollider() const;
+    void CheckCollision(const Collider& other, uint32_t ticks);
+
+    void Update(uint32_t ticks);
 
 private:
+    const int PLAYER_SIZE = 16;
+    const float maxX = 320;
+    const float maxY = 240;
     float mAngle;
     float mX, mY, mXvel, mYvel;
     float mForwardVel;
@@ -54,7 +61,7 @@ private:
     SDL_Texture* mtexture;
     SDL_Renderer* mRenderer;
 
-    const Map* parentMap;
+    Collider mCollider;
 
 };
 

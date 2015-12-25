@@ -126,6 +126,6 @@ void Vector2D::Scale(float scalefactor) {
     magnitude = std::sqrt(x * x + y * y);
 }
 
-float Vector2D::Dot(const Vector2D& other) {
+const float Vector2D::Dot(const Vector2D& other) const {
     return x * other.GetX() + y * other.GetY();
 }
