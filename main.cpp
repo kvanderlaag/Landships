@@ -252,6 +252,8 @@ int main(int argc, char** argv) {
                         it++;
                         b.second->GetOwner().DestroyBullet();
                     }
+                delete b.second;
+                break;
                 }
             }
         }

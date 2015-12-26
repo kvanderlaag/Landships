@@ -25,7 +25,7 @@ public:
     Player& GetOwner();
     const Vector2D& GetDirection() const;
 
-    void Bounce(Vector2D mt);
+    void Bounce(const CollisionInfo& coll);
     const int GetBounce() const;
     const int GetMaxBounce() const;
     const bool IsDead() const;

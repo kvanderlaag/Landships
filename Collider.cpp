@@ -39,7 +39,11 @@ const CollisionInfo Collider::CheckCollision(const Collider& other, Vector2D& ve
     Vector2D translationAxis;
 
 
-    std::vector<Vector2D> normals = {mRectangle.GetUpNormal(), mRectangle.GetLeftNormal(), other.GetRectangle().GetUpNormal(), other.GetRectangle().GetLeftNormal() };
+    std::vector<Vector2D> normals = {mRectangle.GetUpNormal(), mRectangle.GetLeftNormal(), other.GetRectangle().GetUpNormal(), other.GetRectangle().GetLeftNormal(),
+    mRectangle.GetUpNormal() * -1, mRectangle.GetLeftNormal() * -1, other.GetRectangle().GetUpNormal() * -1, other.GetRectangle().GetLeftNormal() * -1 };
+
+    float maxIntervalDistance = FLT_MAX;
+    Vector2D normalAxis;
 
     for (Vector2D axis : normals) {
 
@@ -63,6 +67,12 @@ const CollisionInfo Collider::CheckCollision(const Collider& other, Vector2D& ve
 
         float intervalDistance = Utility::IntervalDistance(minA, maxA, minB, maxB);
         if (intervalDistance > 0) returnCollision.SetWillCollide(false);
+        if (intervalDistance < maxIntervalDistance) {
+            normalAxis = axis.Normalized();
+            maxIntervalDistance = intervalDistance;
+        }
+
+
 
         // If the polygons are not intersecting and won't intersect, exit the loop
         if (!returnCollision.Colliding() && !returnCollision.Colliding())
@@ -77,9 +87,11 @@ const CollisionInfo Collider::CheckCollision(const Collider& other, Vector2D& ve
             translationAxis = axis;
 
             Vector2D d( mRectangle.GetCenter().x - other.GetRectangle().GetCenter().x, mRectangle.GetCenter().y - other.GetRectangle().GetCenter().y );
-            if (d.Dot(translationAxis) < 0)
+            if (d.Dot(translationAxis) < 0) {
                 translationAxis = Vector2D(-translationAxis.GetX(), -translationAxis.GetY());
+            }
         }
+        returnCollision.SetCollisionNormal(Vector2D(-normalAxis.GetY(), normalAxis.GetX()) );
     }
 
         if (returnCollision.WillCollide())

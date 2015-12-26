@@ -11,7 +11,7 @@ Player::Player(const std::string& filename, SDL_Renderer* ren) :
     mCollider(PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, this),
     mMaxBullets(1),
     mBullets(0),
-    mMaxBounce(2)
+    mMaxBounce(1)
 {
     SDL_QueryTexture(mTexture, NULL, NULL, &width, &height);
     width = width / (width / 16);

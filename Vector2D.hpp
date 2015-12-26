@@ -43,6 +43,9 @@ public:
 
     void Scale(float scalefactor);
     const float Dot(const Vector2D& other) const;
+    const Vector2D Reflect(const Vector2D& normal) const;
+
+    const float Angle() const;
 
 };
 

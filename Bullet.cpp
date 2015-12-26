@@ -16,7 +16,7 @@ Bullet::Bullet(float x, float y, float a, const Vector2D& dir, Player& owner, SD
 }
 
 Bullet::~Bullet() {
-    mOwner.DestroyBullet();
+
 }
 
 const Collider& Bullet::GetCollider() const {
@@ -31,54 +31,16 @@ const Vector2D& Bullet::GetDirection() const {
     return mDirection;
 }
 
-void Bullet::Bounce(Vector2D mt) {
+void Bullet::Bounce(const CollisionInfo& coll) {
+        Vector2D normal = coll.CollisionNormal();
+
         if (mBounce < mMaxBounce) {
-            //x += mt.GetX();
-            //y += mt.GetY();
             mCollider.Move(x, y);
-            if (mDirection.GetX() < 0) {
-                if (mDirection.GetY() < 0) {
-                    if (mt.GetX() > 0) {
-                        // Rotate left
-                        Rotate(90);
-                    } else {
-                        // Rotate right
-                        Rotate(-90);
-                    }
-                } else if (mDirection.GetY() > 0) {
-                    if (mt.GetX() > 0) {
-                        // Rotate right
-                        Rotate(-90);
-                    } else {
-                        // Rotate left
-                        Rotate(90);
-                    }
-                } else {
-                    Rotate(180);
-                }
-            } else if (mDirection.GetX() > 0) {
-                if (mDirection.GetY() < 0) {
-                    if (mt.GetX() > 0) {
-                        // Rotate left
-                        Rotate(90);
-                    } else {
-                        // Rotate right
-                        Rotate(-90);
-                    }
-                } else if (mDirection.GetY() > 0) {
-                    if (mt.GetX() < 0) {
-                        // Rotate right
-                        Rotate(90);
-                    } else {
-                        // Rotate left
-                        Rotate(-90);
-                    }
-                } else {
-                    Rotate(180);
-                }
-            } else {
-                Rotate(180);
-            }
+
+            float a = std::acos(mDirection.Dot(normal) / (mDirection.GetMagnitude() * normal.GetMagnitude()));
+            a = a * 180 / M_PI;
+            Rotate(2*a);
+
             mBounce++;
         } else {
             dead = true;
@@ -127,7 +89,7 @@ CollisionInfo Bullet::CheckCollision(const Collider& other) {
     CollisionInfo coll = mCollider.CheckCollision(other, vel);
 
     if (coll.Colliding()) {
-        Bounce(coll.MinimumTranslation());
+        Bounce(coll);
     }
 
     return coll;
