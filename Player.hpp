@@ -52,6 +52,10 @@ public:
 
     void DestroyBullet();
 
+    const int GetMaxBullets() const;
+    const int GetBullets() const;
+    const int GetMaxBounce() const;
+
 private:
     const int PLAYER_SIZE = 16;
     const float maxX = 320;
@@ -64,7 +68,7 @@ private:
     float mTurretRotationVel;
 
     Collider mCollider;
-    int mMaxBullets, mBullets;
+    int mMaxBullets, mBullets, mMaxBounce;
 
 };
 

@@ -10,7 +10,8 @@ Player::Player(const std::string& filename, SDL_Renderer* ren) :
     mTurretRotationVel(0),
     mCollider(PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, this),
     mMaxBullets(1),
-    mBullets(0)
+    mBullets(0),
+    mMaxBounce(2)
 {
     SDL_QueryTexture(mTexture, NULL, NULL, &width, &height);
     width = width / (width / 16);
@@ -171,9 +172,21 @@ Bullet* Player::Fire() {
     mBullets++;
     float a = mTurretAngle * M_PI / 180;
     Vector2D direction(std::sin(a), -std::cos(a));
-    Bullet* b = new Bullet(x, y, direction.Normalized(), *this, mRenderer);
+    Bullet* b = new Bullet(x, y, mTurretAngle, direction.Normalized(), *this, mRenderer);
 
     return b;
+}
+
+const int Player::GetMaxBullets() const {
+    return mMaxBullets;
+}
+
+const int Player::GetBullets() const {
+    return mBullets;
+}
+
+const int Player::GetMaxBounce() const {
+    return mMaxBounce;
 }
 
 void Player::DestroyBullet() {
