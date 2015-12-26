@@ -21,7 +21,7 @@ public:
     void Rotate(float rotation);
     void SetAngle(float angle);
 
-    const Vector2D CheckCollision(const Collider& other, Vector2D& velocity) const;
+    const CollisionInfo CheckCollision(const Collider& other, Vector2D& velocity) const;
 
     const Rectangle& GetRectangle() const;
 

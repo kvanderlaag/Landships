@@ -29,7 +29,7 @@ void Collider::SetAngle(float angle) {
     angle = mRectangle.GetAngle();
 }
 
-const Vector2D Collider::CheckCollision(const Collider& other, Vector2D& velocity) const {
+const CollisionInfo Collider::CheckCollision(const Collider& other, Vector2D& velocity) const {
 
     //Initialize collision info object
     CollisionInfo returnCollision;
@@ -85,7 +85,7 @@ const Vector2D Collider::CheckCollision(const Collider& other, Vector2D& velocit
         if (returnCollision.WillCollide())
             returnCollision.SetMinimumTranslation(translationAxis * minIntervalDistance);
 
-        return returnCollision.MinimumTranslation();
+        return returnCollision;
 }
 
 

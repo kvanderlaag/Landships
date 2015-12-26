@@ -3,56 +3,49 @@
 //#define _COLLISION_DEBUG
 
 Player::Player(const std::string& filename, SDL_Renderer* ren) :
-    RenderableObject(PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, ren),
-    mtexture(Utility::LoadTexture(ren, filename)),
-    mRenderer(ren),
-    mAngle(0),
+    RenderableObject(filename, PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, ren),
     mForwardVel(0),
     mRotationVel(0),
     mTurretAngle(0),
     mTurretRotationVel(0),
-    mX(0),
-    mY(0),
-    mCollider(PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, this)
+    mCollider(PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, this),
+    mMaxBullets(1),
+    mBullets(0)
 {
-    SDL_QueryTexture(mtexture, NULL, NULL, &mWidth, &mHeight);
-    mWidth = mWidth / (mWidth / 16);
+    SDL_QueryTexture(mTexture, NULL, NULL, &width, &height);
+    width = width / (width / 16);
 }
 
 Player::~Player() {
-    SDL_DestroyTexture(mtexture);
+
 }
 
 
 
 const float Player::GetXVel() const {
-    return mXvel;
+    return xvel;
 }
 
 const float Player::GetYVel() const {
-    return mYvel;
+    return yvel;
 }
 
 void Player::SetXVel(float newvel) {
-    mXvel = newvel;
+    xvel = newvel;
 }
 
 void Player::SetYVel(float newvel) {
-    mYvel = newvel;
+    yvel = newvel;
 }
 
 void Player::SetX(float newx) {
-    mX = newx;
-    mCollider.Move(newx, mY);
+    x = newx;
+    mCollider.Move(newx, y);
 }
 
 void Player::SetY(float newy) {
-    mY = newy;
-    mCollider.Move(mX, newy);
-}
-
-SDL_Texture* Player::GetTexture() {
-    return mtexture;
+    y = newy;
+    mCollider.Move(x, newy);
 }
 
 void Player::SetForwardVel(float newvel) {
@@ -61,10 +54,6 @@ void Player::SetForwardVel(float newvel) {
 
 const float Player::GetForwardVel() const {
     return mForwardVel;
-}
-
-const float Player::GetAngle() const {
-    return mAngle;
 }
 
 const float Player::GetRotationVel() const {
@@ -88,20 +77,20 @@ void Player::Render() {
 
     srcRect.x = 0;
     srcRect.y = 0;
-    srcRect.h = mHeight;
-    srcRect.w = mWidth;
+    srcRect.h = height;
+    srcRect.w = width;
 
-    dstRect.x = mX - (mWidth / 2);
-    dstRect.y = mY - (mHeight / 2);
-    dstRect.h = mHeight;
-    dstRect.w = mWidth;
-    SDL_RenderCopyEx(mRenderer, mtexture, &srcRect, &dstRect, mAngle, NULL, SDL_FLIP_NONE);
+    dstRect.x = x - (width / 2);
+    dstRect.y = y - (height / 2);
+    dstRect.h = height;
+    dstRect.w = width;
+    SDL_RenderCopyEx(mRenderer, mTexture, &srcRect, &dstRect, angle, NULL, SDL_FLIP_NONE);
 
     srcRect.x = 16;
     srcRect.y = 0;
-    srcRect.h = mHeight;
-    srcRect.w = mWidth;
-    SDL_RenderCopyEx(mRenderer, mtexture, &srcRect, &dstRect, mTurretAngle, NULL, SDL_FLIP_NONE);
+    srcRect.h = height;
+    srcRect.w = width;
+    SDL_RenderCopyEx(mRenderer, mTexture, &srcRect, &dstRect, mTurretAngle, NULL, SDL_FLIP_NONE);
 
     /* Collider rendering
     std::vector<Point> colliderPoints = mCollider.GetPoints();
@@ -120,10 +109,11 @@ const Collider& Player::GetCollider() const {
 
 void Player::CheckCollision(const Collider& other, uint32_t ticks) {
     if (&mCollider != &other) {
-        Vector2D velocity(mXvel * ticks / 100, mYvel * ticks / 100);
-        Vector2D mt = mCollider.CheckCollision(other, velocity);
-        mX += mt.GetX();
-        mY += mt.GetY();
+        Vector2D velocity(xvel * ticks / 100, yvel * ticks / 100);
+        CollisionInfo coll = mCollider.CheckCollision(other, velocity);
+        Vector2D mt = coll.MinimumTranslation();
+        x += mt.GetX();
+        y += mt.GetY();
     }
 }
 
@@ -132,12 +122,12 @@ void Player::Update(uint32_t ticks) {
     float rotationPerFrame = mRotationVel * ticks / 16 ;
     float turretRotationPerFrame = mTurretRotationVel * ticks / 16 ;
 
-    mAngle += rotationPerFrame;
-    if (mAngle < 0) {
-        mAngle = 360 + mAngle;
+    angle += rotationPerFrame;
+    if (angle < 0) {
+        angle += 360;
     }
-    if (mAngle > 360) {
-        mAngle = mAngle - 360;
+    if (angle > 360) {
+        angle -= 360;
     }
 
     mCollider.Rotate(rotationPerFrame);
@@ -151,25 +141,43 @@ void Player::Update(uint32_t ticks) {
     }
 
 
-    float a = mAngle * M_PI / 180;
-    mXvel = std::sin(a) * forwardPerFrame;
-    mYvel = std::cos(a) * -forwardPerFrame;
-    if (mXvel != 0) {
-        if (mXvel < 0 && mX > (mWidth / 2)) {
-            mX += mXvel;
+    float a = angle * M_PI / 180;
+    xvel = std::sin(a) * forwardPerFrame;
+    yvel = std::cos(a) * -forwardPerFrame;
+    if (xvel != 0) {
+        if (xvel < 0 && x > (width / 2)) {
+            x += xvel;
         }
-        else if (mXvel > 0 && mX + (mWidth / 2) < maxX) {
-            mX += mXvel;
+        else if (xvel > 0 && x + (width / 2) < maxX) {
+            x += xvel;
         }
     }
-    if (mYvel != 0) {
-        if (mYvel < 0 && mY > (mHeight / 2)) {
-            mY += mYvel;
+    if (yvel != 0) {
+        if (yvel < 0 && y > (height / 2)) {
+            y += yvel;
         }
-        else if (mYvel > 0 && mY + (mHeight / 2) < maxY) {
-            mY += mYvel;
+        else if (yvel > 0 && y + (height / 2) < maxY) {
+            y += yvel;
         }
     }
 
-    mCollider.Move(mX, mY);
+    mCollider.Move(x, y);
+}
+
+Bullet* Player::Fire() {
+    if (mBullets >= mMaxBullets) {
+        return nullptr;
+    }
+    mBullets++;
+    float a = mTurretAngle * M_PI / 180;
+    Vector2D direction(std::sin(a), -std::cos(a));
+    Bullet* b = new Bullet(x, y, direction.Normalized(), *this, mRenderer);
+
+    return b;
+}
+
+void Player::DestroyBullet() {
+    if (mBullets > 0) {
+        --mBullets;
+    }
 }

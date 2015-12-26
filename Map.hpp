@@ -18,8 +18,6 @@ class Map : public RenderableObject
     protected:
     private:
         int tiles[40][30];
-        SDL_Renderer* mRenderer;
-        SDL_Texture* mTexture;
         std::vector<Collider> mvColliders;
 };
 

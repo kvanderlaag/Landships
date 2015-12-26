@@ -3,9 +3,7 @@
 //#define _COLLISION_DEBUG
 
 Map::Map(const std::string& filename, const std::string& texturefile, SDL_Renderer* ren) :
-    RenderableObject(320, 240, 0, 0, 0, ren),
-    mRenderer(ren),
-    mTexture(Utility::LoadTexture(ren, texturefile))
+    RenderableObject(texturefile, 320, 240, 0, 0, 0, ren)
 
 {
     for (int i = 0; i < 30; ++i) {

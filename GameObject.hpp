@@ -5,7 +5,7 @@
 
 class GameObject {
 public:
-    GameObject(float w, float h, float x, float y, float a);
+    GameObject(int w, int h, float x, float y, float a);
     virtual ~GameObject();
 
     virtual void Move() {};
@@ -14,9 +14,11 @@ public:
 
     const float GetX() const;
     const float GetY() const;
+    const float GetAngle() const;
 
     virtual void SetX(float newx);
     virtual void SetY(float newy);
+    virtual void SetAngle(float a);
 
 
 
@@ -24,7 +26,7 @@ public:
 protected:
     float x, y;
     float angle;
-    float width, height;
+    int width, height;
 };
 
 #endif // _GAMEOBJECT_H

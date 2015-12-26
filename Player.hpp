@@ -6,10 +6,13 @@
 #include "Utility.hpp"
 #include "Map.hpp"
 #include "Collider.hpp"
+#include "Bullet.hpp"
 
 #include <memory>
 
 #include <cmath>
+
+class Bullet;
 
 class Player : public RenderableObject {
 public:
@@ -36,32 +39,32 @@ public:
     void SetForwardVel(float newvel);
     const float GetForwardVel() const;
 
-    SDL_Texture* GetTexture();
-
     void Render();
+
+    Bullet* Fire();
 
     const Collider& GetCollider() const;
     void CheckCollision(const Collider& other, uint32_t ticks);
 
     void Update(uint32_t ticks);
 
+    const std::vector<Bullet>& GetBullets();
+
+    void DestroyBullet();
+
 private:
     const int PLAYER_SIZE = 16;
     const float maxX = 320;
     const float maxY = 240;
-    float mAngle;
-    float mX, mY, mXvel, mYvel;
+    float xvel, yvel;
     float mForwardVel;
     float mRotationVel;
 
     float mTurretAngle;
     float mTurretRotationVel;
 
-    int mWidth, mHeight;
-    SDL_Texture* mtexture;
-    SDL_Renderer* mRenderer;
-
     Collider mCollider;
+    int mMaxBullets, mBullets;
 
 };
 
