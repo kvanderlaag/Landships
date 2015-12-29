@@ -3,55 +3,37 @@
 //#define _COLLISION_DEBUG
 
 Map::Map(const std::string& filename, const std::string& texturefile, SDL_Renderer* ren) :
-    RenderableObject(texturefile, 320, 240, 0, 0, 0, ren)
-
+    RenderableObject(texturefile, 320, 240, 0, 0, 0, ren),
+    StartPos({Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0)})
 {
-    for (int i = 0; i < 30; ++i) {
-        for (int j = 0; j < 40; ++j) {
-            tiles[j][i] = -1;
-        }
-    }
-    std::ifstream infile(filename, std::ifstream::in);
+    std::string path = SDL_GetBasePath();
+    path += filename;
+    std::ifstream inFile(path, std::ifstream::in);
+
     int row = 0;
     int col = 0;
-    while (infile.good()) {
-        char tile = infile.get();
-        if (tile == '\n') {
-            row++;
-            col = 0;
-        } else if  (tile == ' ') {
-            tiles[col][row] = -1;
-            col++;
+    char c;
+    if (!inFile.good()) {
+        exit(2);
+    }
+    while (inFile.get(c)) {
+        if (c == EMPTY) {
+            tiles[row][col] = c;
+        } else if (c == P1START) {
+            StartPos[0] = Vector2D(col * 8, row * 8);
+        } else if (c == P2START) {
+            StartPos[1] = Vector2D(col * 8, row * 8);
+        } else if (c == P3START) {
+            StartPos[2] = Vector2D(col * 8, row * 8);
+        } else if (c == P4START) {
+            StartPos[3] = Vector2D(col * 8, row * 8);
         } else {
             mvColliders.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this));
-            if (tile == '0') {
-                tiles[col][row] = 0;
-                col++;
-            } else if (tile == '1') {
-                tiles[col][row] = 1;
-                col++;
-            } else if (tile == '2') {
-                tiles[col][row] = 2;
-                col++;
-            } else if (tile == '3') {
-                tiles[col][row] = 3;
-                col++;
-            } else if (tile == '4') {
-                tiles[col][row] = 4;
-                col++;
-            } else if (tile == '5') {
-                tiles[col][row] = 5;
-                col++;
-            } else if (tile == '6') {
-                tiles[col][row] = 6;
-                col++;
-            } else if (tile == '7') {
-                tiles[col][row] = 7;
-                col++;
-            } else if (tile == '8') {
-                tiles[col][row] = 8;
-                col++;
-            }
+            tiles[row][col] = c;
+        }
+        if (++col == 40) {
+            row++;
+            col = 0;
         }
     }
 }
@@ -65,11 +47,11 @@ void Map::Render() {
     for (int row = 0; row < 30; row++) {
         for (int col = 0; col < 40; col++) {
 
-                if (tiles[col][row] == -1) {
+                if (tiles[row][col] == EMPTY) {
                     continue;
                 }
 
-                int offset = tiles[col][row] * 8;
+                int offset = (tiles[row][col] - 1) * 8;
 
                 SDL_Rect srcRect, dstRect;
                 srcRect.x = offset;
@@ -102,4 +84,8 @@ void Map::Render() {
 
 std::vector<Collider>& Map::GetColliders() {
     return mvColliders;
+}
+
+const Vector2D& Map::GetStartPos(const int pn) const {
+    return StartPos[pn - 1];
 }

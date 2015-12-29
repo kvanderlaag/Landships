@@ -81,13 +81,18 @@ int main(int argc, char** argv) {
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
     SDL_RenderSetLogicalSize(ren, 320, 240);
 
-    std::string basePath = SDL_GetBasePath();
-    basePath += "map.d";
-    Map m(basePath, "WallTiles.png", ren);
+    Map m("test.d", "WallTiles.png", ren);
 
     Player p("Tank.png", ren);
-    p.SetX(playerx);
-    p.SetY(playery);
+    Vector2D startPos = m.GetStartPos(1);
+    if (startPos.GetX() == 0 && startPos.GetY() == 0) {
+        p.SetX(playerx);
+        p.SetY(playery);
+    } else {
+        p.SetX(startPos.GetX());
+        p.SetY(startPos.GetY());
+
+    }
 
     if (p.GetTexture() == nullptr) {
         std::cout << "Error loading player sprite: " << SDL_GetError() << std::endl;
