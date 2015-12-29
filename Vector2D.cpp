@@ -137,5 +137,5 @@ const Vector2D Vector2D::Reflect(const Vector2D& normal) const {
 }
 
 const float Vector2D::Angle() const {
-    return std::atan(y / x) * 180 / M_PI;
+    return std::atan2(y, x) * 180 / M_PI;
 }

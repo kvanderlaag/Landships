@@ -1,5 +1,7 @@
 #include "Bullet.hpp"
 
+#include <iostream>
+
 int Bullet::next = 0;
 
 Bullet::Bullet(float x, float y, float a, const Vector2D& dir, Player& owner, SDL_Renderer* ren) :
@@ -35,11 +37,15 @@ void Bullet::Bounce(const CollisionInfo& coll) {
         Vector2D normal = coll.CollisionNormal();
 
         if (mBounce < mMaxBounce) {
+            //x += coll.MinimumTranslation().GetX();
+            //y += coll.MinimumTranslation().GetY();
             mCollider.Move(x, y);
-
-            float a = std::acos(mDirection.Dot(normal) / (mDirection.GetMagnitude() * normal.GetMagnitude()));
-            a = a * 180 / M_PI;
-            Rotate(2*a);
+            std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
+            mDirection = Vector2D(mDirection.Reflect(coll.CollisionNormal()).GetX(), mDirection.Reflect(coll.CollisionNormal()).GetY());
+            std::cout << "Normal Angle: " << coll.CollisionNormal().Angle() << std::endl;
+            std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
+            angle = mDirection.Angle();
+            mCollider.SetAngle(angle);
 
             mBounce++;
         } else {

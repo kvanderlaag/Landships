@@ -28,6 +28,8 @@ const std::string basePath = SDL_GetBasePath();
 
 int main(int argc, char** argv) {
 
+    freopen("CON", "w", stdout);
+
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
 
@@ -48,6 +50,8 @@ int main(int argc, char** argv) {
         SDL_Quit();
         return 3;
     }
+
+
 
 
     // Initialize joysticks

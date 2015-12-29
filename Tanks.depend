@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1451162831 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1451179153 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<string>
@@ -428,7 +428,7 @@
 1451073283 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
 	"Utility.hpp"
 
-1451164565 source:d:\users\kvand_000\documents\github\tanks\collider.cpp
+1451360510 source:d:\users\kvand_000\documents\github\tanks\collider.cpp
 	"Collider.hpp"
 
 1451104604 d:\users\kvand_000\documents\github\tanks\collider.hpp
@@ -454,7 +454,7 @@
 	<vector>
 	<cmath>
 
-1451164810 source:d:\users\kvand_000\documents\github\tanks\vector2d.cpp
+1451193329 source:d:\users\kvand_000\documents\github\tanks\vector2d.cpp
 	"Vector2D.hpp"
 
 1451164824 d:\users\kvand_000\documents\github\tanks\vector2d.hpp
@@ -495,8 +495,9 @@
 1451158244 d:\users\kvand_000\documents\github\tanks\collisioninfo.hpp
 	"Vector2D.hpp"
 
-1451165574 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
+1451360734 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
 	"Bullet.hpp"
+	<iostream>
 
 1451163142 d:\users\kvand_000\documents\github\tanks\bullet.hpp
 	"RenderableObject.hpp"
