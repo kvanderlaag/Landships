@@ -13,7 +13,8 @@ private:
     Collider mCollider;
     Player& mOwner;
     Vector2D mDirection;
-    const int BULLET_SPEED = 3000;
+    Vector2D mVelocity;
+    const int BULLET_SPEED = 100;
     int mMaxBounce, mBounce;
     bool dead;
 public:
@@ -25,17 +26,18 @@ public:
     Player& GetOwner();
     const Vector2D& GetDirection() const;
 
-    void Bounce(const CollisionInfo& coll);
+    void Bounce(const CollisionInfo& coll, const uint32_t ticks);
     const int GetBounce() const;
     const int GetMaxBounce() const;
     const bool IsDead() const;
 
     void Rotate(float rotation);
+    void SetAngle(float ang);
 
     void Update(uint32_t ticks);
 
-    CollisionInfo CheckCollision(const Player& player);
-    CollisionInfo CheckCollision(const Collider& other);
+    CollisionInfo CheckCollision(const Player& player, const uint32_t ticks);
+    CollisionInfo CheckCollision(const Collider& other, const uint32_t ticks);
 
     void Render();
 

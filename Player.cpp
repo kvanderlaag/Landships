@@ -119,9 +119,9 @@ void Player::CheckCollision(const Collider& other, uint32_t ticks) {
 }
 
 void Player::Update(uint32_t ticks) {
-    float forwardPerFrame = mForwardVel * ticks / 16 ;
-    float rotationPerFrame = mRotationVel * ticks / 16 ;
-    float turretRotationPerFrame = mTurretRotationVel * ticks / 16 ;
+    float forwardPerFrame = mForwardVel * ((float)ticks / 1000) * MOVE_SPEED ;
+    float rotationPerFrame = mRotationVel * ((float)ticks / 1000) * ROTATE_SPEED ;
+    float turretRotationPerFrame = mTurretRotationVel * ((float) ticks / 1000) * ROTATE_SPEED ;
 
     angle += rotationPerFrame;
     if (angle < 0) {

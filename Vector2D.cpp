@@ -26,7 +26,7 @@ Vector2D::Vector2D(const Vector2D& other) :
 Vector2D& Vector2D::operator=(Vector2D other) {
     std::swap(x, other.x);
     std::swap(y, other.y);
-    std::swap(magnitude, other.y);
+    std::swap(magnitude, other.magnitude);
     return *this;
 }
 
@@ -131,11 +131,16 @@ const float Vector2D::Dot(const Vector2D& other) const {
 }
 
 const Vector2D Vector2D::Reflect(const Vector2D& normal) const {
-    float dotProduct = 2 * Dot(normal);
+    float dotProduct = 2 * normal.Dot(*this);
     Vector2D n(normal * dotProduct);
-    return Vector2D(*this - n);
+    return Vector2D(n - *this) * -1;
 }
 
 const float Vector2D::Angle() const {
-    return std::atan2(y, x) * 180 / M_PI;
+    float a = std::atan2(y, x) * 180 / M_PI;
+    while (a < 0)
+        a += 360;
+    while (a > 360)
+        a -= 360;
+    return a;
 }

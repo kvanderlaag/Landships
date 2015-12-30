@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
     playerx = (SCREEN_WIDTH / 2);
     playery = (SCREEN_HEIGHT / 2);
 
-    SDL_Window* win = SDL_CreateWindow("Balls", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Window* win = SDL_CreateWindow("Balls", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
     SDL_ShowCursor(0);
 
@@ -245,11 +245,11 @@ int main(int argc, char** argv) {
             b.second->Update(frame_time);
             for (Player* pl : vMoving) {
                 if (pl != &(b.second->GetOwner())) {
-                    b.second->CheckCollision(*pl);
+                    b.second->CheckCollision(*pl, frame_time);
                 }
             }
             for (Collider* c : vStationary) {
-                b.second->CheckCollision(*c);
+                b.second->CheckCollision(*c, frame_time);
                 if (b.second->IsDead()) {
                     vBullets.erase(b.first);
                     std::map<int, RenderableObject*>::iterator it = vRenderable.begin();

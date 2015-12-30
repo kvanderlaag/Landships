@@ -58,6 +58,8 @@ public:
 
 private:
     const int PLAYER_SIZE = 16;
+    const int MOVE_SPEED = 50;
+    const int ROTATE_SPEED = 90;
     const float maxX = 320;
     const float maxY = 240;
     float xvel, yvel;

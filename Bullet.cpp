@@ -6,11 +6,12 @@ int Bullet::next = 0;
 
 Bullet::Bullet(float x, float y, float a, const Vector2D& dir, Player& owner, SDL_Renderer* ren) :
     RenderableObject("Bullet.png", 4, 4, x, y, a, ren),
-    mCollider(Collider(4, 4, x, y, a, this) ),
+    mCollider(Collider(4, 4, x, y, 0, this) ),
     mOwner(owner),
     mDirection(dir),
     mMaxBounce(owner.GetMaxBounce()),
     mBounce(0),
+    mVelocity(Vector2D()),
     dead(false)
 {
     next++;
@@ -33,19 +34,25 @@ const Vector2D& Bullet::GetDirection() const {
     return mDirection;
 }
 
-void Bullet::Bounce(const CollisionInfo& coll) {
-        Vector2D normal = coll.CollisionNormal();
+void Bullet::Bounce(const CollisionInfo& coll, const uint32_t ticks) {
 
         if (mBounce < mMaxBounce) {
-            //x += coll.MinimumTranslation().GetX();
-            //y += coll.MinimumTranslation().GetY();
-            mCollider.Move(x, y);
             std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
-            mDirection = Vector2D(mDirection.Reflect(coll.CollisionNormal()).GetX(), mDirection.Reflect(coll.CollisionNormal()).GetY());
-            std::cout << "Normal Angle: " << coll.CollisionNormal().Angle() << std::endl;
-            std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
+            //mDirection = mDirection.Reflect(coll.MinimumTranslation().Normalized());
+            std::cout << "MT Angle: " << coll.MinimumTranslation().Normalized().Angle() << std::endl;
+            mDirection = mDirection.Reflect(coll.MinimumTranslation().Normalized());
             angle = mDirection.Angle();
-            mCollider.SetAngle(angle);
+            mVelocity.SetX(mDirection.GetX() * ((float) ticks / 1000) * BULLET_SPEED);
+            mVelocity.SetY(mDirection.GetY() * ((float) ticks / 1000) * BULLET_SPEED);
+            x += mVelocity.GetX();
+            y += mVelocity.GetY();
+            if (coll.Colliding() ) {
+                x += coll.MinimumTranslation().GetX();
+                y += coll.MinimumTranslation().GetY();
+                mCollider.Move(x, y);
+            }
+
+            std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
 
             mBounce++;
         } else {
@@ -69,33 +76,45 @@ void Bullet::Rotate(float rotation) {
         angle += 360;
     while (angle > 360)
         angle -= 360;
-    mCollider.Rotate(rotation);
+    //mCollider.Rotate(rotation);
+    float a = angle * M_PI / 180;
+    mDirection = Vector2D(std::sin(a), -std::cos(a));
+}
+
+void Bullet::SetAngle(float ang) {
+    angle = ang;
+    while (angle < 0)
+        angle += 360;
+    while (angle > 360)
+        angle -= 360;
+    //mCollider.SetAngle(angle);
     float a = angle * M_PI / 180;
     mDirection = Vector2D(std::sin(a), -std::cos(a));
 }
 
 void Bullet::Update(uint32_t ticks) {
-    float forwardPerFrame = BULLET_SPEED * ticks / 16 ;
-    x += mDirection.GetX() * 0.05;
-    y += mDirection.GetY() * 0.05;
+    float a = angle * M_PI / 180;
+    mVelocity.SetX(mDirection.GetX() * ((float) ticks / 1000) * BULLET_SPEED);
+    mVelocity.SetY(mDirection.GetY() * ((float) ticks / 1000) * BULLET_SPEED);
+
+    x += mVelocity.GetX();
+    y += mVelocity.GetY();
     mCollider.Move(x, y);
 }
 
-CollisionInfo Bullet::CheckCollision(const Player& player) {
-    Vector2D vel(mDirection * BULLET_SPEED * 0.05);
-    CollisionInfo coll = mCollider.CheckCollision(player.GetCollider(), vel);
+CollisionInfo Bullet::CheckCollision(const Player& player, const uint32_t ticks) {
+    CollisionInfo coll = mCollider.CheckCollision(player.GetCollider(), mVelocity);
 
-    dead = true;
+    //dead = true;
 
     return coll;
 }
 
-CollisionInfo Bullet::CheckCollision(const Collider& other) {
-    Vector2D vel(mDirection * BULLET_SPEED * 0.05);
-    CollisionInfo coll = mCollider.CheckCollision(other, vel);
+CollisionInfo Bullet::CheckCollision(const Collider& other, const uint32_t ticks) {
+    CollisionInfo coll = mCollider.CheckCollision(other, mVelocity);
 
-    if (coll.Colliding()) {
-        Bounce(coll);
+    if (coll.Colliding() || coll.WillCollide() ) {
+        Bounce(coll, ticks);
     }
 
     return coll;

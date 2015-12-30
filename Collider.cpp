@@ -38,10 +38,14 @@ const CollisionInfo Collider::CheckCollision(const Collider& other, Vector2D& ve
     float minIntervalDistance = FLT_MAX;
     Vector2D translationAxis;
 
+    std::vector<Vector2D> normals;
+    if (angle == 0 && other.GetAngle() == 0) {
+        normals = {Vector2D(0, -1), Vector2D(-1, 0)};
+    } else {
+        normals = {mRectangle.GetUpNormal(), mRectangle.GetLeftNormal(), other.GetRectangle().GetUpNormal(), other.GetRectangle().GetLeftNormal()};
+    }
 
-    std::vector<Vector2D> normals = {mRectangle.GetUpNormal(), mRectangle.GetLeftNormal(), other.GetRectangle().GetUpNormal(), other.GetRectangle().GetLeftNormal()};
-
-    for (Vector2D axis : normals) {
+    for (Vector2D& axis : normals) {
 
         // Check for collision
         float minA = 0; float minB = 0; float maxA = 0; float maxB = 0;
@@ -51,6 +55,7 @@ const CollisionInfo Collider::CheckCollision(const Collider& other, Vector2D& ve
         if (Utility::IntervalDistance(minA, maxA, minB, maxB) > 0) {
             returnCollision.SetColliding(false);
         }
+
 
         // Check for potential collision with velocity
         float velocityProjection = axis.Dot(velocity);
@@ -64,11 +69,8 @@ const CollisionInfo Collider::CheckCollision(const Collider& other, Vector2D& ve
         float intervalDistance = Utility::IntervalDistance(minA, maxA, minB, maxB);
         if (intervalDistance > 0) returnCollision.SetWillCollide(false);
 
-
-
-
         // If the polygons are not intersecting and won't intersect, exit the loop
-        if (!returnCollision.Colliding() && !returnCollision.Colliding())
+        if (!returnCollision.Colliding() && !returnCollision.WillCollide())
             break;
 
         // Check if the current interval distance is the minimum one. If so store
@@ -78,9 +80,6 @@ const CollisionInfo Collider::CheckCollision(const Collider& other, Vector2D& ve
         if (intervalDistance < minIntervalDistance) {
             minIntervalDistance = intervalDistance;
             translationAxis = axis;
-            if (translationAxis == other.GetRectangle().GetUpNormal() || translationAxis == other.GetRectangle().GetLeftNormal() ){
-                returnCollision.SetCollisionNormal(translationAxis.Normalized());
-            }
 
             Vector2D d( mRectangle.GetCenter().x - other.GetRectangle().GetCenter().x, mRectangle.GetCenter().y - other.GetRectangle().GetCenter().y );
             if (d.Dot(translationAxis) < 0) {
