@@ -26,6 +26,7 @@
 #define RENDER_INTERVAL 16
 
 const std::string basePath = SDL_GetBasePath();
+void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int, RenderableObject*>& vRenderable, std::vector<Explosion*>& vExplosions);
 
 int main(int argc, char** argv) {
 
@@ -145,22 +146,39 @@ int main(int argc, char** argv) {
         uint32_t frame_time = new_time - old_time;
         old_time = new_time;
 
-
+        bool joymove = false;
+        bool joyrotate = false;
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 running = false;
             } else if (e.type == SDL_JOYAXISMOTION) {
+                //std::cout << "Joystick " << e.jaxis.which << " - Axis " << e.jaxis.axis << ": " << e.jaxis.value << std::endl;
                 if (e.jaxis.which == 0) {
-                    if (e.jaxis.axis == 0) {
+                    if (e.jaxis.axis == 0x00) {
                         // X-axis
                         if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
-                            p.SetRotationVel(MAX_ROTATE * ((e.jaxis.value > 0) - (e.jaxis.value < 0)) * (std::abs(e.jaxis.value) / INT_MAX));
+                            joyrotate = true;
+
+                            float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
+                            std::cout << "Rotating " << scale << std::endl;
+                            p.SetRotationVel(MAX_ROTATE * scale);
+                        } else {
+                                joyrotate = false;
+                                p.SetRotationVel(0);
                         }
-                    } else if (e.jaxis.axis == 1) {
+                    } else if (e.jaxis.axis == 0x01) {
                         // Y-axis
                         if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
-                            p.SetForwardVel(MAX_ROTATE * ((e.jaxis.value > 0) - (e.jaxis.value < 0)) * (std::abs(e.jaxis.value) / INT_MAX));
+                            joymove = true;
+
+                            float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
+                            std::cout << "Moving " << scale << std::endl;
+                            p.SetForwardVel(MAX_MOVE * -scale);
+                        } else {
+                            joymove = false;
+                            p.SetForwardVel(0);
+
                         }
                     }
                 }
@@ -172,10 +190,12 @@ int main(int argc, char** argv) {
                     running = false;
                     break;
                 case SDLK_LEFT:
-                    p.SetRotationVel(-MAX_ROTATE);
+                    if (!joyrotate)
+                        p.SetRotationVel(-MAX_ROTATE);
                     break;
                 case SDLK_RIGHT:
-                    p.SetRotationVel(MAX_ROTATE);
+                    if (!joyrotate)
+                        p.SetRotationVel(MAX_ROTATE);
                     break;
                 case SDLK_a:
                 case SDLK_TAB:
@@ -186,10 +206,12 @@ int main(int argc, char** argv) {
                     p.SetTurretRotationVel(MAX_ROTATE);
                     break;
                 case SDLK_UP:
-                    p.SetForwardVel(MAX_MOVE);
+                    if (!joymove)
+                        p.SetForwardVel(MAX_MOVE);
                     break;
                 case SDLK_DOWN:
-                    p.SetForwardVel(-MAX_MOVE);
+                    if (!joymove)
+                        p.SetForwardVel(-MAX_MOVE);
                     break;
                 case SDLK_SPACE:
                     Bullet* b = p.Fire();
@@ -204,12 +226,13 @@ int main(int argc, char** argv) {
 
             } else if (e.type == SDL_KEYUP) {
                 switch (e.key.keysym.sym) {
+
                 case SDLK_LEFT:
-                    if (p.GetRotationVel() < 0)
+                    if (p.GetRotationVel() < 0 && !joyrotate)
                         p.SetRotationVel(0);
                     break;
                 case SDLK_RIGHT:
-                    if (p.GetRotationVel() > 0)
+                    if (p.GetRotationVel() > 0 && !joyrotate)
                         p.SetRotationVel(0);
                     break;
                 case SDLK_TAB:
@@ -223,13 +246,14 @@ int main(int argc, char** argv) {
                         p.SetTurretRotationVel(0);
                     break;
                 case SDLK_UP:
-                    if (p.GetForwardVel() > 0)
+                    if (p.GetForwardVel() > 0 && !joymove)
                         p.SetForwardVel(0);
                     break;
                 case SDLK_DOWN:
-                    if (p.GetForwardVel() < 0)
+                    if (p.GetForwardVel() < 0 && !joymove)
                         p.SetForwardVel(0);
                     break;
+
                 }
 
             }
@@ -246,45 +270,43 @@ int main(int argc, char** argv) {
         }
 
         for (std::pair<int, Bullet*> b : vBullets) {
-            b.second->Update(frame_time);
-            for (Player* pl : vMoving) {
-                    CollisionInfo coll = b.second->CheckCollision(*pl, frame_time);
-                    if (coll.Colliding() && b.second->GetBounce() > 0) {
-                        if (&(b.second->GetOwner()) == pl) {
-                            pl->AddScore(-1);
-                        } else {
-                            b.second->GetOwner().AddScore(1);
+            if (!b.second->IsDead()) {
+                b.second->Update(frame_time);
+                for (Player* pl : vMoving) {
+                        CollisionInfo coll = b.second->CheckCollision(*pl, frame_time);
+                        if (coll.Colliding() && b.second->GetBounce() > 0) {
+                            if (&(b.second->GetOwner()) == pl) {
+                                pl->AddScore(-1);
+                            } else {
+                                b.second->GetOwner().AddScore(1);
+                            }
+
+                            NewExplosion(pl->GetX(), pl->GetY(), ren, vRenderable, vExplosions);
+
+                            pl->SetX(m.GetStartPos(pl->GetID()).GetX());
+                            pl->SetY(m.GetStartPos(pl->GetID()).GetY());
+                            b.second->GetOwner().DestroyBullet();
+                            b.second->Die();
+
+
                         }
-                        Explosion* newExpl = new Explosion(pl->GetX(), pl->GetY(), ren);
-                        pl->SetX(m.GetStartPos(pl->GetID()).GetX());
-                        pl->SetY(m.GetStartPos(pl->GetID()).GetY());
+                }
 
-                        std::pair<int, RenderableObject*> newPair(RenderableObject::next, newExpl);
-                        RenderableObject::next++;
-                        vRenderable.insert(newPair);
-                        vExplosions.push_back(newExpl);
-
-                        b.second->Die();
-
-
-                    }
-            }
-
-            for (Collider* c : vStationary) {
-                b.second->CheckCollision(*c, frame_time);
                 if (b.second->IsDead()) {
-                    vBullets.erase(b.first);
-                    std::map<int, RenderableObject*>::iterator it = vRenderable.begin();
-                    while (it != vRenderable.end()) {
-                        if (it->second == b.second) {
-                            vRenderable.erase(it);
-                            break;
-                        }
-                        it++;
+                    break;
+                }
+
+                for (Collider* c : vStationary) {
+                    CollisionInfo coll = b.second->CheckCollision(*c, frame_time);
+                    if (b.second->IsDead() && (coll.Colliding() || coll.WillCollide()) ) {
                         b.second->GetOwner().DestroyBullet();
+                        NewExplosion(b.second->GetX(), b.second->GetY(), ren, vRenderable, vExplosions);
+                        b.second->Die();
+                        break;
                     }
-                delete b.second;
-                break;
+                }
+                if (b.second->IsDead()) {
+                    break;
                 }
             }
         }
@@ -318,9 +340,9 @@ int main(int argc, char** argv) {
                 }
             }
 
-            for (Explosion* e : vExplosions) {
+            /*for (Explosion* e : vExplosions) {
                 e->Render();
-            }
+            }*/
 
             /* Test rectangle
             SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -416,4 +438,13 @@ int main(int argc, char** argv) {
     SDL_Quit();
 
     return 0;
+}
+
+
+void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int, RenderableObject*>& vRenderable, std::vector<Explosion*>& vExplosions) {
+    Explosion* newExpl = new Explosion(x, y, ren);
+    std::pair<int, RenderableObject*> newPair(RenderableObject::next, newExpl);
+    RenderableObject::next++;
+    vRenderable.insert(newPair);
+    vExplosions.push_back(newExpl);
 }

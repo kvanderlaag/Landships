@@ -44,7 +44,7 @@ void GameObject::SetAngle(float a) {
 }
 
 const bool GameObject::IsDead() const {
-    return dead;
+     return dead;
 }
 
 void GameObject::Die() {
