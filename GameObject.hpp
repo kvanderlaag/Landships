@@ -10,7 +10,7 @@ public:
 
     virtual void Move() {};
     virtual void Rotate() {};
-    virtual void Update(uint32_t ticks) {};
+    virtual void Update(uint32_t ticks) = 0;
 
     const float GetX() const;
     const float GetY() const;
@@ -20,13 +20,15 @@ public:
     virtual void SetY(float newy);
     virtual void SetAngle(float a);
 
-
+    const bool IsDead() const;
+    void Die();
 
 
 protected:
     float x, y;
     float angle;
     int width, height;
+    bool dead;
 };
 
 #endif // _GAMEOBJECT_H

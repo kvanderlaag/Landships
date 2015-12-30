@@ -6,13 +6,12 @@ int Bullet::next = 0;
 
 Bullet::Bullet(float x, float y, float a, const Vector2D& dir, Player& owner, SDL_Renderer* ren) :
     RenderableObject("Bullet.png", 4, 4, x, y, a, ren),
-    mCollider(Collider(4, 4, x, y, 0, this) ),
+    mCollider(Collider(4, 4, x, y, a, this) ),
     mOwner(owner),
     mDirection(dir),
     mMaxBounce(owner.GetMaxBounce()),
     mBounce(0),
-    mVelocity(Vector2D()),
-    dead(false)
+    mVelocity(Vector2D())
 {
     next++;
     SDL_QueryTexture(mTexture, NULL, NULL, &width, &height);
@@ -42,6 +41,7 @@ void Bullet::Bounce(const CollisionInfo& coll, const uint32_t ticks) {
             std::cout << "MT Angle: " << coll.MinimumTranslation().Normalized().Angle() << std::endl;
             mDirection = mDirection.Reflect(coll.MinimumTranslation().Normalized());
             angle = mDirection.Angle();
+            mCollider.SetAngle(angle);
             mVelocity.SetX(mDirection.GetX() * ((float) ticks / 1000) * BULLET_SPEED);
             mVelocity.SetY(mDirection.GetY() * ((float) ticks / 1000) * BULLET_SPEED);
             x += mVelocity.GetX();
@@ -66,17 +66,13 @@ const int Bullet::GetMaxBounce() const {
     return mMaxBounce;
 }
 
-const bool Bullet::IsDead() const {
-    return dead;
-}
-
 void Bullet::Rotate(float rotation) {
     angle += rotation;
     while (angle < 0)
         angle += 360;
     while (angle > 360)
         angle -= 360;
-    //mCollider.Rotate(rotation);
+    mCollider.Rotate(rotation);
     float a = angle * M_PI / 180;
     mDirection = Vector2D(std::sin(a), -std::cos(a));
 }
@@ -87,7 +83,7 @@ void Bullet::SetAngle(float ang) {
         angle += 360;
     while (angle > 360)
         angle -= 360;
-    //mCollider.SetAngle(angle);
+    mCollider.SetAngle(angle);
     float a = angle * M_PI / 180;
     mDirection = Vector2D(std::sin(a), -std::cos(a));
 }

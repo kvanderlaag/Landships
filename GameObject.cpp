@@ -5,7 +5,8 @@ GameObject::GameObject(int w, int h, float x, float y, float a) :
     y(y),
     angle(a),
     width(w),
-    height(h)
+    height(h),
+    dead(false)
 {
 
 }
@@ -40,4 +41,12 @@ void GameObject::SetAngle(float a) {
         angle += 360;
     while (angle > 360)
         angle -= 360;
+}
+
+const bool GameObject::IsDead() const {
+    return dead;
+}
+
+void GameObject::Die() {
+    dead = true;
 }

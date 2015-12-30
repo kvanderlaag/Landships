@@ -20,6 +20,7 @@ public:
     void Move(float x, float y);
     void Rotate(float rotation);
     void SetAngle(float angle);
+    void Update(uint32_t ticks) {};
 
     const CollisionInfo CheckCollision(const Collider& other, Vector2D& velocity) const;
 

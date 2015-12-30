@@ -17,6 +17,6 @@ public:
     virtual ~RenderableObject();
     virtual SDL_Texture* GetTexture();
 
-    virtual void Render() {};
+    virtual void Render() = 0;
 };
 #endif // _RENDERABLEOBJECT_H

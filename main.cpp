@@ -15,6 +15,7 @@
 #include "Vector2D.hpp"
 #include "Point.hpp"
 #include "Collider.hpp"
+#include "Explosion.hpp"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
@@ -83,7 +84,8 @@ int main(int argc, char** argv) {
 
     Map m("test.d", "WallTiles.png", ren);
 
-    Player p("Tank.png", ren);
+    Player players[4] = { Player("Tank.png", 1, ren), Player("Tank.png", 2, ren), Player("Tank.png", 3, ren), Player("Tank.png", 4, ren) };
+    Player& p = players[0];
     Vector2D startPos = m.GetStartPos(1);
     if (startPos.GetX() == 0 && startPos.GetY() == 0) {
         p.SetX(playerx);
@@ -128,11 +130,13 @@ int main(int argc, char** argv) {
 
     std::map<int, RenderableObject*> vRenderable;
     std::map<int, Bullet*> vBullets;
+    std::vector<Explosion*> vExplosions;
 
     vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &p));
     RenderableObject::next++;
     vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &m));
     RenderableObject::next++;
+
 
     bool running = true;
 
@@ -244,10 +248,28 @@ int main(int argc, char** argv) {
         for (std::pair<int, Bullet*> b : vBullets) {
             b.second->Update(frame_time);
             for (Player* pl : vMoving) {
-                if (pl != &(b.second->GetOwner())) {
-                    b.second->CheckCollision(*pl, frame_time);
-                }
+                    CollisionInfo coll = b.second->CheckCollision(*pl, frame_time);
+                    if (coll.Colliding() && b.second->GetBounce() > 0) {
+                        if (&(b.second->GetOwner()) == pl) {
+                            pl->AddScore(-1);
+                        } else {
+                            b.second->GetOwner().AddScore(1);
+                        }
+                        Explosion* newExpl = new Explosion(pl->GetX(), pl->GetY(), ren);
+                        pl->SetX(m.GetStartPos(pl->GetID()).GetX());
+                        pl->SetY(m.GetStartPos(pl->GetID()).GetY());
+
+                        std::pair<int, RenderableObject*> newPair(RenderableObject::next, newExpl);
+                        RenderableObject::next++;
+                        vRenderable.insert(newPair);
+                        vExplosions.push_back(newExpl);
+
+                        b.second->Die();
+
+
+                    }
             }
+
             for (Collider* c : vStationary) {
                 b.second->CheckCollision(*c, frame_time);
                 if (b.second->IsDead()) {
@@ -264,6 +286,12 @@ int main(int argc, char** argv) {
                 delete b.second;
                 break;
                 }
+            }
+        }
+
+        for (Explosion* e : vExplosions) {
+            if (!e->IsDead()) {
+                e->Update(frame_time);
             }
         }
 
@@ -285,7 +313,13 @@ int main(int argc, char** argv) {
             SDL_RenderCopy(ren, tex, NULL, NULL);
 
             for (std::pair<int, RenderableObject*> r : vRenderable) {
-                r.second->Render();
+                if (!r.second->IsDead()) {
+                    r.second->Render();
+                }
+            }
+
+            for (Explosion* e : vExplosions) {
+                e->Render();
             }
 
             /* Test rectangle
@@ -310,7 +344,7 @@ int main(int argc, char** argv) {
             SDL_RenderDrawLine(ren, center.x - 8, center.y, center.x - 8 + leftNormal.GetX() * 5, center.y + leftNormal.GetY() * 5);
             /* end of test rectangle */
 
-            /* FPS Texture */
+            /* FPS Texture
             SDL_Color c = {255, 255, 255, 255};
             std::string basePath = SDL_GetBasePath();
             uint32_t fps = 1000 / (new_time + (SDL_GetTicks() - new_time) - ticks);
@@ -339,7 +373,7 @@ int main(int argc, char** argv) {
 
             /* End of FPS texture */
 
-            /* Angle text */
+            /* Angle text
 
             std::stringstream strAngle;
             strAngle << "Ticks: " << frame_time;

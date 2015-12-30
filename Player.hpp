@@ -16,7 +16,7 @@ class Bullet;
 
 class Player : public RenderableObject {
 public:
-    Player(const std::string& filename, SDL_Renderer* ren);
+    Player(const std::string& filename, int id, SDL_Renderer* ren);
     ~Player();
 
     void SetX(float newx);
@@ -32,6 +32,8 @@ public:
     void SetTurretRotationVel(float newvel);
 
     const float GetAngle() const;
+
+    Vector2D& GetVelocity();
 
     void SetXVel(float newvel);
     void SetYVel(float newvel);
@@ -56,13 +58,19 @@ public:
     const int GetBullets() const;
     const int GetMaxBounce() const;
 
+    const int GetID() const;
+    const int GetScore() const;
+    void AddScore(const int mod);
+
 private:
+    int mID;
+    int score;
     const int PLAYER_SIZE = 16;
     const int MOVE_SPEED = 50;
     const int ROTATE_SPEED = 90;
     const float maxX = 320;
     const float maxY = 240;
-    float xvel, yvel;
+    Vector2D mVelocity;
     float mForwardVel;
     float mRotationVel;
 

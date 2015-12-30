@@ -2,8 +2,11 @@
 
 //#define _COLLISION_DEBUG
 
-Player::Player(const std::string& filename, SDL_Renderer* ren) :
+Player::Player(const std::string& filename, int id, SDL_Renderer* ren) :
     RenderableObject(filename, PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, ren),
+    mID(id),
+    score(0),
+    mVelocity(Vector2D(0, 0)),
     mForwardVel(0),
     mRotationVel(0),
     mTurretAngle(0),
@@ -24,19 +27,19 @@ Player::~Player() {
 
 
 const float Player::GetXVel() const {
-    return xvel;
+    return mVelocity.GetX();
 }
 
 const float Player::GetYVel() const {
-    return yvel;
+    return mVelocity.GetY();
 }
 
 void Player::SetXVel(float newvel) {
-    xvel = newvel;
+    mVelocity.SetX(newvel);
 }
 
 void Player::SetYVel(float newvel) {
-    yvel = newvel;
+    mVelocity.SetY(newvel);
 }
 
 void Player::SetX(float newx) {
@@ -110,7 +113,7 @@ const Collider& Player::GetCollider() const {
 
 void Player::CheckCollision(const Collider& other, uint32_t ticks) {
     if (&mCollider != &other) {
-        Vector2D velocity(xvel * ticks / 100, yvel * ticks / 100);
+        Vector2D velocity(mVelocity.GetX() * ticks / 100, mVelocity.GetY() * ticks / 100);
         CollisionInfo coll = mCollider.CheckCollision(other, velocity);
         Vector2D mt = coll.MinimumTranslation();
         x += mt.GetX();
@@ -143,22 +146,22 @@ void Player::Update(uint32_t ticks) {
 
 
     float a = angle * M_PI / 180;
-    xvel = std::sin(a) * forwardPerFrame;
-    yvel = std::cos(a) * -forwardPerFrame;
-    if (xvel != 0) {
-        if (xvel < 0 && x > (width / 2)) {
-            x += xvel;
+    mVelocity.SetX( std::sin(a) * forwardPerFrame );
+    mVelocity.SetY( std::cos(a) * -forwardPerFrame );
+    if (mVelocity.GetX() != 0) {
+        if (mVelocity.GetX() < 0 && x > (width / 2)) {
+            x += mVelocity.GetX();
         }
-        else if (xvel > 0 && x + (width / 2) < maxX) {
-            x += xvel;
+        else if (mVelocity.GetX() > 0 && x + (width / 2) < maxX) {
+            x += mVelocity.GetX();
         }
     }
-    if (yvel != 0) {
-        if (yvel < 0 && y > (height / 2)) {
-            y += yvel;
+    if (mVelocity.GetY() != 0) {
+        if (mVelocity.GetY() < 0 && y > (height / 2)) {
+            y += mVelocity.GetY();
         }
-        else if (yvel > 0 && y + (height / 2) < maxY) {
-            y += yvel;
+        else if (mVelocity.GetY() > 0 && y + (height / 2) < maxY) {
+            y += mVelocity.GetY();
         }
     }
 
@@ -172,7 +175,18 @@ Bullet* Player::Fire() {
     mBullets++;
     float a = mTurretAngle * M_PI / 180;
     Vector2D direction(std::sin(a), -std::cos(a));
-    Bullet* b = new Bullet(x, y, mTurretAngle, direction.Normalized(), *this, mRenderer);
+    float bx = 0;
+    float by = -8;
+
+    // now apply rotation
+    float rotatedX = bx*std::cos(a) - by*std::sin(a);
+    float rotatedY = bx*std::sin(a) + by*std::cos(a);
+
+    bx = rotatedX + x;
+    by = rotatedY + y;
+
+
+    Bullet* b = new Bullet(bx, by, mTurretAngle, direction.Normalized(), *this, mRenderer);
 
     return b;
 }
@@ -193,4 +207,16 @@ void Player::DestroyBullet() {
     if (mBullets > 0) {
         --mBullets;
     }
+}
+
+const int Player::GetID() const {
+    return mID;
+}
+
+const int Player::GetScore() const {
+    return score;
+}
+
+void Player::AddScore(const int mod) {
+    score += mod;
 }

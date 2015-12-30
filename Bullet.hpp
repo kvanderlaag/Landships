@@ -16,7 +16,6 @@ private:
     Vector2D mVelocity;
     const int BULLET_SPEED = 100;
     int mMaxBounce, mBounce;
-    bool dead;
 public:
     static int next;
     Bullet(float x, float y, float a, const Vector2D& dir, Player& owner, SDL_Renderer* ren);
@@ -29,7 +28,6 @@ public:
     void Bounce(const CollisionInfo& coll, const uint32_t ticks);
     const int GetBounce() const;
     const int GetMaxBounce() const;
-    const bool IsDead() const;
 
     void Rotate(float rotation);
     void SetAngle(float ang);

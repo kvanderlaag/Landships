@@ -25,6 +25,7 @@ class Map : public RenderableObject
         void Render();
         std::vector<Collider>& GetColliders();
         const Vector2D& GetStartPos(const int pn) const;
+        void Update(uint32_t ticks) {};
     protected:
     private:
         Vector2D StartPos[4];
