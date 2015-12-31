@@ -64,8 +64,8 @@ int main(int argc, char** argv) {
 
     int maxPlayers = 0;
     if (SDL_NumJoysticks() > 0) {
-        maxPlayers = SDL_NumJoysticks();
-        for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+        maxPlayers = std::min(SDL_NumJoysticks(), 4);
+        for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
             gController[i] = SDL_JoystickOpen(i);
             if (gController[i] == NULL) {
                 std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
@@ -165,8 +165,18 @@ int main(int argc, char** argv) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 running = false;
+            } else if (e.type == SDL_JOYBUTTONDOWN) {
+                if (e.jbutton.button == 0x00) {
+                    Bullet* b = players[e.jbutton.which].Fire();
+                    if (b != nullptr) {
+                        vBullets.insert(std::pair<int, Bullet*>(Bullet::next, b));
+                        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, b));
+                        RenderableObject::next++;
+                    }
+                }
+
             } else if (e.type == SDL_JOYAXISMOTION) {
-                //std::cout << "Joystick " << e.jaxis.which << " - Axis " << e.jaxis.axis << ": " << e.jaxis.value << std::endl;
+                std::cout << "Joystick " << e.jaxis.which << " - Axis " << e.jaxis.axis << ": " << e.jaxis.value << std::endl;
 
                 if (e.jaxis.axis == 0x00) {
                     // X-axis
