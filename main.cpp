@@ -17,7 +17,7 @@
 #include "Collider.hpp"
 #include "Explosion.hpp"
 
-#define SCREEN_WIDTH 320
+#define SCREEN_WIDTH 426
 #define SCREEN_HEIGHT 240
 
 #define MAX_MOVE 1
@@ -84,21 +84,29 @@ int main(int argc, char** argv) {
 
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
-    SDL_RenderSetLogicalSize(ren, 320, 240);
 
-    Map m("test2.d", "WallTiles.png", ren);
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
+    SDL_RenderSetLogicalSize(ren, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    std::string mapfilename;
+    if (argc > 1)
+        mapfilename = argv[1];
+    else
+        mapfilename = "test2.d";
+    Map m(mapfilename, "WallTiles.png", ren);
 
     Player players[4] = { Player("Tank.png", 1, ren), Player("Tank.png", 2, ren), Player("Tank.png", 3, ren), Player("Tank.png", 4, ren) };
     Player& p = players[0];
-    Vector2D startPos = m.GetStartPos(1);
-    if (startPos.GetX() == 0 && startPos.GetY() == 0) {
-        p.SetX(playerx);
-        p.SetY(playery);
-    } else {
-        p.SetX(startPos.GetX());
-        p.SetY(startPos.GetY());
+    for (int i = 0; i < 4; ++i) {
+        Vector2D startPos = m.GetStartPos(i + 1);
+        if (startPos.GetX() == 0 && startPos.GetY() == 0) {
+            players[i].SetX(playerx);
+            players[i].SetY(playery);
+        } else {
+            players[i].SetX(startPos.GetX());
+            players[i].SetY(startPos.GetY());
 
+        }
     }
 
     if (p.GetTexture() == nullptr) {
@@ -124,8 +132,15 @@ int main(int argc, char** argv) {
 
     std::vector<Player*> vMoving;
     std::vector<Collider*> vStationary;
+    std::map<int, RenderableObject*> vRenderable;
+    std::map<int, Bullet*> vBullets;
+    std::vector<Explosion*> vExplosions;
 
-    vMoving.push_back(&p);
+    for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
+        vMoving.push_back(&players[i]);
+        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &players[i]));
+        RenderableObject::next++;
+    }
 
     std::vector<Collider>& mapColliders = m.GetColliders();
 
@@ -133,12 +148,6 @@ int main(int argc, char** argv) {
         vStationary.push_back(&c);
     }
 
-    std::map<int, RenderableObject*> vRenderable;
-    std::map<int, Bullet*> vBullets;
-    std::vector<Explosion*> vExplosions;
-
-    vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &p));
-    RenderableObject::next++;
     vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &m));
     RenderableObject::next++;
 
@@ -158,34 +167,34 @@ int main(int argc, char** argv) {
                 running = false;
             } else if (e.type == SDL_JOYAXISMOTION) {
                 //std::cout << "Joystick " << e.jaxis.which << " - Axis " << e.jaxis.axis << ": " << e.jaxis.value << std::endl;
-                if (e.jaxis.which == 0) {
-                    if (e.jaxis.axis == 0x00) {
-                        // X-axis
-                        if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
-                            joyrotate = true;
 
-                            float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
-                            std::cout << "Rotating " << scale << std::endl;
-                            p.SetRotationVel(MAX_ROTATE * scale);
-                        } else {
-                                joyrotate = false;
-                                p.SetRotationVel(0);
-                        }
-                    } else if (e.jaxis.axis == 0x01) {
-                        // Y-axis
-                        if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
-                            joymove = true;
+                if (e.jaxis.axis == 0x00) {
+                    // X-axis
+                    if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
+                        joyrotate = true;
 
-                            float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
-                            std::cout << "Moving " << scale << std::endl;
-                            p.SetForwardVel(MAX_MOVE * -scale);
-                        } else {
-                            joymove = false;
-                            p.SetForwardVel(0);
+                        float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
+                        std::cout << "Rotating " << scale << std::endl;
+                        players[e.jaxis.which].SetRotationVel(MAX_ROTATE * scale);
+                    } else {
+                            joyrotate = false;
+                            p.SetRotationVel(0);
+                    }
+                } else if (e.jaxis.axis == 0x01) {
+                    // Y-axis
+                    if (e.jaxis.value < -JOYSTICK_DEADZONE * 1.5 || e.jaxis.value > JOYSTICK_DEADZONE * 1.5) {
+                        joymove = true;
 
-                        }
+                        float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
+                        std::cout << "Moving " << scale << std::endl;
+                        players[e.jaxis.which].SetForwardVel(MAX_MOVE * -scale);
+                    } else {
+                        joymove = false;
+                        players[e.jaxis.which].SetForwardVel(0);
+
                     }
                 }
+
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
                 case SDLK_PAUSE:
@@ -323,7 +332,7 @@ int main(int argc, char** argv) {
         if (SDL_TICKS_PASSED(new_time - ticks, RENDER_INTERVAL)) {
 
 
-            SDL_Surface* surf = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
+            SDL_Surface* surf = SDL_CreateRGBSurface(0, 320, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
 
             SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0x20, 0x20, 0x05));
 
@@ -423,8 +432,68 @@ int main(int argc, char** argv) {
 
             /* End of angle text */
 
+            /* HUD */
+            {
+                SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
+                for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
+                    int rWidth, rHeight;
+                    rWidth = 106;
+                    rHeight = 60;
+
+                    SDL_Rect srcRect, dstRect;
+                    dstRect.x = 320;
+                    dstRect.y = i * 60;
+                    dstRect.w = rWidth;
+                    dstRect.h = rHeight;
+
+                    SDL_RenderDrawRect(ren, &dstRect);
+
+                    SDL_Color c = { 0xFF, 0xFF, 0xFF, 0xFF };
+
+                    std::stringstream scoreString;
+
+                    scoreString << "Player " << i + 1;
+                    SDL_Texture* plTex = Utility::RenderText(scoreString.str(), "sample.ttf", c, 10, ren);
+                    int plWidth, plHeight;
+                    SDL_QueryTexture(plTex, NULL, NULL, &plWidth, &plHeight);
+                    scoreString.str("");
+
+                    scoreString << "Score: " << players[i].GetScore();
+                    int scoreWidth, scoreHeight;
+                    SDL_Texture* scoreTex = Utility::RenderText(scoreString.str(), "sample.ttf", c, 10, ren);
+                    SDL_QueryTexture(scoreTex, NULL, NULL, &scoreWidth, &scoreHeight);
+
+                    srcRect.x = 0;
+                    srcRect.y = 0;
+                    srcRect.w = plWidth;
+                    srcRect.h = plHeight;
+
+                    dstRect.x = 320 + 2;
+                    dstRect.y = i * 60 + 2;
+                    dstRect.w = plWidth;
+                    dstRect.h = plHeight;
+
+                    SDL_RenderCopy(ren, plTex, &srcRect, &dstRect);
+
+                    srcRect.x = 0;
+                    srcRect.y = 0;
+                    srcRect.w = scoreWidth;
+                    srcRect.h = scoreHeight;
+
+                    dstRect.x = 320 + 2;
+                    dstRect.y = i * 60 + plHeight + 4;
+                    dstRect.w = scoreWidth;
+                    dstRect.h = scoreHeight;
+
+                    SDL_RenderCopy(ren, scoreTex, &srcRect, &dstRect);
 
 
+                }
+            }
+            /* End of HUD */
+
+
+            SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
             SDL_RenderPresent(ren);
             ticks = SDL_GetTicks();
         }

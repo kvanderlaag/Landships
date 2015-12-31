@@ -15,7 +15,9 @@ SDL_Texture* Utility::LoadTexture(SDL_Renderer* ren, const std::string& filename
 }
 
 SDL_Texture* Utility::RenderText(const std::string& message, const std::string& fontFile, SDL_Color color, int fontSize, SDL_Renderer* ren) {
-    TTF_Font* font = TTF_OpenFont(fontFile.c_str(), fontSize);
+    std::string path = SDL_GetBasePath();
+    path += fontFile;
+    TTF_Font* font = TTF_OpenFont(path.c_str(), fontSize);
 
     if (font == nullptr) {
         std::cout << "Error opening font file: " << SDL_GetError() << std::endl;
