@@ -9,9 +9,10 @@ Bullet::Bullet(float x, float y, float a, const Vector2D& dir, Player& owner, SD
     mCollider(Collider(4, 4, x, y, a, this) ),
     mOwner(owner),
     mDirection(dir),
+    mVelocity(Vector2D()),
     mMaxBounce(owner.GetMaxBounce()),
-    mBounce(0),
-    mVelocity(Vector2D())
+    mBounce(0)
+
 {
     next++;
     SDL_QueryTexture(mTexture, NULL, NULL, &width, &height);
@@ -36,9 +37,8 @@ const Vector2D& Bullet::GetDirection() const {
 void Bullet::Bounce(const CollisionInfo& coll, const uint32_t ticks) {
 
         if (mBounce < mMaxBounce) {
-            std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
-            //mDirection = mDirection.Reflect(coll.MinimumTranslation().Normalized());
-            std::cout << "MT Angle: " << coll.MinimumTranslation().Normalized().Angle() << std::endl;
+            //std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
+            //std::cout << "MT Angle: " << coll.MinimumTranslation().Normalized().Angle() << std::endl;
             mDirection = mDirection.Reflect(coll.MinimumTranslation().Normalized());
             angle = mDirection.Angle();
             mCollider.SetAngle(angle);
@@ -52,7 +52,7 @@ void Bullet::Bounce(const CollisionInfo& coll, const uint32_t ticks) {
                 mCollider.Move(x, y);
             }
 
-            std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
+            //std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
 
             mBounce++;
         } else {
@@ -89,7 +89,6 @@ void Bullet::SetAngle(float ang) {
 }
 
 void Bullet::Update(uint32_t ticks) {
-    float a = angle * M_PI / 180;
     mVelocity.SetX(mDirection.GetX() * ((float) ticks / 1000) * BULLET_SPEED);
     mVelocity.SetY(mDirection.GetY() * ((float) ticks / 1000) * BULLET_SPEED);
 
@@ -130,7 +129,8 @@ void Bullet::Render() {
     dstRect.h = height;
 
     SDL_RenderCopyEx(mRenderer, mTexture, &srcRect, &dstRect, angle, NULL, SDL_FLIP_NONE);
-    /* Collider rendering
+    /* Collider rendering */
+    #ifdef _COLLISION_DEBUG
     std::vector<Point> colliderPoints = mCollider.GetPoints();
     SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
@@ -139,4 +139,5 @@ void Bullet::Render() {
     SDL_RenderDrawLine(mRenderer, colliderPoints[2].x, colliderPoints[2].y, colliderPoints[3].x, colliderPoints[3].y);
     SDL_RenderDrawLine(mRenderer, colliderPoints[3].x, colliderPoints[3].y, colliderPoints[0].x, colliderPoints[0].y);
     /* End of Collider Rendering */
+    #endif
 }

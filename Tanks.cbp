@@ -48,10 +48,16 @@
 		<Unit filename="CollisionInfo.hpp" />
 		<Unit filename="Explosion.cpp" />
 		<Unit filename="Explosion.hpp" />
+		<Unit filename="Game.cpp" />
+		<Unit filename="Game.hpp" />
 		<Unit filename="GameObject.cpp" />
 		<Unit filename="GameObject.hpp" />
+		<Unit filename="GameState.cpp" />
+		<Unit filename="GameState.hpp" />
 		<Unit filename="Map.cpp" />
 		<Unit filename="Map.hpp" />
+		<Unit filename="Menu.cpp" />
+		<Unit filename="Menu.hpp" />
 		<Unit filename="Player.cpp" />
 		<Unit filename="Player.hpp" />
 		<Unit filename="Point.cpp" />

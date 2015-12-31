@@ -25,12 +25,14 @@
 
 #define RENDER_INTERVAL 16
 
+bool gRunning = true;
+
 const std::string basePath = SDL_GetBasePath();
 void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int, RenderableObject*>& vRenderable, std::vector<Explosion*>& vExplosions);
 
 int main(int argc, char** argv) {
 
-    freopen("CON", "w", stdout);
+    //freopen("CON", "w", stdout);
 
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
@@ -57,16 +59,18 @@ int main(int argc, char** argv) {
 
 
     // Initialize joysticks
-    bool joystick = true;
     const int JOYSTICK_DEADZONE = 8000;
-    SDL_Joystick* gController = NULL;
+    SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 
-    if (SDL_NumJoysticks() < 1) {
-        joystick = false;
-    } else {
-        gController = SDL_JoystickOpen(0);
-        if (gController == NULL) {
-            joystick = false;
+    int maxPlayers = 0;
+    if (SDL_NumJoysticks() > 0) {
+        maxPlayers = SDL_NumJoysticks();
+        for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+            gController[i] = SDL_JoystickOpen(i);
+            if (gController[i] == NULL) {
+                std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
+                exit(2);
+            }
         }
     }
 
@@ -83,7 +87,7 @@ int main(int argc, char** argv) {
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
     SDL_RenderSetLogicalSize(ren, 320, 240);
 
-    Map m("test.d", "WallTiles.png", ren);
+    Map m("test2.d", "WallTiles.png", ren);
 
     Player players[4] = { Player("Tank.png", 1, ren), Player("Tank.png", 2, ren), Player("Tank.png", 3, ren), Player("Tank.png", 4, ren) };
     Player& p = players[0];
@@ -216,7 +220,6 @@ int main(int argc, char** argv) {
                 case SDLK_SPACE:
                     Bullet* b = p.Fire();
                     if (b != nullptr) {
-                        int n = Bullet::next;
                         vBullets.insert(std::pair<int, Bullet*>(Bullet::next, b));
                         vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, b));
                         RenderableObject::next++;
@@ -429,8 +432,11 @@ int main(int argc, char** argv) {
 
     }
 
-    SDL_JoystickClose(gController);
-    gController = NULL;
+    for (int i = 0; i < maxPlayers; ++i) {
+        SDL_JoystickClose(gController[i]);
+        gController[i] = NULL;
+    }
+
     SDL_DestroyWindow(win);
     SDL_DestroyRenderer(ren);
 

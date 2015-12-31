@@ -11,11 +11,11 @@
 #include <cstring>
 
 #define EMPTY   0x00
-#define BLOCK   0x01
-#define P1START 0x02
-#define P2START 0x03
-#define P3START 0x04
-#define P4START 0x05
+#define P1START 0x01
+#define P2START 0x02
+#define P3START 0x03
+#define P4START 0x04
+#define BLOCK   0x05
 
 class Map : public RenderableObject
 {
