@@ -25,6 +25,11 @@
 
 #define RENDER_INTERVAL 16
 
+#define JBUTTON_FIRE 10
+#define JAXIS_MOVE   0x01
+#define JAXIS_ROTATE 0x00
+#define JAXIS_TURRET 0x02
+
 bool gRunning = true;
 
 const std::string basePath = SDL_GetBasePath();
@@ -32,7 +37,7 @@ void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int,
 
 int main(int argc, char** argv) {
 
-    //freopen("CON", "w", stdout);
+    freopen("logfile.log", "w", stdout);
 
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
@@ -59,7 +64,7 @@ int main(int argc, char** argv) {
 
 
     // Initialize joysticks
-    const int JOYSTICK_DEADZONE = 8000;
+    const int JOYSTICK_DEADZONE = 10000;
     SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 
     int maxPlayers = 0;
@@ -164,18 +169,18 @@ int main(int argc, char** argv) {
             if (e.type == SDL_QUIT) {
                 running = false;
             } else if (e.type == SDL_JOYBUTTONDOWN) {
-                if (e.jbutton.button == 0x00) {
+                if (e.jbutton.button == JBUTTON_FIRE) {
                     players[e.jbutton.which].FireIsHeld(true);
                 }
             } else if (e.type == SDL_JOYBUTTONUP) {
-                if (e.jbutton.button == 0x00) {
+                if (e.jbutton.button == JBUTTON_FIRE) {
                     players[e.jbutton.which].FireIsHeld(false);
                 }
 
             } else if (e.type == SDL_JOYAXISMOTION) {
                 std::cout << "Joystick " << e.jaxis.which << " - Axis " << e.jaxis.axis << ": " << e.jaxis.value << std::endl;
 
-                if (e.jaxis.axis == 0x00) {
+                if (e.jaxis.axis == JAXIS_ROTATE) {
                     // X-axis
                     if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
                         players[e.jaxis.which].SetJoyRotate(true);
@@ -185,9 +190,9 @@ int main(int argc, char** argv) {
                         players[e.jaxis.which].SetRotationVel(MAX_ROTATE * scale);
                     } else {
                             players[e.jaxis.which].SetJoyRotate(false);
-                            p.SetRotationVel(0);
+                            players[e.jaxis.which].SetRotationVel(0);
                     }
-                } else if (e.jaxis.axis == 0x01) {
+                } else if (e.jaxis.axis == JAXIS_MOVE) {
                     // Y-axis
                     if (e.jaxis.value < -JOYSTICK_DEADZONE * 1.5 || e.jaxis.value > JOYSTICK_DEADZONE * 1.5) {
                         players[e.jaxis.which].SetJoyMove(true);
@@ -200,7 +205,7 @@ int main(int argc, char** argv) {
                         players[e.jaxis.which].SetForwardVel(0);
 
                     }
-                } else if (e.jaxis.axis == 0x02) {
+                } else if (e.jaxis.axis == JAXIS_TURRET) {
                     // Right X-axis
                     if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
                         players[e.jaxis.which].SetJoyTurret(true);
@@ -223,33 +228,33 @@ int main(int argc, char** argv) {
                     running = false;
                     break;
                 case SDLK_LEFT:
-                    if (!p.JoyRotate())
+                    if (!players[0].JoyRotate())
                         p.SetRotationVel(-MAX_ROTATE);
                     break;
                 case SDLK_RIGHT:
-                    if (!p.JoyRotate())
+                    if (!players[0].JoyRotate())
                         p.SetRotationVel(MAX_ROTATE);
                     break;
                 case SDLK_a:
                 case SDLK_TAB:
-                    if (!p.JoyTurret())
-                        p.SetTurretRotationVel(-MAX_ROTATE);
+                    if (!players[0].JoyTurret())
+                        players[0].SetTurretRotationVel(-MAX_ROTATE);
                     break;
                 case SDLK_d:
                 case SDLK_BACKSPACE:
-                    if (!p.JoyTurret())
-                        p.SetTurretRotationVel(MAX_ROTATE);
+                    if (!players[0].JoyTurret())
+                        players[0].SetTurretRotationVel(MAX_ROTATE);
                     break;
                 case SDLK_UP:
-                    if (!p.JoyMove())
-                        p.SetForwardVel(MAX_MOVE);
+                    if (!players[0].JoyMove())
+                        players[0].SetForwardVel(MAX_MOVE);
                     break;
                 case SDLK_DOWN:
-                    if (!p.JoyMove())
-                        p.SetForwardVel(-MAX_MOVE);
+                    if (!players[0].JoyMove())
+                        players[0].SetForwardVel(-MAX_MOVE);
                     break;
                 case SDLK_SPACE:
-                    p.FireIsHeld(true);
+                    players[0].FireIsHeld(true);
                     break;
                 }
 
@@ -257,33 +262,33 @@ int main(int argc, char** argv) {
                 switch (e.key.keysym.sym) {
 
                 case SDLK_LEFT:
-                    if (p.GetRotationVel() < 0 && !p.JoyRotate())
-                        p.SetRotationVel(0);
+                    if (players[0].GetRotationVel() < 0 && !players[0].JoyRotate())
+                        players[0].SetRotationVel(0);
                     break;
                 case SDLK_RIGHT:
-                    if (p.GetRotationVel() > 0 && !p.JoyRotate())
-                        p.SetRotationVel(0);
+                    if (players[0].GetRotationVel() > 0 && !players[0].JoyRotate())
+                        players[0].SetRotationVel(0);
                     break;
                 case SDLK_TAB:
                 case SDLK_a:
-                    if (p.GetTurretRotationVel() < 0)
-                        p.SetTurretRotationVel(0);
+                    if (players[0].GetTurretRotationVel() < 0)
+                        players[0].SetTurretRotationVel(0);
                     break;
                 case SDLK_BACKSPACE:
                 case SDLK_d:
-                    if (p.GetTurretRotationVel() > 0)
-                        p.SetTurretRotationVel(0);
+                    if (players[0].GetTurretRotationVel() > 0)
+                        players[0].SetTurretRotationVel(0);
                     break;
                 case SDLK_UP:
-                    if (p.GetForwardVel() > 0 && !p.JoyMove())
-                        p.SetForwardVel(0);
+                    if (players[0].GetForwardVel() > 0 && !players[0].JoyMove())
+                        players[0].SetForwardVel(0);
                     break;
                 case SDLK_DOWN:
-                    if (p.GetForwardVel() < 0 && !p.JoyMove())
-                        p.SetForwardVel(0);
+                    if (players[0].GetForwardVel() < 0 && !players[0].JoyMove())
+                        players[0].SetForwardVel(0);
                     break;
                 case SDLK_SPACE:
-                    p.FireIsHeld(false);
+                    players[0].FireIsHeld(false);
                     break;
                 }
 
