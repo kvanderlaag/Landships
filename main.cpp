@@ -320,6 +320,9 @@ int main(int argc, char** argv) {
             if (!b.second->IsDead()) {
                 b.second->Update(frame_time);
                 for (Player* pl : vMoving) {
+                        if (pl->IsInvincible()) {
+                            continue;
+                        }
                         CollisionInfo coll = b.second->CheckCollision(*pl, frame_time);
                         if (coll.Colliding() && b.second->GetBounce() > 0) {
                             if (&(b.second->GetOwner()) == pl) {
@@ -332,6 +335,7 @@ int main(int argc, char** argv) {
 
                             pl->SetX(m.GetStartPos(pl->GetID()).GetX());
                             pl->SetY(m.GetStartPos(pl->GetID()).GetY());
+                            pl->Invincible();
                             b.second->GetOwner().DestroyBullet();
                             b.second->Die();
 

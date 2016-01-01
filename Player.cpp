@@ -18,7 +18,10 @@ Player::Player(const std::string& filename, int id, SDL_Renderer* ren) :
     mFireHeld(false),
     mJoyMove(false),
     mJoyRotate(false),
-    mJoyTurret(false)
+    mJoyTurret(false),
+    mInvincible(0),
+    mFlashTicks(0),
+    mInvisible(false)
 {
     SDL_QueryTexture(mTexture, NULL, NULL, &width, &height);
     width = width / (width / 16);
@@ -81,6 +84,10 @@ void Player::SetTurretRotationVel(float newvel) {
 }
 
 void Player::Render() {
+    if (mInvisible) {
+        return;
+    }
+
     SDL_Rect srcRect, dstRect;
 
     srcRect.x = 0;
@@ -126,6 +133,24 @@ void Player::CheckCollision(const Collider& other, uint32_t ticks) {
 }
 
 void Player::Update(uint32_t ticks) {
+
+    if (mInvincible > 0) {
+        mInvincible -= ticks;
+        mFlashTicks += ticks;
+        if (mFlashTicks >= TICKS_PER_FLASH) {
+            mInvisible = !mInvisible;
+            mFlashTicks = 0;
+        }
+
+        if (mInvincible <= 0) {
+            mFlashTicks = 0;
+            mInvincible = 0;
+            mInvisible = false;
+        }
+    } else if (mInvisible) {
+        mInvisible = false;
+    }
+
     float forwardPerFrame = mForwardVel * ((float)ticks / 1000) * MOVE_SPEED ;
     float rotationPerFrame = mRotationVel * ((float)ticks / 1000) * ROTATE_SPEED ;
     float turretRotationPerFrame = mTurretRotationVel * ((float) ticks / 1000) * ROTATE_SPEED ;
@@ -255,4 +280,13 @@ const bool Player::JoyTurret() const {
 
 void Player::SetJoyTurret(const bool val) {
     mJoyTurret = val;
+}
+
+const bool Player::IsInvincible() const {
+    return mInvincible > 0;
+}
+
+void Player::Invincible() {
+    mInvincible = INVINCIBLE_TICKS;
+    std::cout << "Player " << mID << " is invincible." << std::endl;
 }
