@@ -49,6 +49,8 @@ void Map::Render() {
 
                 if (tiles[row][col] == EMPTY) {
                     continue;
+                } else if (tiles[row][col] == P1START || tiles[row][col] == P2START || tiles[row][col] == P3START || tiles[row][col] == P4START) {
+                    continue;
                 }
 
                 int offset = (tiles[row][col] - 1) * 8;

@@ -23,6 +23,7 @@
 using namespace std;
 
 int SaveAs(SDL_Renderer* ren, unsigned char tiles[30][40]);
+int Load(SDL_Renderer* ren, unsigned char tiles[30][40]);
 
 int main(int argc, char** argv)
 {
@@ -55,11 +56,14 @@ int main(int argc, char** argv)
         rmask = 0x000000ff;
     #endif // SDL_BIG_ENDIAN
 
-    SDL_Window* win = SDL_CreateWindow("Tanks Level Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Window* win = SDL_CreateWindow("Tanks Level Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
 
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-    SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
+    //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
     SDL_ShowCursor(0);
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
+    SDL_RenderSetLogicalSize(ren, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     SDL_Surface* surf = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
     SDL_FillRect(surf, NULL, SDL_MapRGBA(surf->format, 0x20, 0x20, 0x05, 0xFF));
@@ -130,8 +134,17 @@ int main(int argc, char** argv)
                         running = false;
                     }
                     break;
+                case SDLK_l:
+                    if (Load(ren, tiles) != 0 ) {
+                        running = false;
+                    }
+                    break;
+
                 case SDLK_END:
                 case SDLK_ESCAPE:
+
+
+
                     running = false;
                     break;
                 }
@@ -427,6 +440,234 @@ int SaveAs(SDL_Renderer* ren, unsigned char tiles[30][40]) {
             for (int col = 0; col < 40; col++) {
                 outFile << tiles[row][col];
             }
+        }
+
+    } else {
+        running = true;
+        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+        SDL_RenderClear(ren);
+        SDL_Color c = {0xFF, 0xFF, 0xFF, 0xFF};
+        SDL_Texture* saveText = Utility::RenderText("Invalid file name! (Press Enter to continue.)", "sample.ttf", c, 10, ren);
+
+        int saveTextWidth, saveTextHeight;
+
+        SDL_QueryTexture(saveText, NULL, NULL, &saveTextWidth, &saveTextHeight);
+
+        SDL_Rect srcRect;
+        srcRect.x = 0;
+        srcRect.y = 0;
+        srcRect.w = saveTextWidth;
+        srcRect.h = saveTextHeight;
+
+        SDL_RenderCopy(ren, saveText, &srcRect, &srcRect);
+        SDL_RenderPresent(ren);
+
+        while (running) {
+            SDL_Event e;
+
+            while (SDL_PollEvent(&e)) {
+                if (e.type == SDL_KEYDOWN) {
+                    if (e.key.keysym.sym == SDLK_RETURN) {
+                        running = false;
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+
+int Load(SDL_Renderer* ren, unsigned char tiles[30][40]) {
+    bool running = true;
+
+    std::string loadFileName;
+
+    std::stringstream outputStringStream;
+
+    while (running) {
+
+        SDL_Event e;
+
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                return -1;
+            } else if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                case SDLK_ESCAPE:
+                case SDLK_END:
+                    return 0;
+                    break;
+                case SDLK_a:
+                    loadFileName += 'a';
+                    break;
+                case SDLK_b:
+                    loadFileName += 'b';
+                    break;
+                case SDLK_c:
+                    loadFileName += 'c';
+                    break;
+                case SDLK_d:
+                    loadFileName += 'd';
+                    break;
+                case SDLK_e:
+                    loadFileName += 'e';
+                    break;
+                case SDLK_f:
+                    loadFileName += 'f';
+                    break;
+                case SDLK_g:
+                    loadFileName += 'g';
+                    break;
+                case SDLK_h:
+                    loadFileName += 'h';
+                    break;
+                case SDLK_i:
+                    loadFileName += 'i';
+                    break;
+                case SDLK_j:
+                    loadFileName += 'j';
+                    break;
+                case SDLK_k:
+                    loadFileName += 'k';
+                    break;
+                case SDLK_l:
+                    loadFileName += 'l';
+                    break;
+                case SDLK_m:
+                    loadFileName += 'm';
+                    break;
+                case SDLK_n:
+                    loadFileName += 'n';
+                    break;
+                case SDLK_o:
+                    loadFileName += 'o';
+                    break;
+                case SDLK_p:
+                    loadFileName += 'p';
+                    break;
+                case SDLK_q:
+                    loadFileName += 'q';
+                    break;
+                case SDLK_r:
+                    loadFileName += 'r';
+                    break;
+                case SDLK_s:
+                    loadFileName += 's';
+                    break;
+                case SDLK_t:
+                    loadFileName += 't';
+                    break;
+                case SDLK_u:
+                    loadFileName += 'u';
+                    break;
+                case SDLK_v:
+                    loadFileName += 'v';
+                    break;
+                case SDLK_w:
+                    loadFileName += 'w';
+                    break;
+                case SDLK_x:
+                    loadFileName += 'x';
+                    break;
+                case SDLK_y:
+                    loadFileName += 'y';
+                    break;
+                case SDLK_z:
+                    loadFileName += 'z';
+                    break;
+                case SDLK_1:
+                    loadFileName += '1';
+                    break;
+                case SDLK_2:
+                    loadFileName += '2';
+                    break;
+                case SDLK_3:
+                    loadFileName += '3';
+                    break;
+                case SDLK_4:
+                    loadFileName += '4';
+                    break;
+                case SDLK_5:
+                    loadFileName += '5';
+                    break;
+                case SDLK_6:
+                    loadFileName += '6';
+                    break;
+                case SDLK_7:
+                    loadFileName += '7';
+                    break;
+                case SDLK_8:
+                    loadFileName += '8';
+                    break;
+                case SDLK_9:
+                    loadFileName += '9';
+                    break;
+                case SDLK_0:
+                    loadFileName += '0';
+                    break;
+                case SDLK_UNDERSCORE:
+                    loadFileName += '_';
+                    break;
+                case SDLK_RETURN:
+                    running = false;
+                    break;
+                case SDLK_BACKSPACE:
+                    std::string loadFileNameNew;
+                    if (loadFileName.length() > 0) {
+                        for (size_t i = 0; i < loadFileName.length() - 1; i++) {
+                            loadFileNameNew += loadFileName[i];
+                        }
+                    }
+                    loadFileName = loadFileNameNew;
+                    break;
+                }
+
+            }
+        }
+
+
+        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+        SDL_RenderClear(ren);
+
+        outputStringStream.str("");
+        outputStringStream << "Load file: ";
+        outputStringStream << loadFileName.c_str();
+        outputStringStream << ".d";
+
+        SDL_Color c = {0xFF, 0xFF, 0xFF, 0xFF};
+        SDL_Texture* loadText = Utility::RenderText(outputStringStream.str(), "sample.ttf", c, 10, ren);
+
+        int loadTextWidth, loadTextHeight;
+
+        SDL_QueryTexture(loadText, NULL, NULL, &loadTextWidth, &loadTextHeight);
+
+        SDL_Rect srcRect;
+        srcRect.x = 0;
+        srcRect.y = 0;
+        srcRect.w = loadTextWidth;
+        srcRect.h = loadTextHeight;
+
+        SDL_RenderCopy(ren, loadText, &srcRect, &srcRect);
+        SDL_RenderPresent(ren);
+
+
+    }
+
+    if (loadFileName.length() > 0) {
+        std::string basePath = SDL_GetBasePath();
+        basePath += loadFileName + ".d";
+        std::ifstream inFile(basePath, std::ofstream::in);
+        for (int row = 0; row < 30; row++) {
+            for (int col = 0; col < 40; col++) {
+                char c;
+                inFile.get(c);
+                tiles[row][col] = c;
+                if (!inFile.good())
+                    break;
+            }
+            if (!inFile.good())
+                    break;
         }
 
     } else {

@@ -13,11 +13,11 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="../../../../../libraries/SDL/SDL2-2.0.3/i686-w64-mingw32/include" />
+					<Add directory="../../../../../../libraries/SDL/SDL2-2.0.3/i686-w64-mingw32/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-lmingw32 -lSDL2main -lSDL2.dll -lSDL2_image.dll -lSDL2_mixer.dll -lSDL2_ttf.dll" />
-					<Add directory="../../../../../libraries/SDL/SDL2-2.0.3/i686-w64-mingw32/lib" />
+					<Add directory="../../../../../../libraries/SDL/SDL2-2.0.3/i686-w64-mingw32/lib" />
 				</Linker>
 			</Target>
 			<Target title="Release">

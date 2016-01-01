@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     const int JOYSTICK_DEADZONE = 8000;
     SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 
-    int maxPlayers = 0;
+    int maxPlayers = 1;
     if (SDL_NumJoysticks() > 0) {
         maxPlayers = std::min(SDL_NumJoysticks(), 4);
         for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
