@@ -62,6 +62,18 @@ public:
     const int GetScore() const;
     void AddScore(const int mod);
 
+    const bool FireHeld() const;
+    void FireIsHeld(const bool val);
+
+    const bool JoyMove() const;
+    void SetJoyMove(const bool val);
+
+    const bool JoyRotate() const;
+    void SetJoyRotate(const bool val);
+
+    const bool JoyTurret() const;
+    void SetJoyTurret(const bool val);
+
 private:
     int mID;
     int score;
@@ -80,6 +92,8 @@ private:
     Collider mCollider;
     int mMaxBullets, mBullets, mMaxBounce;
 
+    bool mFireHeld;
+    bool mJoyMove, mJoyRotate, mJoyTurret;
 };
 
 #endif // _PLAYER_H_

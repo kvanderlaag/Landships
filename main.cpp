@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     const int JOYSTICK_DEADZONE = 8000;
     SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 
-    int maxPlayers = 1;
+    int maxPlayers = 0;
     if (SDL_NumJoysticks() > 0) {
         maxPlayers = std::min(SDL_NumJoysticks(), 4);
         for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
@@ -159,20 +159,17 @@ int main(int argc, char** argv) {
         uint32_t frame_time = new_time - old_time;
         old_time = new_time;
 
-        bool joymove = false;
-        bool joyrotate = false;
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 running = false;
             } else if (e.type == SDL_JOYBUTTONDOWN) {
                 if (e.jbutton.button == 0x00) {
-                    Bullet* b = players[e.jbutton.which].Fire();
-                    if (b != nullptr) {
-                        vBullets.insert(std::pair<int, Bullet*>(Bullet::next, b));
-                        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, b));
-                        RenderableObject::next++;
-                    }
+                    players[e.jbutton.which].FireIsHeld(true);
+                }
+            } else if (e.type == SDL_JOYBUTTONUP) {
+                if (e.jbutton.button == 0x00) {
+                    players[e.jbutton.which].FireIsHeld(false);
                 }
 
             } else if (e.type == SDL_JOYAXISMOTION) {
@@ -181,26 +178,39 @@ int main(int argc, char** argv) {
                 if (e.jaxis.axis == 0x00) {
                     // X-axis
                     if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
-                        joyrotate = true;
+                        players[e.jaxis.which].SetJoyRotate(true);
 
                         float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
                         std::cout << "Rotating " << scale << std::endl;
                         players[e.jaxis.which].SetRotationVel(MAX_ROTATE * scale);
                     } else {
-                            joyrotate = false;
+                            players[e.jaxis.which].SetJoyRotate(false);
                             p.SetRotationVel(0);
                     }
                 } else if (e.jaxis.axis == 0x01) {
                     // Y-axis
                     if (e.jaxis.value < -JOYSTICK_DEADZONE * 1.5 || e.jaxis.value > JOYSTICK_DEADZONE * 1.5) {
-                        joymove = true;
+                        players[e.jaxis.which].SetJoyMove(true);
 
                         float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
                         std::cout << "Moving " << scale << std::endl;
                         players[e.jaxis.which].SetForwardVel(MAX_MOVE * -scale);
                     } else {
-                        joymove = false;
+                        players[e.jaxis.which].SetJoyMove(false);
                         players[e.jaxis.which].SetForwardVel(0);
+
+                    }
+                } else if (e.jaxis.axis == 0x02) {
+                    // Right X-axis
+                    if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
+                        players[e.jaxis.which].SetJoyTurret(true);
+
+                        float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
+                        std::cout << "Rotating Turret " << scale << std::endl;
+                        players[e.jaxis.which].SetTurretRotationVel(MAX_ROTATE * -scale);
+                    } else {
+                        players[e.jaxis.which].SetJoyTurret(false);
+                        players[e.jaxis.which].SetTurretRotationVel(0);
 
                     }
                 }
@@ -213,36 +223,33 @@ int main(int argc, char** argv) {
                     running = false;
                     break;
                 case SDLK_LEFT:
-                    if (!joyrotate)
+                    if (!p.JoyRotate())
                         p.SetRotationVel(-MAX_ROTATE);
                     break;
                 case SDLK_RIGHT:
-                    if (!joyrotate)
+                    if (!p.JoyRotate())
                         p.SetRotationVel(MAX_ROTATE);
                     break;
                 case SDLK_a:
                 case SDLK_TAB:
-                    p.SetTurretRotationVel(-MAX_ROTATE);
+                    if (!p.JoyTurret())
+                        p.SetTurretRotationVel(-MAX_ROTATE);
                     break;
                 case SDLK_d:
                 case SDLK_BACKSPACE:
-                    p.SetTurretRotationVel(MAX_ROTATE);
+                    if (!p.JoyTurret())
+                        p.SetTurretRotationVel(MAX_ROTATE);
                     break;
                 case SDLK_UP:
-                    if (!joymove)
+                    if (!p.JoyMove())
                         p.SetForwardVel(MAX_MOVE);
                     break;
                 case SDLK_DOWN:
-                    if (!joymove)
+                    if (!p.JoyMove())
                         p.SetForwardVel(-MAX_MOVE);
                     break;
                 case SDLK_SPACE:
-                    Bullet* b = p.Fire();
-                    if (b != nullptr) {
-                        vBullets.insert(std::pair<int, Bullet*>(Bullet::next, b));
-                        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, b));
-                        RenderableObject::next++;
-                    }
+                    p.FireIsHeld(true);
                     break;
                 }
 
@@ -250,11 +257,11 @@ int main(int argc, char** argv) {
                 switch (e.key.keysym.sym) {
 
                 case SDLK_LEFT:
-                    if (p.GetRotationVel() < 0 && !joyrotate)
+                    if (p.GetRotationVel() < 0 && !p.JoyRotate())
                         p.SetRotationVel(0);
                     break;
                 case SDLK_RIGHT:
-                    if (p.GetRotationVel() > 0 && !joyrotate)
+                    if (p.GetRotationVel() > 0 && !p.JoyRotate())
                         p.SetRotationVel(0);
                     break;
                 case SDLK_TAB:
@@ -268,16 +275,29 @@ int main(int argc, char** argv) {
                         p.SetTurretRotationVel(0);
                     break;
                 case SDLK_UP:
-                    if (p.GetForwardVel() > 0 && !joymove)
+                    if (p.GetForwardVel() > 0 && !p.JoyMove())
                         p.SetForwardVel(0);
                     break;
                 case SDLK_DOWN:
-                    if (p.GetForwardVel() < 0 && !joymove)
+                    if (p.GetForwardVel() < 0 && !p.JoyMove())
                         p.SetForwardVel(0);
                     break;
-
+                case SDLK_SPACE:
+                    p.FireIsHeld(false);
+                    break;
                 }
 
+            }
+        }
+
+        for (int i = 0; i < 4; i++) {
+            if (players[i].FireHeld()) {
+                Bullet* b = players[i].Fire();
+                    if (b != nullptr) {
+                        vBullets.insert(std::pair<int, Bullet*>(Bullet::next, b));
+                        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, b));
+                        RenderableObject::next++;
+                    }
             }
         }
 

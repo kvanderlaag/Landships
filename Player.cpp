@@ -14,7 +14,11 @@ Player::Player(const std::string& filename, int id, SDL_Renderer* ren) :
     mCollider(PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, this),
     mMaxBullets(1),
     mBullets(0),
-    mMaxBounce(1)
+    mMaxBounce(1),
+    mFireHeld(false),
+    mJoyMove(false),
+    mJoyRotate(false),
+    mJoyTurret(false)
 {
     SDL_QueryTexture(mTexture, NULL, NULL, &width, &height);
     width = width / (width / 16);
@@ -219,4 +223,36 @@ const int Player::GetScore() const {
 
 void Player::AddScore(const int mod) {
     score += mod;
+}
+
+const bool Player::FireHeld() const {
+    return mFireHeld;
+}
+
+void Player::FireIsHeld(const bool val) {
+    mFireHeld = val;
+}
+
+const bool Player::JoyMove() const {
+    return mJoyMove;
+}
+
+void Player::SetJoyMove(const bool val) {
+    mJoyMove = val;
+}
+
+const bool Player::JoyRotate() const {
+    return mJoyRotate;
+}
+
+void Player::SetJoyRotate(const bool val) {
+    mJoyRotate = val;
+}
+
+const bool Player::JoyTurret() const {
+    return mJoyTurret;
+}
+
+void Player::SetJoyTurret(const bool val) {
+    mJoyTurret = val;
 }

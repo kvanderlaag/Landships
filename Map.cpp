@@ -36,6 +36,7 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
             col = 0;
         }
     }
+    inFile.close();
 }
 
 Map::~Map()
