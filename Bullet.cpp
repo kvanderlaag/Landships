@@ -37,6 +37,7 @@ const Vector2D& Bullet::GetDirection() const {
 void Bullet::Bounce(const CollisionInfo& coll, const uint32_t ticks) {
 
         if (mBounce < mMaxBounce) {
+            Utility::PlaySound(sfxBounce);
             //std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
             //std::cout << "MT Angle: " << coll.MinimumTranslation().Normalized().Angle() << std::endl;
             mDirection = mDirection.Reflect(coll.MinimumTranslation().Normalized());

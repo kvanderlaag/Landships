@@ -1,5 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -25,6 +27,11 @@
 
 #define GAME_FONT "8bit.ttf"
 
+#define GAME_MUSIC "music.ogg"
+#define SFX_FIRE "sfx_fire.ogg"
+#define SFX_BOUNCE "sfx_bounce.ogg"
+#define SFX_DIE "sfx_die.ogg"
+
 #define RENDER_INTERVAL 16
 
 #define JBUTTON_FIRE 10
@@ -33,13 +40,17 @@
 #define JAXIS_TURRET 0x02
 
 bool gRunning = true;
+Mix_Music* gameMusic = NULL;
+Mix_Chunk* sfxFire = NULL;
+Mix_Chunk* sfxBounce = NULL;
+Mix_Chunk* sfxDie = NULL;
 
 const std::string basePath = SDL_GetBasePath();
 void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int, RenderableObject*>& vRenderable, std::vector<Explosion*>& vExplosions);
 
 int main(int argc, char** argv) {
 
-    freopen("logfile.log", "w", stdout);
+    freopen("CON", "w", stdout);
 
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
@@ -60,6 +71,30 @@ int main(int argc, char** argv) {
         IMG_Quit();
         SDL_Quit();
         return 3;
+    }
+
+
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        std::cout << "Error initializing SDL_Mixer: " << Mix_GetError() << std::endl;
+        IMG_Quit();
+        TTF_Quit();
+        SDL_Quit();
+        return 4;
+    }
+
+    gameMusic = Utility::LoadMusic(GAME_MUSIC);
+    sfxFire = Utility::LoadSound(SFX_FIRE);
+    sfxBounce = Utility::LoadSound(SFX_BOUNCE);
+    sfxDie = Utility::LoadSound(SFX_DIE);
+
+    if (gameMusic == nullptr || sfxFire == nullptr || sfxBounce == nullptr || sfxDie == nullptr) {
+        std::cout << "Could not load sound effects. Exiting." << std::endl;
+        IMG_Quit();
+        TTF_Quit();
+        Mix_Quit();
+        SDL_Quit();
+        return 5;
     }
 
 
@@ -162,6 +197,8 @@ int main(int argc, char** argv) {
     vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &m));
     RenderableObject::next++;
 
+
+    Utility::PlayMusic(gameMusic);
 
     bool running = true;
 
@@ -339,6 +376,7 @@ int main(int argc, char** argv) {
 
                             NewExplosion(pl->GetX(), pl->GetY(), ren, vRenderable, vExplosions);
 
+                            Utility::PlaySound(sfxDie);
                             pl->SetX(m.GetStartPos(pl->GetID()).GetX());
                             pl->SetY(m.GetStartPos(pl->GetID()).GetY());
                             pl->Invincible();
@@ -529,6 +567,8 @@ int main(int argc, char** argv) {
 
     }
 
+    Mix_HaltMusic();
+
     for (int i = 0; i < maxPlayers; ++i) {
         SDL_JoystickClose(gController[i]);
         gController[i] = NULL;
@@ -537,7 +577,14 @@ int main(int argc, char** argv) {
     SDL_DestroyWindow(win);
     SDL_DestroyRenderer(ren);
 
+    Mix_FreeChunk(sfxFire);
+    Mix_FreeChunk(sfxDie);
+    Mix_FreeChunk(sfxBounce);
+    Mix_FreeMusic(gameMusic);
+
     IMG_Quit();
+    TTF_Quit();
+    Mix_Quit();
     SDL_Quit();
 
     return 0;

@@ -218,7 +218,7 @@ Bullet* Player::Fire() {
 
 
     Bullet* b = new Bullet(bx, by, mTurretAngle, direction.Normalized(), *this, mRenderer);
-
+    Utility::PlaySound(sfxFire);
     return b;
 }
 
@@ -290,5 +290,5 @@ const bool Player::IsInvincible() const {
 
 void Player::Invincible() {
     mInvincible = INVINCIBLE_TICKS;
-    std::cout << "Player " << mID << " is invincible." << std::endl;
+    //std::cout << "Player " << mID << " is invincible." << std::endl;
 }

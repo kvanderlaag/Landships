@@ -365,9 +365,11 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1451706103 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1451760545 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
+	<SDL2/SDL_ttf.h>
+	<SDL2/SDL_mixer.h>
 	<string>
 	<fstream>
 	<iostream>
@@ -384,20 +386,22 @@
 	"Collider.hpp"
 	"Explosion.hpp"
 
-1451680201 d:\users\kvand_000\documents\github\tanks\player.hpp
+1451709583 d:\users\kvand_000\documents\github\tanks\player.hpp
 	"GameObject.hpp"
 	"RenderableObject.hpp"
 	"Utility.hpp"
 	"Map.hpp"
 	"Collider.hpp"
+	<SDL2/SDL_mixer.h>
 	"Bullet.hpp"
 	<memory>
 	<cmath>
 
-1451073217 d:\users\kvand_000\documents\github\tanks\utility.hpp
+1451708704 d:\users\kvand_000\documents\github\tanks\utility.hpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
+	<SDL2/SDL_mixer.h>
 	<string>
 	<iostream>
 	<numeric>
@@ -419,16 +423,16 @@
 	<vector>
 	<cstring>
 
-1451706274 source:d:\users\kvand_000\documents\github\tanks\map.cpp
+1451708721 source:d:\users\kvand_000\documents\github\tanks\map.cpp
 	"Map.hpp"
 
-1451706227 source:d:\users\kvand_000\documents\github\tanks\player.cpp
+1451709593 source:d:\users\kvand_000\documents\github\tanks\player.cpp
 	"Player.hpp"
 
 1451706143 source:d:\users\kvand_000\documents\github\tanks\tile.cpp
 	"Tile.hpp"
 
-1451596807 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
+1451760018 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
 	"Utility.hpp"
 
 1451433642 source:d:\users\kvand_000\documents\github\tanks\collider.cpp
@@ -498,11 +502,11 @@
 1451158244 d:\users\kvand_000\documents\github\tanks\collisioninfo.hpp
 	"Vector2D.hpp"
 
-1451586973 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
+1451760336 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
 	"Bullet.hpp"
 	<iostream>
 
-1451449946 d:\users\kvand_000\documents\github\tanks\bullet.hpp
+1451760291 d:\users\kvand_000\documents\github\tanks\bullet.hpp
 	"RenderableObject.hpp"
 	"Collider.hpp"
 	"CollisionInfo.hpp"
@@ -530,4 +534,13 @@
 	<cinttypes>
 
 1451585626 d:\users\kvand_000\documents\github\tanks\game.hpp
+
+1376156425 d:\libraries\sdl\sdl2-2.0.3\i686-w64-mingw32\include\sdl2\sdl_mixer.h
+	"SDL_stdinc.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
 

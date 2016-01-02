@@ -6,6 +6,8 @@
 #include "CollisionInfo.hpp"
 #include "Player.hpp"
 
+extern Mix_Chunk* sfxBounce;
+
 class Player;
 
 class Bullet : public RenderableObject {

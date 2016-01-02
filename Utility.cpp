@@ -69,3 +69,43 @@ float Utility::IntervalDistance(float minA, float maxA, float minB, float maxB) 
         return minA - maxB;
     }
 }
+
+
+Mix_Music* Utility::LoadMusic(const std::string& filename) {
+    std::string path = SDL_GetBasePath();
+    path += filename;
+
+    std::cout << "Loading music " << path << std::endl;
+
+    Mix_Music* m = Mix_LoadMUS(path.c_str());
+    if (m) {
+        return m;
+    }
+    return nullptr;
+}
+
+Mix_Chunk* Utility::LoadSound(const std::string& filename) {
+    std::string path = SDL_GetBasePath();
+    path += filename;
+
+    std::cout << "Loading sound " << path << std::endl;
+
+    Mix_Chunk* s = Mix_LoadWAV(path.c_str());
+    if (s) {
+        return s;
+    }
+    return nullptr;
+}
+
+void Utility::PlayMusic(Mix_Music* m) {
+    Mix_PlayMusic(m, -1);
+}
+
+void Utility::PlaySound(Mix_Chunk* s) {
+    Mix_PlayChannel(-1, s, 0);
+}
+
+void Utility::PlaySound(Mix_Chunk* s, const int volume) {
+    Mix_VolumeChunk(s, volume);
+    Mix_PlayChannel(-1, s, 0);
+}

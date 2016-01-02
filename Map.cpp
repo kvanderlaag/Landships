@@ -70,7 +70,7 @@ void Map::Render() {
                 SDL_RenderCopy(mRenderer, mTexture, &srcRect, &dstRect);
 
                 #ifdef _COLLISION_DEBUG
-                /* Render all colliders
+                /* Render all colliders */
                 for (Collider& c : mvColliders) {
                     std::vector<Point> colliderPoints = c.GetPoints();
                     SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
