@@ -56,6 +56,9 @@ Mix_Chunk* sfxDie = NULL;
 std::default_random_engine generator(time(0));
 std::uniform_int_distribution<int> dist(1,3);
 
+bool altHeld = false;
+bool fullscreen = true;
+
 const std::string basePath = SDL_GetBasePath();
 void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int, RenderableObject*>& vRenderable, std::vector<Explosion*>& vExplosions);
 
@@ -139,6 +142,7 @@ int main(int argc, char** argv) {
 
     SDL_Window* win = SDL_CreateWindow("Balls", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
+    SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_ShowCursor(0);
 
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
@@ -338,6 +342,21 @@ int main(int argc, char** argv) {
 
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
+                case SDLK_LALT:
+                case SDLK_RALT:
+                    altHeld = true;
+                    break;
+                case SDLK_RETURN:
+                    if (altHeld) {
+                        if (fullscreen) {
+                            SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
+                            fullscreen = false;
+                        } else {
+                            SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                            fullscreen = true;
+                        }
+                    }
+                    break;
                 case SDLK_PAUSE:
                 case SDLK_END:
                 case SDLK_ESCAPE:
@@ -376,7 +395,10 @@ int main(int argc, char** argv) {
 
             } else if (e.type == SDL_KEYUP) {
                 switch (e.key.keysym.sym) {
-
+                case SDLK_LALT:
+                case SDLK_RALT:
+                    altHeld = false;
+                    break;
                 case SDLK_LEFT:
                     if (players[0].GetRotationVel() < 0 && !players[0].JoyMove())
                         players[0].SetRotationVel(0);
