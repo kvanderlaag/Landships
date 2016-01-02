@@ -38,6 +38,8 @@
 #define JAXIS_MOVE   0x01
 #define JAXIS_ROTATE 0x00
 #define JAXIS_TURRET 0x02
+#define JAXIS_TURRETX 0x02
+#define JAXIS_TURRETY 0x03
 
 bool gRunning = true;
 Mix_Music* gameMusic = NULL;
@@ -248,19 +250,42 @@ int main(int argc, char** argv) {
                         players[e.jaxis.which].SetForwardVel(0);
 
                     }
-                } else if (e.jaxis.axis == JAXIS_TURRET) {
+                } else if (e.jaxis.axis == JAXIS_TURRETX || e.jaxis.axis == JAXIS_TURRETY) {
                     // Right X-axis
+                    /*
                     if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
                         players[e.jaxis.which].SetJoyTurret(true);
 
                         float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
                         std::cout << "Rotating Turret " << scale << std::endl;
-                        players[e.jaxis.which].SetTurretRotationVel(MAX_ROTATE * -scale);
+                        players[e.jaxis.which].SetTurretRotationVel(MAX_ROTATE * scale);
                     } else {
                         players[e.jaxis.which].SetJoyTurret(false);
                         players[e.jaxis.which].SetTurretRotationVel(0);
 
                     }
+                    */
+                    if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
+                        float joyAngle = std::atan2(SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_TURRETX),
+                                                    SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_TURRETY));
+                        joyAngle = joyAngle / 180 * M_PI;
+                        float ptAngle = players[e.jaxis.which].GetTurretAngle();
+
+                        float scale;
+                        float diff = ptAngle = joyAngle;
+                        if (diff > 0) {
+                            scale = 1;
+                        } else {
+                            scale = -1;
+                        }
+
+                        std::cout << "Rotating Turret " << scale << std::endl;
+                        players[e.jaxis.which].SetTurretRotationVel(MAX_ROTATE * scale);
+                    } else {
+                        players[e.jaxis.which].SetTurretRotationVel(0);
+
+                    }
+
                 }
 
             } else if (e.type == SDL_KEYDOWN) {

@@ -292,3 +292,19 @@ void Player::Invincible() {
     mInvincible = INVINCIBLE_TICKS;
     //std::cout << "Player " << mID << " is invincible." << std::endl;
 }
+
+const Vector2D Player::GetVelocity() const {
+    return Vector2D(mVelocity.GetX(), mVelocity.GetY());
+}
+
+const float Player::GetTurretAngle() const {
+    return mTurretAngle;
+}
+
+void Player::SetTurretAngle(const float newangle) {
+    mTurretAngle = newangle;
+    while (mTurretAngle < 0)
+        mTurretAngle += 360;
+    while (mTurretAngle > 360)
+        mTurretAngle -= 360;
+}
