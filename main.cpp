@@ -107,8 +107,8 @@ int main(int argc, char** argv) {
 
     // Initialize joysticks
     //const int JOYSTICK_DEADZONE = 10000;
-    const int JOYTURRET_DEADZONE = 2000;
-    const int JOYMOVE_DEADZONE = 2000;
+    const int JOYTURRET_DEADZONE = 12000;
+    const int JOYMOVE_DEADZONE = 12000;
     const int JOYFIRE_DEADZONE = 0;
     SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 
@@ -217,37 +217,56 @@ int main(int argc, char** argv) {
 
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
+
+            int index = -1;
+            if (e.type == SDL_JOYAXISMOTION) {
+                for (int i = 0; i < maxPlayers; ++i) {
+                    if (SDL_JoystickInstanceID(gController[i]) == e.jaxis.which) {
+                        index = i;
+                        break;
+                    }
+                }
+
+            } else if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP) {
+                for (int i = 0; i < maxPlayers; ++i) {
+                    if (SDL_JoystickInstanceID(gController[i]) == e.jbutton.which) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+
             if (e.type == SDL_QUIT) {
                 running = false;
             } else if (e.type == SDL_JOYBUTTONDOWN) {
                 if (e.jbutton.button == JBUTTON_FIRE) {
-                    players[e.jbutton.which].FireIsHeld(true);
+                    players[index].FireIsHeld(true);
                 }
             } else if (e.type == SDL_JOYBUTTONUP) {
                 if (e.jbutton.button == JBUTTON_FIRE) {
-                    players[e.jbutton.which].FireIsHeld(false);
+                    players[index].FireIsHeld(false);
                 }
 
             } else if (e.type == SDL_JOYAXISMOTION) {
                 if (e.jaxis.axis == JAXIS_FIRE) {
                     if (e.jaxis.value > JOYFIRE_DEADZONE) {
-                        players[e.jaxis.which].FireIsHeld(true);
+                        players[index].FireIsHeld(true);
                     } else {
-                        players[e.jaxis.which].FireIsHeld(false);
+                        players[index].FireIsHeld(false);
                     }
 
                 //std::cout << "Joystick " << e.jaxis.which << " - Axis " << e.jaxis.axis << ": " << e.jaxis.value << std::endl;
                 } else if (e.jaxis.axis == JAXIS_MOVEX || e.jaxis.axis == JAXIS_MOVEY) {
                     int32_t joyX, joyY;
-                    joyX = SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_MOVEX);
-                    joyY = SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_MOVEY);
-                    if (std::sqrt(joyX * joyX + joyY + joyY) > JOYMOVE_DEADZONE) {
-                        players[e.jaxis.which].SetJoyMove(true);
+                    joyX = SDL_JoystickGetAxis(gController[index], JAXIS_MOVEX);
+                    joyY = SDL_JoystickGetAxis(gController[index], JAXIS_MOVEY);
+                    if (std::sqrt(joyX * joyX + joyY * joyY) > JOYMOVE_DEADZONE) {
+                        players[index].SetJoyMove(true);
                     //if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
                     } else {
-                        players[e.jaxis.which].SetJoyMove(false);
-                        players[e.jaxis.which].SetRotationVel(0);
-                        players[e.jaxis.which].SetForwardVel(0);
+                        players[index].SetJoyMove(false);
+                        players[index].SetRotationVel(0);
+                        players[index].SetForwardVel(0);
 
                     }
                 //if (e.jaxis.axis == JAXIS_ROTATE) {
@@ -295,14 +314,14 @@ int main(int argc, char** argv) {
                     }
                     */
                     int32_t joyX, joyY;
-                    joyX = SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_TURRETX);
-                    joyY = SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_TURRETY);
-                    if (std::sqrt(joyX * joyX + joyY + joyY) > JOYTURRET_DEADZONE) {
-                        players[e.jaxis.which].SetJoyTurret(true);
+                    joyX = SDL_JoystickGetAxis(gController[index], JAXIS_TURRETX);
+                    joyY = SDL_JoystickGetAxis(gController[index], JAXIS_TURRETY);
+                    if (std::sqrt(joyX * joyX + joyY * joyY) > JOYTURRET_DEADZONE) {
+                        players[index].SetJoyTurret(true);
                     //if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
                     } else {
-                        players[e.jaxis.which].SetJoyTurret(false);
-                        players[e.jaxis.which].SetTurretRotationVel(0);
+                        players[index].SetJoyTurret(false);
+                        players[index].SetTurretRotationVel(0);
 
                     }
 
