@@ -37,8 +37,6 @@ public:
     const float GetTurretAngle() const;
     void SetTurretAngle(const float newangle);
 
-    const float GetAngle() const;
-
     const Vector2D GetVelocity() const;
 
     void SetXVel(float newvel);

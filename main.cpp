@@ -23,7 +23,7 @@
 #define SCREEN_HEIGHT 240
 
 #define MAX_MOVE 1
-#define MAX_ROTATE 2
+#define MAX_ROTATE 3
 
 #define GAME_FONT "8bit.ttf"
 
@@ -34,12 +34,15 @@
 
 #define RENDER_INTERVAL 16
 
-#define JBUTTON_FIRE 10
+#define JBUTTON_FIRE 9
 #define JAXIS_MOVE   0x01
 #define JAXIS_ROTATE 0x00
 #define JAXIS_TURRET 0x02
 #define JAXIS_TURRETX 0x02
 #define JAXIS_TURRETY 0x03
+#define JAXIS_MOVEX 0x00
+#define JAXIS_MOVEY 0x01
+#define JAXIS_FIRE 0x05
 
 bool gRunning = true;
 Mix_Music* gameMusic = NULL;
@@ -103,7 +106,10 @@ int main(int argc, char** argv) {
 
 
     // Initialize joysticks
-    const int JOYSTICK_DEADZONE = 10000;
+    //const int JOYSTICK_DEADZONE = 10000;
+    const int JOYTURRET_DEADZONE = 2000;
+    const int JOYMOVE_DEADZONE = 2000;
+    const int JOYFIRE_DEADZONE = 0;
     SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 
     int maxPlayers = 0;
@@ -223,33 +229,56 @@ int main(int argc, char** argv) {
                 }
 
             } else if (e.type == SDL_JOYAXISMOTION) {
-                std::cout << "Joystick " << e.jaxis.which << " - Axis " << e.jaxis.axis << ": " << e.jaxis.value << std::endl;
+                if (e.jaxis.axis == JAXIS_FIRE) {
+                    if (e.jaxis.value > JOYFIRE_DEADZONE) {
+                        players[e.jaxis.which].FireIsHeld(true);
+                    } else {
+                        players[e.jaxis.which].FireIsHeld(false);
+                    }
 
-                if (e.jaxis.axis == JAXIS_ROTATE) {
+                //std::cout << "Joystick " << e.jaxis.which << " - Axis " << e.jaxis.axis << ": " << e.jaxis.value << std::endl;
+                } else if (e.jaxis.axis == JAXIS_MOVEX || e.jaxis.axis == JAXIS_MOVEY) {
+                    int32_t joyX, joyY;
+                    joyX = SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_MOVEX);
+                    joyY = SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_MOVEY);
+                    if (std::sqrt(joyX * joyX + joyY + joyY) > JOYMOVE_DEADZONE) {
+                        players[e.jaxis.which].SetJoyMove(true);
+                    //if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
+                    } else {
+                        players[e.jaxis.which].SetJoyMove(false);
+                        players[e.jaxis.which].SetRotationVel(0);
+                        players[e.jaxis.which].SetForwardVel(0);
+
+                    }
+                //if (e.jaxis.axis == JAXIS_ROTATE) {
                     // X-axis
+                    /*
                     if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
                         players[e.jaxis.which].SetJoyRotate(true);
 
                         float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
-                        std::cout << "Rotating " << scale << std::endl;
+                        //std::cout << "Rotating " << scale << std::endl;
                         players[e.jaxis.which].SetRotationVel(MAX_ROTATE * scale);
                     } else {
                             players[e.jaxis.which].SetJoyRotate(false);
                             players[e.jaxis.which].SetRotationVel(0);
                     }
-                } else if (e.jaxis.axis == JAXIS_MOVE) {
+                    */
+                //} else if (e.jaxis.axis == JAXIS_MOVE) {
                     // Y-axis
+                    /*
                     if (e.jaxis.value < -JOYSTICK_DEADZONE * 1.5 || e.jaxis.value > JOYSTICK_DEADZONE * 1.5) {
                         players[e.jaxis.which].SetJoyMove(true);
 
                         float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
-                        std::cout << "Moving " << scale << std::endl;
+                        //std::cout << "Moving " << scale << std::endl;
                         players[e.jaxis.which].SetForwardVel(MAX_MOVE * -scale);
                     } else {
                         players[e.jaxis.which].SetJoyMove(false);
                         players[e.jaxis.which].SetForwardVel(0);
 
                     }
+                    */
                 } else if (e.jaxis.axis == JAXIS_TURRETX || e.jaxis.axis == JAXIS_TURRETY) {
                     // Right X-axis
                     /*
@@ -265,23 +294,14 @@ int main(int argc, char** argv) {
 
                     }
                     */
-                    if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
-                        float joyAngle = std::atan2(SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_TURRETX),
-                                                    SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_TURRETY));
-                        joyAngle = joyAngle / 180 * M_PI;
-                        float ptAngle = players[e.jaxis.which].GetTurretAngle();
-
-                        float scale;
-                        float diff = ptAngle = joyAngle;
-                        if (diff > 0) {
-                            scale = 1;
-                        } else {
-                            scale = -1;
-                        }
-
-                        std::cout << "Rotating Turret " << scale << std::endl;
-                        players[e.jaxis.which].SetTurretRotationVel(MAX_ROTATE * scale);
+                    int32_t joyX, joyY;
+                    joyX = SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_TURRETX);
+                    joyY = SDL_JoystickGetAxis(gController[e.jaxis.which], JAXIS_TURRETY);
+                    if (std::sqrt(joyX * joyX + joyY + joyY) > JOYTURRET_DEADZONE) {
+                        players[e.jaxis.which].SetJoyTurret(true);
+                    //if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
                     } else {
+                        players[e.jaxis.which].SetJoyTurret(false);
                         players[e.jaxis.which].SetTurretRotationVel(0);
 
                     }
@@ -296,11 +316,11 @@ int main(int argc, char** argv) {
                     running = false;
                     break;
                 case SDLK_LEFT:
-                    if (!players[0].JoyRotate())
+                    if (!players[0].JoyMove())
                         players[0].SetRotationVel(-MAX_ROTATE);
                     break;
                 case SDLK_RIGHT:
-                    if (!players[0].JoyRotate())
+                    if (!players[0].JoyMove())
                         players[0].SetRotationVel(MAX_ROTATE);
                     break;
                 case SDLK_a:
@@ -330,11 +350,11 @@ int main(int argc, char** argv) {
                 switch (e.key.keysym.sym) {
 
                 case SDLK_LEFT:
-                    if (players[0].GetRotationVel() < 0 && !players[0].JoyRotate())
+                    if (players[0].GetRotationVel() < 0 && !players[0].JoyMove())
                         players[0].SetRotationVel(0);
                     break;
                 case SDLK_RIGHT:
-                    if (players[0].GetRotationVel() > 0 && !players[0].JoyRotate())
+                    if (players[0].GetRotationVel() > 0 && !players[0].JoyMove())
                         players[0].SetRotationVel(0);
                     break;
                 case SDLK_TAB:
@@ -371,6 +391,111 @@ int main(int argc, char** argv) {
                         vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, b));
                         RenderableObject::next++;
                     }
+            }
+        }
+
+        for (int i = 0; i < 4; i++) {
+            if (players[i].JoyTurret()) {
+                int32_t joyX, joyY;
+                joyX = SDL_JoystickGetAxis(gController[i], JAXIS_TURRETX);
+                joyY = SDL_JoystickGetAxis(gController[i], JAXIS_TURRETY);
+                Vector2D joyVec(-joyX, -joyY);
+                joyVec = joyVec.Normalized();
+
+
+                float ptAngle = players[i].GetTurretAngle() - 90;
+                while (ptAngle > 360) {
+                    ptAngle -= 360;
+                }
+                while (ptAngle < 0) {
+                    ptAngle += 360;
+                }
+                if (ptAngle > 180) {
+                    ptAngle -= 360;
+                }
+
+                if (ptAngle < -180) {
+                    ptAngle += 360;
+                }
+                //float joyAngle = std::atan2(joyY, joyX);
+
+                ptAngle = ptAngle * M_PI / 180;
+
+                if (ptAngle > M_PI) {
+                    ptAngle = ptAngle - 2 * M_PI;
+                }
+                if (ptAngle < -M_PI) {
+                    ptAngle = ptAngle + 2 * M_PI;
+                }
+
+                float ptX, ptY;
+                ptX = std::cos(ptAngle);
+                ptY = std::sin(ptAngle);
+
+                float scale;
+
+                double diff = (joyVec.GetX() * ptY) - (joyVec.GetY() * ptX);
+                scale = (diff > 0 ) - (diff < 0);
+
+                //std::cout << "Joystick angle: " << joyAngle / M_PI << ", Turret Angle: " << ptAngle / M_PI << ", Diff: " << diff << std::endl;
+
+
+                //std::cout << "Rotating Turret " << scale << std::endl;
+                //players[e.jaxis.which].SetTurretAngle(joyAngle + 90);
+                players[i].SetTurretRotationVel(MAX_ROTATE * scale * joyVec.GetMagnitude());
+            }
+        }
+
+        for (int i = 0; i < 4; i++) {
+            if (players[i].JoyMove()) {
+                int32_t joyX, joyY;
+                joyX = SDL_JoystickGetAxis(gController[i], JAXIS_MOVEX);
+                joyY = SDL_JoystickGetAxis(gController[i], JAXIS_MOVEY);
+                Vector2D joyVec(-joyX, -joyY);
+                joyVec = joyVec.Normalized();
+
+
+                float pAngle = players[i].GetAngle() - 90;
+                while (pAngle > 360) {
+                    pAngle -= 360;
+                }
+                while (pAngle < 0) {
+                    pAngle += 360;
+                }
+                if (pAngle > 180) {
+                    pAngle -= 360;
+                }
+
+                if (pAngle < -180) {
+                    pAngle += 360;
+                }
+                //float joyAngle = std::atan2(joyY, joyX);
+
+                pAngle = pAngle * M_PI / 180;
+
+                if (pAngle > M_PI) {
+                    pAngle = pAngle - 2 * M_PI;
+                }
+                if (pAngle < -M_PI) {
+                    pAngle = pAngle + 2 * M_PI;
+                }
+
+                float pX, pY;
+                pX = std::cos(pAngle);
+                pY = std::sin(pAngle);
+
+                float scale;
+
+                double diff = (joyVec.GetX() * pY) - (joyVec.GetY() * pX);
+                scale = (diff > 0 ) - (diff < 0);
+
+                //std::cout << "Joystick angle: " << joyAngle / M_PI << ", Player Angle: " << pAngle / M_PI << ", Diff: " << diff << std::endl;
+
+
+                //std::cout << "Rotating Turret " << scale << std::endl;
+                //players[e.jaxis.which].SetTurretAngle(joyAngle + 90);
+                players[i].SetRotationVel(MAX_ROTATE * scale);
+                players[i].SetForwardVel(MAX_MOVE * joyVec.GetMagnitude());
             }
         }
 
