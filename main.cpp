@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
     Map m(mapfilename, "WallTiles.png", ren);
 
     Player players[4] = { Player("Tank.png", 1, ren), Player("Tank.png", 2, ren), Player("Tank.png", 3, ren), Player("Tank.png", 4, ren) };
-    Player& p = players[0];
+    //Player& p = players[0];
     for (int i = 0; i < 4; ++i) {
         Vector2D startPos = m.GetStartPos(i + 1);
         if (startPos.GetX() == 0 && startPos.GetY() == 0) {
@@ -116,12 +116,16 @@ int main(int argc, char** argv) {
         }
     }
 
-    if (p.GetTexture() == nullptr) {
-        std::cout << "Error loading player sprite: " << SDL_GetError() << std::endl;
-        SDL_DestroyWindow(win);
-        SDL_DestroyRenderer(ren);
-        SDL_Quit();
-        return 1;
+    for (int i = 0; i < 4; i++) {
+        if (players[i].GetTexture() == nullptr) {
+            std::cout << "Error loading player sprite: " << SDL_GetError() << std::endl;
+            SDL_DestroyWindow(win);
+            SDL_DestroyRenderer(ren);
+            IMG_Quit();
+            TTF_Quit();
+            SDL_Quit();
+            return 1;
+        }
     }
 
     uint32_t rmask, gmask, bmask, amask;
@@ -231,11 +235,11 @@ int main(int argc, char** argv) {
                     break;
                 case SDLK_LEFT:
                     if (!players[0].JoyRotate())
-                        p.SetRotationVel(-MAX_ROTATE);
+                        players[0].SetRotationVel(-MAX_ROTATE);
                     break;
                 case SDLK_RIGHT:
                     if (!players[0].JoyRotate())
-                        p.SetRotationVel(MAX_ROTATE);
+                        players[0].SetRotationVel(MAX_ROTATE);
                     break;
                 case SDLK_a:
                 case SDLK_TAB:
@@ -370,56 +374,35 @@ int main(int argc, char** argv) {
             }
         }
 
+        /* Render Loop */
         if (SDL_TICKS_PASSED(new_time - ticks, RENDER_INTERVAL)) {
 
-
+            /* Background texture */
             SDL_Surface* surf = SDL_CreateRGBSurface(0, 320, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
-
             SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0x20, 0x20, 0x05));
-
             SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surf);
-
             SDL_FreeSurface(surf);
 
 
 
-
+            /* Clear render target */
             SDL_RenderClear(ren);
+
+            /* Copy background texture */
             SDL_RenderCopy(ren, tex, NULL, NULL);
 
+            /* Delete background texture since it's recreated every frame */
+            SDL_DestroyTexture(tex);
+
+            /* Render all renderable objects */
             for (std::pair<int, RenderableObject*> r : vRenderable) {
                 if (!r.second->IsDead()) {
                     r.second->Render();
                 }
             }
 
-            /*for (Explosion* e : vExplosions) {
-                e->Render();
-            }*/
-
-            /* Test rectangle
-            SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL_RenderDrawPoint(ren, p.GetX(), p.GetY());
-
-
-            r.Move(p.GetX(), p.GetY());
-            r.SetAngle(p.GetAngle());
-            std::vector<Point> RectPoints = r.GetPoints();
-            Vector2D upNormal = r.GetUpNormal();
-            Vector2D leftNormal = r.GetLeftNormal();
-            Point center = r.GetCenter();
-
-            SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL_RenderDrawLine(ren, RectPoints[0].x, RectPoints[0].y, RectPoints[1].x, RectPoints[1].y);
-            SDL_RenderDrawLine(ren, RectPoints[1].x, RectPoints[1].y, RectPoints[2].x, RectPoints[2].y);
-            SDL_RenderDrawLine(ren, RectPoints[2].x, RectPoints[2].y, RectPoints[3].x, RectPoints[3].y);
-            SDL_RenderDrawLine(ren, RectPoints[3].x, RectPoints[3].y, RectPoints[0].x, RectPoints[0].y);
-
-            SDL_RenderDrawLine(ren, center.x, center.y - 8, center.x + upNormal.GetX() * 5, center.y - 8 + upNormal.GetY() * 5);
-            SDL_RenderDrawLine(ren, center.x - 8, center.y, center.x - 8 + leftNormal.GetX() * 5, center.y + leftNormal.GetY() * 5);
-            /* end of test rectangle */
-
-            /* FPS Texture
+            #ifdef _FPS_DEBUG
+            /* FPS Texture */
             SDL_Color c = {255, 255, 255, 255};
             std::string basePath = SDL_GetBasePath();
             uint32_t fps = 1000 / (new_time + (SDL_GetTicks() - new_time) - ticks);
@@ -447,8 +430,10 @@ int main(int argc, char** argv) {
             SDL_RenderCopy(ren, fps_tex, &srcRect, &dstRect);
 
             /* End of FPS texture */
+            #endif // _FPS_DEBUG
 
-            /* Angle text
+            #ifdef _ANGLE_DEBUG
+            /* Angle text */
 
             std::stringstream strAngle;
             strAngle << "Ticks: " << frame_time;
@@ -472,6 +457,7 @@ int main(int argc, char** argv) {
             SDL_RenderCopy(ren, angle_tex, &srcRect, &dstRect);
 
             /* End of angle text */
+            #endif // _ANGLE_DEBUG
 
             /* HUD */
             {
@@ -538,6 +524,7 @@ int main(int argc, char** argv) {
             SDL_RenderPresent(ren);
             ticks = SDL_GetTicks();
         }
+        /* End of Render Loop */
 
 
     }

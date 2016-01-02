@@ -107,7 +107,8 @@ void Player::Render() {
     srcRect.w = width;
     SDL_RenderCopyEx(mRenderer, mTexture, &srcRect, &dstRect, mTurretAngle, NULL, SDL_FLIP_NONE);
 
-    /* Collider rendering
+    #ifdef _COLLISION_DEBUG
+    /* Collider rendering */
     std::vector<Point> colliderPoints = mCollider.GetPoints();
     SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
@@ -116,6 +117,7 @@ void Player::Render() {
     SDL_RenderDrawLine(mRenderer, colliderPoints[2].x, colliderPoints[2].y, colliderPoints[3].x, colliderPoints[3].y);
     SDL_RenderDrawLine(mRenderer, colliderPoints[3].x, colliderPoints[3].y, colliderPoints[0].x, colliderPoints[0].y);
     /* End of Collider Rendering */
+    #endif // _COLLISION_DEBUG
 }
 
 const Collider& Player::GetCollider() const {

@@ -69,6 +69,7 @@ void Map::Render() {
 
                 SDL_RenderCopy(mRenderer, mTexture, &srcRect, &dstRect);
 
+                #ifdef _COLLISION_DEBUG
                 /* Render all colliders
                 for (Collider& c : mvColliders) {
                     std::vector<Point> colliderPoints = c.GetPoints();
@@ -80,6 +81,7 @@ void Map::Render() {
                     SDL_RenderDrawLine(mRenderer, colliderPoints[3].x, colliderPoints[3].y, colliderPoints[0].x, colliderPoints[0].y);
                 }
                 /* End of collider rendering */
+                #endif // _COLLISION_DEBUG
 
         }
     }

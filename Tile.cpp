@@ -1,8 +1,8 @@
 #include "Tile.hpp"
 
 Tile::Tile(const std::string& filename, SDL_Renderer* ren) :
-    mtexture(Utility::LoadTexture(ren, filename)),
-    mRenderer(ren)
+    mRenderer(ren),
+    mtexture(Utility::LoadTexture(ren, filename))
 {
     int w;
     SDL_QueryTexture(mtexture, NULL, NULL, &w, NULL);
