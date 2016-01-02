@@ -107,8 +107,8 @@ int main(int argc, char** argv) {
 
     // Initialize joysticks
     //const int JOYSTICK_DEADZONE = 10000;
-    const int JOYTURRET_DEADZONE = 10000;
-    const int JOYMOVE_DEADZONE = 10000;
+    const int JOYTURRET_DEADZONE = 2000;
+    const int JOYMOVE_DEADZONE = 2000;
     const int JOYFIRE_DEADZONE = 0;
     SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 
@@ -220,22 +220,13 @@ int main(int argc, char** argv) {
             int index = -1;
             if (e.type == SDL_JOYAXISMOTION) {
                 for (int i = 0; i < maxPlayers; i++) {
-                    if (SDL_JoystickInstanceID(gController[i]) == e.jaxis.which) {
-                        if (gController[i] != NULL) {
-                            index = i;
-                            break;
-                        }
-
-                    }
+                    if (SDL_JoystickFromInstanceID(e.jaxis.which) == gController[i])
+                        index = i;
                 }
             } else if (e.type == SDL_JOYAXISMOTION) {
                 for (int i = 0; i < maxPlayers; i++) {
-                    if (SDL_JoystickInstanceID(gController[i]) == e.jaxis.which) {
-                        if (gController[i] != NULL) {
-                            index = i;
-                            break;
-                        }
-                    }
+                    if (SDL_JoystickFromInstanceID(e.jbutton.which) == gController[i])
+                        index = i;
                 }
             }
             if (e.type == SDL_QUIT) {
@@ -263,13 +254,14 @@ int main(int argc, char** argv) {
                     int32_t joyX, joyY;
                     joyX = SDL_JoystickGetAxis(gController[index], JAXIS_MOVEX);
                     joyY = SDL_JoystickGetAxis(gController[index], JAXIS_MOVEY);
-                    if (std::sqrt(joyX * joyX + joyY * joyY) > JOYMOVE_DEADZONE) {
+                    if (std::sqrt(joyX * joyX + joyY + joyY) > JOYMOVE_DEADZONE) {
                         players[index].SetJoyMove(true);
                     //if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
                     } else {
                         players[index].SetJoyMove(false);
                         players[index].SetRotationVel(0);
                         players[index].SetForwardVel(0);
+
                     }
                 //if (e.jaxis.axis == JAXIS_ROTATE) {
                     // X-axis
@@ -318,7 +310,7 @@ int main(int argc, char** argv) {
                     int32_t joyX, joyY;
                     joyX = SDL_JoystickGetAxis(gController[index], JAXIS_TURRETX);
                     joyY = SDL_JoystickGetAxis(gController[index], JAXIS_TURRETY);
-                    if (std::sqrt(joyX * joyX + joyY * joyY) > JOYTURRET_DEADZONE) {
+                    if (std::sqrt(joyX * joyX + joyY + joyY) > JOYTURRET_DEADZONE) {
                         players[index].SetJoyTurret(true);
                     //if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
                     } else {
@@ -421,10 +413,6 @@ int main(int argc, char** argv) {
                 int32_t joyX, joyY;
                 joyX = SDL_JoystickGetAxis(gController[i], JAXIS_TURRETX);
                 joyY = SDL_JoystickGetAxis(gController[i], JAXIS_TURRETY);
-
-                if (std::sqrt(joyX * joyX + joyY * joyY) < JOYTURRET_DEADZONE) {
-                    continue;
-                }
                 Vector2D joyVec(-joyX, -joyY);
                 joyVec = joyVec.Normalized();
 
@@ -443,7 +431,7 @@ int main(int argc, char** argv) {
                 if (ptAngle < -180) {
                     ptAngle += 360;
                 }
-                float joyAngle = std::atan2(joyY, joyX);
+                //float joyAngle = std::atan2(joyY, joyX);
 
                 ptAngle = ptAngle * M_PI / 180;
 
@@ -463,7 +451,7 @@ int main(int argc, char** argv) {
                 double diff = (joyVec.GetX() * ptY) - (joyVec.GetY() * ptX);
                 scale = (diff > 0 ) - (diff < 0);
 
-                std::cout << "Joystick angle: " << joyAngle / M_PI << ", Turret Angle: " << ptAngle / M_PI << ", Diff: " << diff << std::endl;
+                //std::cout << "Joystick angle: " << joyAngle / M_PI << ", Turret Angle: " << ptAngle / M_PI << ", Diff: " << diff << std::endl;
 
 
                 //std::cout << "Rotating Turret " << scale << std::endl;
