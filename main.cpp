@@ -23,6 +23,8 @@
 #define MAX_MOVE 1
 #define MAX_ROTATE 2
 
+#define GAME_FONT "8bit.ttf"
+
 #define RENDER_INTERVAL 16
 
 #define JBUTTON_FIRE 10
@@ -97,7 +99,7 @@ int main(int argc, char** argv) {
     if (argc > 1)
         mapfilename = argv[1];
     else
-        mapfilename = "test2.d";
+        mapfilename = "default.d";
     Map m(mapfilename, "WallTiles.png", ren);
 
     Player players[4] = { Player("Tank.png", 1, ren), Player("Tank.png", 2, ren), Player("Tank.png", 3, ren), Player("Tank.png", 4, ren) };
@@ -426,7 +428,7 @@ int main(int argc, char** argv) {
             std::stringstream strFPS;
             strFPS << "FPS: " << fps;
 
-            SDL_Texture* fps_tex = Utility::RenderText(strFPS.str(), basePath + "sample.ttf", c, 10, ren);
+            SDL_Texture* fps_tex = Utility::RenderText(strFPS.str(), basePath + GAME_FONT, c, 10, ren);
 
             int fps_w, fps_h;
 
@@ -451,7 +453,7 @@ int main(int argc, char** argv) {
             std::stringstream strAngle;
             strAngle << "Ticks: " << frame_time;
             //SDL_Color c = {255, 255, 255, 255};
-            SDL_Texture* angle_tex = Utility::RenderText(strAngle.str(), basePath + "sample.ttf", c, 10, ren);
+            SDL_Texture* angle_tex = Utility::RenderText(strAngle.str(), basePath + GAME_FONT, c, 10, ren);
 
             int angle_w, angle_h;
             SDL_QueryTexture(angle_tex, NULL, NULL, &angle_w, &angle_h);
@@ -492,14 +494,14 @@ int main(int argc, char** argv) {
                     std::stringstream scoreString;
 
                     scoreString << "Player " << i + 1;
-                    SDL_Texture* plTex = Utility::RenderText(scoreString.str(), "sample.ttf", c, 10, ren);
+                    SDL_Texture* plTex = Utility::RenderText(scoreString.str(), GAME_FONT, c, 12, ren);
                     int plWidth, plHeight;
                     SDL_QueryTexture(plTex, NULL, NULL, &plWidth, &plHeight);
                     scoreString.str("");
 
                     scoreString << "Score: " << players[i].GetScore();
                     int scoreWidth, scoreHeight;
-                    SDL_Texture* scoreTex = Utility::RenderText(scoreString.str(), "sample.ttf", c, 10, ren);
+                    SDL_Texture* scoreTex = Utility::RenderText(scoreString.str(), GAME_FONT, c, 12, ren);
                     SDL_QueryTexture(scoreTex, NULL, NULL, &scoreWidth, &scoreHeight);
 
                     srcRect.x = 0;

@@ -13,6 +13,8 @@
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
 
+#define GAME_FONT "8bit.ttf"
+
 #define EMPTY   0x00
 #define P1START 0x01
 #define P2START 0x02
@@ -414,7 +416,7 @@ int SaveAs(SDL_Renderer* ren, unsigned char tiles[30][40]) {
         outputStringStream << saveFileName.c_str();
 
         SDL_Color c = {0xFF, 0xFF, 0xFF, 0xFF};
-        SDL_Texture* saveText = Utility::RenderText(outputStringStream.str(), "sample.ttf", c, 10, ren);
+        SDL_Texture* saveText = Utility::RenderText(outputStringStream.str(), GAME_FONT, c, 10, ren);
 
         int saveTextWidth, saveTextHeight;
 
@@ -447,7 +449,7 @@ int SaveAs(SDL_Renderer* ren, unsigned char tiles[30][40]) {
         SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(ren);
         SDL_Color c = {0xFF, 0xFF, 0xFF, 0xFF};
-        SDL_Texture* saveText = Utility::RenderText("Invalid file name! (Press Enter to continue.)", "sample.ttf", c, 10, ren);
+        SDL_Texture* saveText = Utility::RenderText("Invalid file name! (Press Enter to continue.)", GAME_FONT, c, 10, ren);
 
         int saveTextWidth, saveTextHeight;
 
@@ -636,7 +638,7 @@ int Load(SDL_Renderer* ren, unsigned char tiles[30][40]) {
         outputStringStream << ".d";
 
         SDL_Color c = {0xFF, 0xFF, 0xFF, 0xFF};
-        SDL_Texture* loadText = Utility::RenderText(outputStringStream.str(), "sample.ttf", c, 10, ren);
+        SDL_Texture* loadText = Utility::RenderText(outputStringStream.str(), GAME_FONT, c, 10, ren);
 
         int loadTextWidth, loadTextHeight;
 
@@ -658,6 +660,8 @@ int Load(SDL_Renderer* ren, unsigned char tiles[30][40]) {
         std::string basePath = SDL_GetBasePath();
         basePath += loadFileName + ".d";
         std::ifstream inFile(basePath, std::ofstream::in);
+        if (!inFile.good())
+            return 0;
         for (int row = 0; row < 30; row++) {
             for (int col = 0; col < 40; col++) {
                 char c;
@@ -675,7 +679,7 @@ int Load(SDL_Renderer* ren, unsigned char tiles[30][40]) {
         SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(ren);
         SDL_Color c = {0xFF, 0xFF, 0xFF, 0xFF};
-        SDL_Texture* saveText = Utility::RenderText("Invalid file name! (Press Enter to continue.)", "sample.ttf", c, 10, ren);
+        SDL_Texture* saveText = Utility::RenderText("Invalid file name! (Press Enter to continue.)", GAME_FONT, c, 10, ren);
 
         int saveTextWidth, saveTextHeight;
 
