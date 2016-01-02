@@ -6,7 +6,9 @@
 #include "CollisionInfo.hpp"
 #include "Player.hpp"
 
-extern Mix_Chunk* sfxBounce;
+extern Mix_Chunk* sfxBounce[3];
+extern std::default_random_engine generator;
+extern std::uniform_int_distribution<int> dist;
 
 class Player;
 

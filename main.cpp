@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <climits>
 #include <map>
+#include <ctime>
 
 #include "Player.hpp"
 #include "Tile.hpp"
@@ -30,6 +31,8 @@
 #define GAME_MUSIC "music.ogg"
 #define SFX_FIRE "sfx_fire.ogg"
 #define SFX_BOUNCE "sfx_bounce.ogg"
+#define SFX_BOUNCE2 "sfx_bounce2.ogg"
+#define SFX_BOUNCE3 "sfx_bounce3.ogg"
 #define SFX_DIE "sfx_die.ogg"
 
 #define RENDER_INTERVAL 16
@@ -44,11 +47,14 @@
 #define JAXIS_MOVEY 0x01
 #define JAXIS_FIRE 0x05
 
+
 bool gRunning = true;
 Mix_Music* gameMusic = NULL;
 Mix_Chunk* sfxFire = NULL;
-Mix_Chunk* sfxBounce = NULL;
+Mix_Chunk* sfxBounce[3] = { NULL, NULL, NULL };
 Mix_Chunk* sfxDie = NULL;
+std::default_random_engine generator(time(0));
+std::uniform_int_distribution<int> dist(1,3);
 
 const std::string basePath = SDL_GetBasePath();
 void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int, RenderableObject*>& vRenderable, std::vector<Explosion*>& vExplosions);
@@ -90,10 +96,13 @@ int main(int argc, char** argv) {
 
     gameMusic = Utility::LoadMusic(GAME_MUSIC);
     sfxFire = Utility::LoadSound(SFX_FIRE);
-    sfxBounce = Utility::LoadSound(SFX_BOUNCE);
+    sfxBounce[0] = Utility::LoadSound(SFX_BOUNCE);
+    sfxBounce[1] = Utility::LoadSound(SFX_BOUNCE2);
+    sfxBounce[2] = Utility::LoadSound(SFX_BOUNCE3);
     sfxDie = Utility::LoadSound(SFX_DIE);
 
-    if (gameMusic == nullptr || sfxFire == nullptr || sfxBounce == nullptr || sfxDie == nullptr) {
+    if (gameMusic == nullptr || sfxFire == nullptr || sfxBounce[0] == nullptr || sfxBounce[1] == nullptr
+        || sfxBounce[2] == nullptr || sfxDie == nullptr ) {
         std::cout << "Could not load sound effects. Exiting." << std::endl;
         IMG_Quit();
         TTF_Quit();
@@ -748,7 +757,8 @@ int main(int argc, char** argv) {
 
     Mix_FreeChunk(sfxFire);
     Mix_FreeChunk(sfxDie);
-    Mix_FreeChunk(sfxBounce);
+    for (int i = 0; i < 3; ++i)
+        Mix_FreeChunk(sfxBounce[i]);
     Mix_FreeMusic(gameMusic);
 
     IMG_Quit();

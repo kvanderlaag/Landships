@@ -1,6 +1,8 @@
 #include "Bullet.hpp"
 
 #include <iostream>
+#include <random>
+#include <ctime>
 
 int Bullet::next = 0;
 
@@ -37,7 +39,9 @@ const Vector2D& Bullet::GetDirection() const {
 void Bullet::Bounce(const CollisionInfo& coll, const uint32_t ticks) {
 
         if (mBounce < mMaxBounce) {
-            Utility::PlaySound(sfxBounce);
+
+            int rnd = dist(generator);
+            Utility::PlaySound(sfxBounce[rnd - 1]);
             //std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
             //std::cout << "MT Angle: " << coll.MinimumTranslation().Normalized().Angle() << std::endl;
             mDirection = mDirection.Reflect(coll.MinimumTranslation().Normalized());
