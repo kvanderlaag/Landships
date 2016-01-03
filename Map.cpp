@@ -12,21 +12,37 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
 
     int row = 0;
     int col = 0;
-    char c;
+
     if (!inFile.good()) {
         exit(2);
     }
-    while (inFile.get(c)) {
+
+    std::string levelStr;
+    {
+        char c;
+        while (inFile.get(c)) {
+            levelStr += c;
+        }
+    }
+    if (levelStr.length() != 40 * 30) {
+        exit(2);
+    }
+
+    for (char c : levelStr) {
         if (c == EMPTY) {
             tiles[row][col] = c;
         } else if (c == P1START) {
             StartPos[0] = Vector2D(col * 8, row * 8);
+            tiles[row][col] = EMPTY;
         } else if (c == P2START) {
             StartPos[1] = Vector2D(col * 8, row * 8);
+            tiles[row][col] = EMPTY;
         } else if (c == P3START) {
             StartPos[2] = Vector2D(col * 8, row * 8);
+            tiles[row][col] = EMPTY;
         } else if (c == P4START) {
             StartPos[3] = Vector2D(col * 8, row * 8);
+            tiles[row][col] = EMPTY;
         } else {
             mvColliders.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this));
             tiles[row][col] = c;

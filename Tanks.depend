@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1451776679 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1451777523 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -424,7 +424,7 @@
 	<vector>
 	<cstring>
 
-1451708721 source:d:\users\kvand_000\documents\github\tanks\map.cpp
+1451785628 source:d:\users\kvand_000\documents\github\tanks\map.cpp
 	"Map.hpp"
 
 1451761258 source:d:\users\kvand_000\documents\github\tanks\player.cpp
