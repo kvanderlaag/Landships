@@ -110,3 +110,7 @@ std::vector<Collider>& Map::GetColliders() {
 const Vector2D& Map::GetStartPos(const int pn) const {
     return StartPos[pn - 1];
 }
+
+const unsigned int Map::GetTileAt(const int row, const int col) const {
+    return tiles[row][col];
+}

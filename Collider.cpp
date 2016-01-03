@@ -104,3 +104,7 @@ const Rectangle& Collider::GetRectangle() const {
 const std::vector<Point> Collider::GetPoints() const {
     return mRectangle.GetPoints();
 }
+
+const GameObject& Collider::GetOwner() const {
+    return owner;
+}

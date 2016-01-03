@@ -26,6 +26,7 @@ class Map : public RenderableObject
         std::vector<Collider>& GetColliders();
         const Vector2D& GetStartPos(const int pn) const;
         void Update(uint32_t ticks) {};
+        const unsigned int GetTileAt(const int row, const int col) const;
     protected:
     private:
         Vector2D StartPos[4];

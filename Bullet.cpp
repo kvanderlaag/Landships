@@ -39,7 +39,7 @@ const Vector2D& Bullet::GetDirection() const {
 void Bullet::Bounce(const CollisionInfo& coll, const uint32_t ticks) {
 
         if (mBounce < mMaxBounce) {
-
+            std::uniform_int_distribution<int> dist(1,3);
             int rnd = dist(generator);
             Utility::PlaySound(sfxBounce[rnd - 1]);
             //std::cout << "X: " << mDirection.GetX() << " Y: " << mDirection.GetY() << " Angle: " << mDirection.Angle() << std::endl;
@@ -104,6 +104,14 @@ void Bullet::Update(uint32_t ticks) {
 
 CollisionInfo Bullet::CheckCollision(const Player& player, const uint32_t ticks) {
     CollisionInfo coll = mCollider.CheckCollision(player.GetCollider(), mVelocity);
+
+    //dead = true;
+
+    return coll;
+}
+
+CollisionInfo Bullet::CheckCollision(const Container& container, const uint32_t ticks) {
+    CollisionInfo coll = mCollider.CheckCollision(container.GetCollider(), mVelocity);
 
     //dead = true;
 

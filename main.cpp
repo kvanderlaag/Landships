@@ -19,6 +19,7 @@
 #include "Point.hpp"
 #include "Collider.hpp"
 #include "Explosion.hpp"
+#include "Container.hpp"
 
 #define SCREEN_WIDTH 426
 #define SCREEN_HEIGHT 240
@@ -54,7 +55,6 @@ Mix_Chunk* sfxFire = NULL;
 Mix_Chunk* sfxBounce[3] = { NULL, NULL, NULL };
 Mix_Chunk* sfxDie = NULL;
 std::default_random_engine generator(time(0));
-std::uniform_int_distribution<int> dist(1,3);
 
 bool altHeld = false;
 bool fullscreen = true;
@@ -202,6 +202,7 @@ int main(int argc, char** argv) {
     std::map<int, RenderableObject*> vRenderable;
     std::map<int, Bullet*> vBullets;
     std::vector<Explosion*> vExplosions;
+    std::vector<Container*> vContainers;
 
     for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
         vMoving.push_back(&players[i]);
@@ -222,6 +223,11 @@ int main(int argc, char** argv) {
     Utility::PlayMusic(gameMusic);
 
     bool running = true;
+
+    std::uniform_int_distribution<int> containerSpawnDist(5000, 30000);
+    int32_t containerSpawnTicks = containerSpawnDist(generator);
+    const int maxContainers = 5;
+    int containers = 0;
 
     while (running == true) {
         uint32_t new_time = SDL_GetTicks();
@@ -433,6 +439,45 @@ int main(int argc, char** argv) {
             }
         }
 
+        containerSpawnTicks -= frame_time;
+        if (containerSpawnTicks <= 0) {
+            containerSpawnTicks = containerSpawnDist(generator);
+            if (containers <= maxContainers) {
+                std::uniform_int_distribution<int> cXdist(1,38);
+                std::uniform_int_distribution<int> cYdist(1,28);
+                bool created = false;
+                while (!created) {
+                    int cX = cXdist(generator);
+                    int cY = cYdist(generator);
+                    if (m.GetTileAt(cY, cX) == 0x00 && m.GetTileAt(cY-1, cX) == 0x00 &&
+                        m.GetTileAt(cY, cX-1) == 0x00 && m.GetTileAt(cY-1, cX-1) == 0x00) {
+                        bool overlap = false;
+                        for (Container* c1 : vContainers) {
+                            if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
+                                (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
+                                    overlap = true;
+                                }
+                        }
+                        for (Player* c1 : vMoving) {
+                            if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
+                                (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
+                                    overlap = true;
+                                }
+                        }
+                        if (!overlap) {
+                            Container* c = new Container(cX * 8, cY * 8, ren);
+                            std::cout << "Creating new container at (" << cX << ", " << cY << ")" << std::endl;
+                            created = true;
+                            vContainers.push_back(c);
+                            vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, c));
+                            RenderableObject::next++;
+                            containers++;
+                        }
+                    }
+                }
+            }
+        }
+
         for (int i = 0; i < 4; i++) {
             if (players[i].FireHeld()) {
                 Bullet* b = players[i].Fire();
@@ -551,7 +596,14 @@ int main(int argc, char** argv) {
 
         for (Player* p : vMoving) {
             for (Collider* c : vStationary) {
-                p->CheckCollision(*c, frame_time);
+                if (!c->GetOwner().IsDead()) {
+                    p->CheckCollision(*c, frame_time);
+                }
+            }
+            for (Container* c : vContainers) {
+                if (!c->IsDead()) {
+                    p->CheckCollision(c->GetCollider(), frame_time);
+                }
             }
         }
 
@@ -562,6 +614,20 @@ int main(int argc, char** argv) {
         for (std::pair<int, Bullet*> b : vBullets) {
             if (!b.second->IsDead()) {
                 b.second->Update(frame_time);
+
+                for (Container* c : vContainers) {
+                    if (!c->IsDead()) {
+                        CollisionInfo coll = b.second->CheckCollision(*c, frame_time);
+                        if (coll.Colliding()) {
+                            c->Die();
+                            b.second->Die();
+                            b.second->GetOwner().DestroyBullet();
+                            NewExplosion(c->GetX(), c->GetY(), ren, vRenderable, vExplosions);
+                            containers--;
+                        }
+                    }
+                }
+
                 for (Player* pl : vMoving) {
                         if (pl->IsInvincible()) {
                             continue;

@@ -46,6 +46,8 @@
 		<Unit filename="Collider.hpp" />
 		<Unit filename="CollisionInfo.cpp" />
 		<Unit filename="CollisionInfo.hpp" />
+		<Unit filename="Container.cpp" />
+		<Unit filename="Container.hpp" />
 		<Unit filename="Explosion.cpp" />
 		<Unit filename="Explosion.hpp" />
 		<Unit filename="Game.cpp" />

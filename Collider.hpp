@@ -27,6 +27,7 @@ public:
     const Rectangle& GetRectangle() const;
 
     const std::vector<Point> GetPoints() const;
+    const GameObject& GetOwner() const;
 
 private:
     Rectangle mRectangle;
