@@ -700,6 +700,25 @@ int main(int argc, char** argv) {
 
             /* HUD */
             {
+                {
+                    SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+                    SDL_Surface* scoreboardSurface = SDL_CreateRGBSurface(0, 106, 240, 32, rmask, gmask, bmask, amask);
+                    SDL_FillRect(scoreboardSurface, NULL, SDL_MapRGB(scoreboardSurface->format, 0x00, 0x00, 0x00));
+                    SDL_Texture* scoreboardTexture = SDL_CreateTextureFromSurface(ren, scoreboardSurface);
+                    SDL_FreeSurface(scoreboardSurface);
+
+                    int scoreboardW, scoreboardH;
+                    SDL_QueryTexture(scoreboardTexture, NULL, NULL, &scoreboardW, &scoreboardH);
+
+                    SDL_Rect dstRect;
+                    dstRect.x = 320;
+                    dstRect.y = 0;
+                    dstRect.w = scoreboardW;
+                    dstRect.h = scoreboardH;
+
+                    SDL_RenderCopy(ren, scoreboardTexture, NULL, &dstRect);
+                    SDL_DestroyTexture(scoreboardTexture);
+                }
                 SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
                 for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
                     int rWidth, rHeight;
