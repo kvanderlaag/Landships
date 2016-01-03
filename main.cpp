@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
         mapfilename = "default.d";
     Map m(mapfilename, "WallTiles.png", ren);
 
-    Player players[4] = { Player("Tank.png", 1, ren), Player("Tank.png", 2, ren), Player("Tank.png", 3, ren), Player("Tank.png", 4, ren) };
+    Player players[4] = { Player("Tank1.png", 1, ren), Player("Tank2.png", 2, ren), Player("Tank3.png", 3, ren), Player("Tank4.png", 4, ren) };
     //Player& p = players[0];
     for (int i = 0; i < 4; ++i) {
         Vector2D startPos = m.GetStartPos(i + 1);

@@ -75,7 +75,7 @@ Mix_Music* Utility::LoadMusic(const std::string& filename) {
     std::string path = SDL_GetBasePath();
     path += filename;
 
-    std::cout << "Loading music " << path << std::endl;
+    //std::cout << "Loading music " << path << std::endl;
 
     Mix_Music* m = Mix_LoadMUS(path.c_str());
     if (m) {
@@ -88,7 +88,7 @@ Mix_Chunk* Utility::LoadSound(const std::string& filename) {
     std::string path = SDL_GetBasePath();
     path += filename;
 
-    std::cout << "Loading sound " << path << std::endl;
+    //std::cout << "Loading sound " << path << std::endl;
 
     Mix_Chunk* s = Mix_LoadWAV(path.c_str());
     if (s) {
