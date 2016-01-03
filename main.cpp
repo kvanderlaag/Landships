@@ -624,6 +624,7 @@ int main(int argc, char** argv) {
 
 
             /* Clear render target */
+            SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
             SDL_RenderClear(ren);
 
             /* Copy background texture */

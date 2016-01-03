@@ -27,6 +27,9 @@ using namespace std;
 int SaveAs(SDL_Renderer* ren, unsigned char tiles[30][40]);
 int Load(SDL_Renderer* ren, unsigned char tiles[30][40]);
 
+bool gAltHeld = false;
+bool gFullscreen = true;
+
 int main(int argc, char** argv)
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
@@ -58,10 +61,10 @@ int main(int argc, char** argv)
         rmask = 0x000000ff;
     #endif // SDL_BIG_ENDIAN
 
-    SDL_Window* win = SDL_CreateWindow("Tanks Level Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
+    SDL_Window* win = SDL_CreateWindow("Tanks Level Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-    //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
+    //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_ShowCursor(0);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
@@ -121,6 +124,19 @@ int main(int argc, char** argv)
                 mouseheld = false;
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
+                case SDLK_LALT:
+                case SDLK_RALT:
+                    gAltHeld = true;
+                    break;
+                case SDLK_RETURN:
+                    if (gFullscreen) {
+                        SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
+                        gFullscreen = false;
+                    } else {
+                        SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                        gFullscreen = true;
+                    }
+                    break;
                 case SDLK_UP:
                     if (tiletype < tileCount) {
                         tiletype++;
@@ -149,6 +165,12 @@ int main(int argc, char** argv)
 
                     running = false;
                     break;
+                }
+            } else if (e.type = SDL_KEYUP) {
+                switch (e.key.keysym.sym) {
+                case SDLK_LALT:
+                case SDLK_RALT:
+                    gAltHeld = false;
                 }
             }
         }
@@ -181,6 +203,7 @@ int main(int argc, char** argv)
             mouseytile = mousextile = -1;
         }
 
+        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(ren);
 
         SDL_RenderCopy(ren, bgTex, NULL, NULL);
