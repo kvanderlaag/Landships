@@ -18,7 +18,7 @@ private:
     Player& mOwner;
     Vector2D mDirection;
     Vector2D mVelocity;
-    const int BULLET_SPEED = 60;
+    const int BULLET_SPEED = 70;
     int mMaxBounce, mBounce;
 public:
     static int next;
