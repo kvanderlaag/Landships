@@ -35,7 +35,7 @@ private:
     const int ticksPerFrame = 100;
 
     const int maxBounces = 3;
-    const int maxBullets = 3;
+    const int maxBullets = 5;
     const int maxSpeed = 3;
 
 

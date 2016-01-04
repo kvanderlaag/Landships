@@ -38,68 +38,70 @@ void Rectangle::CalculateAngle() {
 
 void Rectangle::CalculatePoints() {
     p1.x = center.x - (width/2);
-    p1.y = center.y - (width/2);
+    p1.y = center.y - (height/2);
     p2.x = center.x + (width/2);
-    p2.y = center.y - (width/2);
+    p2.y = center.y - (height/2);
     p3.x = center.x + (width/2);
-    p3.y = center.y + (width/2);
+    p3.y = center.y + (height/2);
     p4.x = center.x - (width/2);
-    p4.y = center.y + (width/2);
+    p4.y = center.y + (height/2);
 
-    float a = angle * M_PI / 180;
-    float fSin, fCos;
-    fSin = std::sin(a);
-    fCos = std::cos(a);
+    if (angle != 0) {
+        float a = angle * M_PI / 180;
+        float fSin, fCos;
+        fSin = std::sin(a);
+        fCos = std::cos(a);
 
-    // Translate
-    float tempX = p1.x - center.x;
-    float tempY = p1.y - center.y;
+        // Translate
+        float tempX = p1.x - center.x;
+        float tempY = p1.y - center.y;
 
-    // now apply rotation
-    float rotatedX = tempX*fCos - tempY*fSin;
-    float rotatedY = tempX*fSin + tempY*fCos;
+        // now apply rotation
+        float rotatedX = tempX*fCos - tempY*fSin;
+        float rotatedY = tempX*fSin + tempY*fCos;
 
-    // translate back
-    p1.x = rotatedX + center.x;
-    p1.y = rotatedY + center.y;
+        // translate back
+        p1.x = rotatedX + center.x;
+        p1.y = rotatedY + center.y;
 
-    // Translate
-    tempX = p2.x - center.x;
-    tempY = p2.y - center.y;
+        // Translate
+        tempX = p2.x - center.x;
+        tempY = p2.y - center.y;
 
-    // now apply rotation
-    rotatedX = tempX*fCos - tempY*fSin;
-    rotatedY = tempX*fSin + tempY*fCos;
+        // now apply rotation
+        rotatedX = tempX*fCos - tempY*fSin;
+        rotatedY = tempX*fSin + tempY*fCos;
 
-    // translate back
-    p2.x = rotatedX + center.x;
-    p2.y = rotatedY + center.y;
-
-
-    // Translate
-    tempX = p3.x - center.x;
-    tempY = p3.y - center.y;
-
-    // now apply rotation
-    rotatedX = tempX*fCos - tempY*fSin;
-    rotatedY = tempX*fSin + tempY*fCos;
-
-    // translate back
-    p3.x = rotatedX + center.x;
-    p3.y = rotatedY + center.y;
+        // translate back
+        p2.x = rotatedX + center.x;
+        p2.y = rotatedY + center.y;
 
 
-    // Translate
-    tempX = p4.x - center.x;
-    tempY = p4.y - center.y;
+        // Translate
+        tempX = p3.x - center.x;
+        tempY = p3.y - center.y;
 
-    // now apply rotation
-    rotatedX = tempX*fCos - tempY*fSin;
-    rotatedY = tempX*fSin + tempY*fCos;
+        // now apply rotation
+        rotatedX = tempX*fCos - tempY*fSin;
+        rotatedY = tempX*fSin + tempY*fCos;
 
-    // translate back
-    p4.x = rotatedX + center.x;
-    p4.y = rotatedY + center.y;
+        // translate back
+        p3.x = rotatedX + center.x;
+        p3.y = rotatedY + center.y;
+
+
+        // Translate
+        tempX = p4.x - center.x;
+        tempY = p4.y - center.y;
+
+        // now apply rotation
+        rotatedX = tempX*fCos - tempY*fSin;
+        rotatedY = tempX*fSin + tempY*fCos;
+
+        // translate back
+        p4.x = rotatedX + center.x;
+        p4.y = rotatedY + center.y;
+    }
 }
 
 const Vector2D Rectangle::GetUpNormal() const {

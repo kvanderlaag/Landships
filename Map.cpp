@@ -28,6 +28,11 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
         exit(2);
     }
 
+    mvColliders.push_back(Collider(320,      8,          160,      4,          0, this));
+    mvColliders.push_back(Collider(320,      8,          160,      240 - 4,     0, this));
+    mvColliders.push_back(Collider(8,           8 * 28,     4,      240 / 2,          0, this));
+    mvColliders.push_back(Collider(8,           8 * 28,     8*40 - 4,   240 / 2,          0, this));
+
     for (char c : levelStr) {
         if (c == EMPTY) {
             tiles[row][col] = c;
@@ -44,7 +49,8 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
             StartPos[3] = Vector2D(col * 8, row * 8);
             tiles[row][col] = EMPTY;
         } else {
-            mvColliders.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this));
+            if (row != 0 && row != 29 && col != 0 && col != 39)
+                mvColliders.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this));
             tiles[row][col] = c;
         }
         if (++col == 40) {
