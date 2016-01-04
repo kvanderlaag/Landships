@@ -648,7 +648,13 @@ int main(int argc, char** argv) {
                             containers--;
                         }
                     } else {
-                        vContainersDelete.push_back(c);
+                        bool exists = false;
+                        for (Container* c1 : vContainersDelete) {
+                            if (c1 == c)
+                                exists = true;
+                        }
+                        if (!exists)
+                            vContainersDelete.push_back(c);
                     }
                 }
 
