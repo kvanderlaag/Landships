@@ -16,6 +16,7 @@ Player::Player(const std::string& filename, int id, SDL_Renderer* ren) :
     mBullets(0),
     mMaxBounce(1),
     mFireHeld(false),
+    mFireReleased(true),
     mJoyMove(false),
     mJoyRotate(false),
     mJoyTurret(false),
@@ -244,6 +245,7 @@ Bullet* Player::Fire() {
     Bullet* b = new Bullet(bx, by, mTurretAngle, direction.Normalized(), *this, mRenderer);
     Utility::PlaySound(sfxFire);
     mFireReady = false;
+    mFireReleased = false;
     return b;
 }
 
@@ -352,4 +354,12 @@ void Player::IncreaseMaxSpeed() {
 
 const bool Player::FireReady() const {
     return mFireReady;
+}
+
+const bool Player::FireReleased() const {
+    return mFireReleased;
+}
+
+void Player::FireIsReleased(const bool value) {
+    mFireReleased = value;
 }

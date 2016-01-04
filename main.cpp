@@ -401,8 +401,7 @@ int main(int argc, char** argv) {
                         players[0].SetForwardVel(-MAX_MOVE);
                     break;
                 case SDLK_SPACE:
-                    if (!players[0].FireHeld())
-                        players[0].FireIsHeld(true);
+                    players[0].FireIsHeld(true);
                     break;
                 }
 
@@ -440,6 +439,7 @@ int main(int argc, char** argv) {
                     break;
                 case SDLK_SPACE:
                     players[0].FireIsHeld(false);
+                    players[0].FireIsReleased(true);
                     break;
                 }
 
@@ -486,7 +486,7 @@ int main(int argc, char** argv) {
         }
 
         for (int i = 0; i < 4; i++) {
-            if (players[i].FireHeld() && players[i].FireReady()) {
+            if (players[i].FireHeld() && players[i].FireReady() && players[i].FireReleased()) {
                 Bullet* b = players[i].Fire();
                     if (b != nullptr) {
                         vBullets.insert(std::pair<int, Bullet*>(Bullet::next, b));

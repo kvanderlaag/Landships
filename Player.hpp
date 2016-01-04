@@ -87,6 +87,8 @@ public:
     void Invincible();
 
     const bool FireReady() const;
+    const bool FireReleased() const;
+    void FireIsReleased(const bool value);
 
 
 
@@ -111,7 +113,7 @@ private:
     Collider mCollider;
     int mMaxBullets, mBullets, mMaxBounce;
 
-    bool mFireHeld;
+    bool mFireHeld, mFireReleased;
     bool mJoyMove, mJoyRotate, mJoyTurret;
     int32_t mInvincible, mFlashTicks;
     bool mInvisible;
@@ -120,7 +122,7 @@ private:
 
     bool mFireReady;
     int32_t mFireTicksElapsed;
-    const int ticksBetweenShots = 150;
+    const int ticksBetweenShots = 100;
 
 
 };
