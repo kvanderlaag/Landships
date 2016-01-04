@@ -607,7 +607,13 @@ int main(int argc, char** argv) {
                 if (!c->IsDead()) {
                     p->CheckCollision(c->GetCollider(), frame_time);
                 } else {
-                    vContainersDelete.push_back(c);
+                    bool exists = false;
+                        for (Container* c1 : vContainersDelete) {
+                            if (c1 == c)
+                                exists = true;
+                        }
+                        if (!exists)
+                            vContainersDelete.push_back(c);
                 }
             }
 
@@ -619,7 +625,13 @@ int main(int argc, char** argv) {
                         pow->Apply(*p);
                     }
                 } else {
-                    vPowerupsDelete.push_back(pow);
+                    bool exists = false;
+                        for (Powerup* pow1 : vPowerupsDelete) {
+                            if (pow1 == pow)
+                                exists = true;
+                        }
+                        if (!exists)
+                            vPowerupsDelete.push_back(pow);
                 }
 
             }
@@ -754,6 +766,28 @@ int main(int argc, char** argv) {
 
 
         }
+
+        while (!vPowerupsDelete.empty()) {
+            std::vector<Powerup*>::iterator it = vPowerupsDelete.begin();
+            Powerup* c = *it;
+            for (std::vector<Powerup*>::iterator cIt = vPowerups.begin(); cIt != vPowerups.end(); cIt++) {
+                if (c == *cIt) {
+                    vPowerups.erase(cIt);
+                    break;
+                }
+            }
+            for (std::map<int, RenderableObject*>::iterator rIt = vRenderable.begin(); rIt != vRenderable.end(); rIt++) {
+                if (rIt->second == c) {
+                    vRenderable.erase(rIt->first);
+                    delete c;
+                    break;
+                }
+            }
+            vPowerupsDelete.erase(it);
+
+
+        }
+
 
         while (!vBulletsDelete.empty()) {
             std::map<int, Bullet*>::iterator it = vBulletsDelete.begin();
