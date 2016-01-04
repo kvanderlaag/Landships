@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
 
     SDL_Window* win = SDL_CreateWindow("Balls", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
-    SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_ShowCursor(0);
 
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
@@ -197,15 +197,15 @@ int main(int argc, char** argv) {
         rmask = 0x000000ff;
     #endif // SDL_BIG_ENDIAN
 
-    std::vector<Player*> vMoving;
-    std::vector<Collider*> vStationary;
-    std::map<int, RenderableObject*> vRenderable;
-    std::map<int, Bullet*> vBullets;
-    std::vector<Explosion*> vExplosions;
-    std::vector<Container*> vContainers;
+    std::vector<Player*> vPlayers, vPlayersDelete;
+    std::vector<Collider*> vStationary, vStationaryDelete;
+    std::map<int, RenderableObject*> vRenderable, vRenderableDelete;
+    std::map<int, Bullet*> vBullets, vBulletsDelete;
+    std::vector<Explosion*> vExplosions, vExplosionsDelete;
+    std::vector<Container*> vContainers, vContainersDelete;
 
     for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
-        vMoving.push_back(&players[i]);
+        vPlayers.push_back(&players[i]);
         vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &players[i]));
         RenderableObject::next++;
     }
@@ -458,7 +458,7 @@ int main(int argc, char** argv) {
                                     overlap = true;
                                 }
                         }
-                        for (Player* c1 : vMoving) {
+                        for (Player* c1 : vPlayers) {
                             if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
                                 (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
                                     overlap = true;
@@ -594,20 +594,23 @@ int main(int argc, char** argv) {
             }
         }
 
-        for (Player* p : vMoving) {
+        for (Player* p : vPlayers) {
             for (Collider* c : vStationary) {
                 if (!c->GetOwner().IsDead()) {
                     p->CheckCollision(*c, frame_time);
                 }
+
             }
             for (Container* c : vContainers) {
                 if (!c->IsDead()) {
                     p->CheckCollision(c->GetCollider(), frame_time);
+                } else {
+                    vContainersDelete.push_back(c);
                 }
             }
         }
 
-        for (GameObject* g : vMoving) {
+        for (GameObject* g : vPlayers) {
             g->Update(frame_time);
         }
 
@@ -625,10 +628,12 @@ int main(int argc, char** argv) {
                             NewExplosion(c->GetX(), c->GetY(), ren, vRenderable, vExplosions);
                             containers--;
                         }
+                    } else {
+                        vContainersDelete.push_back(c);
                     }
                 }
 
-                for (Player* pl : vMoving) {
+                for (Player* pl : vPlayers) {
                         if (pl->IsInvincible()) {
                             continue;
                         }
@@ -670,12 +675,72 @@ int main(int argc, char** argv) {
                     break;
                 }
             }
+            if (b.second->IsDead() ) {
+                vBulletsDelete.insert(b);
+            }
         }
 
         for (Explosion* e : vExplosions) {
             if (!e->IsDead()) {
                 e->Update(frame_time);
+            } else {
+                vExplosionsDelete.push_back(e);
             }
+        }
+
+        while (!vExplosionsDelete.empty()) {
+            std::vector<Explosion*>::iterator it = vExplosionsDelete.begin();
+            Explosion* e = *it;
+            for (std::vector<Explosion*>::iterator eIt = vExplosions.begin(); eIt != vExplosions.end(); eIt++) {
+                if (e == *eIt) {
+                    vExplosions.erase(eIt);
+                    break;
+                }
+            }
+            for (std::map<int, RenderableObject*>::iterator rIt = vRenderable.begin(); rIt != vRenderable.end(); rIt++) {
+                if (rIt->second == e) {
+                    vRenderable.erase(rIt->first);
+                    break;
+                }
+            }
+            vExplosionsDelete.erase(it);
+            delete e;
+
+        }
+
+        while (!vContainersDelete.empty()) {
+            std::vector<Container*>::iterator it = vContainersDelete.begin();
+            Container* c = *it;
+            for (std::vector<Container*>::iterator cIt = vContainers.begin(); cIt != vContainers.end(); cIt++) {
+                if (c == *cIt) {
+                    vContainers.erase(cIt);
+                    break;
+                }
+            }
+            for (std::map<int, RenderableObject*>::iterator rIt = vRenderable.begin(); rIt != vRenderable.end(); rIt++) {
+                if (rIt->second == c) {
+                    vRenderable.erase(rIt->first);
+                    break;
+                }
+            }
+            vContainersDelete.erase(it);
+            delete c;
+
+        }
+
+        while (!vBulletsDelete.empty()) {
+            std::map<int, Bullet*>::iterator it = vBulletsDelete.begin();
+            Bullet* b = it->second;
+            vBullets.erase(it->first);
+            for (std::map<int, RenderableObject*>::iterator rIt = vRenderable.begin(); rIt != vRenderable.end(); rIt++) {
+                if (rIt->second == b) {
+                    vRenderable.erase(rIt->first);
+                    break;
+                }
+            }
+            vBulletsDelete.erase(it);
+            delete b;
+
         }
 
         /* Render Loop */
