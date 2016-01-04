@@ -29,7 +29,7 @@ void Collider::SetAngle(float angle) {
     angle = mRectangle.GetAngle();
 }
 
-const CollisionInfo Collider::CheckCollision(const Collider& other, Vector2D& velocity) const {
+const CollisionInfo Collider::CheckCollision(const Collider& other, const Vector2D& velocity) const {
 
     //Initialize collision info object
     CollisionInfo returnCollision;

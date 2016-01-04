@@ -35,3 +35,17 @@ void Container::Render() {
 const Collider& Container::GetCollider() const {
     return mCollider;
 }
+
+const int Container::GetContents() const {
+    switch (mContents) {
+    case powerupBullets:
+        return 1;
+    case powerupBounce:
+        return 2;
+    case powerupSpeed:
+        return 3;
+    }
+    return 1;
+}
+
+

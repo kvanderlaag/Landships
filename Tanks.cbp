@@ -64,6 +64,8 @@
 		<Unit filename="Player.hpp" />
 		<Unit filename="Point.cpp" />
 		<Unit filename="Point.hpp" />
+		<Unit filename="Powerup.cpp" />
+		<Unit filename="Powerup.hpp" />
 		<Unit filename="Rectangle.cpp" />
 		<Unit filename="Rectangle.hpp" />
 		<Unit filename="RenderableObject.cpp" />

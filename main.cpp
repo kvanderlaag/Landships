@@ -20,6 +20,7 @@
 #include "Collider.hpp"
 #include "Explosion.hpp"
 #include "Container.hpp"
+#include "Powerup.hpp"
 
 #define SCREEN_WIDTH 426
 #define SCREEN_HEIGHT 240
@@ -203,6 +204,7 @@ int main(int argc, char** argv) {
     std::map<int, Bullet*> vBullets, vBulletsDelete;
     std::vector<Explosion*> vExplosions, vExplosionsDelete;
     std::vector<Container*> vContainers, vContainersDelete;
+    std::vector<Powerup*> vPowerups, vPowerupsDelete;
 
     for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
         vPlayers.push_back(&players[i]);
@@ -479,7 +481,7 @@ int main(int argc, char** argv) {
         }
 
         for (int i = 0; i < 4; i++) {
-            if (players[i].FireHeld()) {
+            if (players[i].FireHeld() && players[i].FireReady()) {
                 Bullet* b = players[i].Fire();
                     if (b != nullptr) {
                         vBullets.insert(std::pair<int, Bullet*>(Bullet::next, b));
@@ -608,6 +610,19 @@ int main(int argc, char** argv) {
                     vContainersDelete.push_back(c);
                 }
             }
+
+            for (Powerup* pow : vPowerups) {
+                if (!pow->IsDead()) {
+                    CollisionInfo coll = p->GetCollider().CheckCollision(pow->GetCollider(), p->GetVelocity());
+
+                    if (coll.Colliding()) {
+                        pow->Apply(*p);
+                    }
+                } else {
+                    vPowerupsDelete.push_back(pow);
+                }
+
+            }
         }
 
         for (GameObject* g : vPlayers) {
@@ -625,6 +640,10 @@ int main(int argc, char** argv) {
                             c->Die();
                             b.second->Die();
                             b.second->GetOwner().DestroyBullet();
+                            Powerup* pow = new Powerup(c->GetX(), c->GetY(), ren, c->GetContents());
+                            vPowerups.push_back(pow);
+                            vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, pow));
+                            RenderableObject::next++;
                             NewExplosion(c->GetX(), c->GetY(), ren, vRenderable, vExplosions);
                             containers--;
                         }
@@ -688,6 +707,7 @@ int main(int argc, char** argv) {
             }
         }
 
+
         while (!vExplosionsDelete.empty()) {
             std::vector<Explosion*>::iterator it = vExplosionsDelete.begin();
             Explosion* e = *it;
@@ -742,6 +762,7 @@ int main(int argc, char** argv) {
             delete b;
 
         }
+
 
         /* Render Loop */
         if (SDL_TICKS_PASSED(new_time - ticks, RENDER_INTERVAL)) {
@@ -878,6 +899,13 @@ int main(int argc, char** argv) {
                     int scoreWidth, scoreHeight;
                     SDL_Texture* scoreTex = Utility::RenderText(scoreString.str(), GAME_FONT, c, 12, ren);
                     SDL_QueryTexture(scoreTex, NULL, NULL, &scoreWidth, &scoreHeight);
+                    scoreString.str("");
+
+                    scoreString << "B: " << players[i].GetMaxBullets() << ", O: " << players[i].GetMaxBounce() << ", S: " << players[i].GetMaxSpeed();
+                    SDL_Texture* PowerupsTex = Utility::RenderText(scoreString.str(), GAME_FONT, c, 12, ren);
+                    int powWidth, powHeight;
+                    SDL_QueryTexture(PowerupsTex, NULL, NULL, &powWidth, &powHeight);
+                    scoreString.str("");
 
                     srcRect.x = 0;
                     srcRect.y = 0;
@@ -902,6 +930,18 @@ int main(int argc, char** argv) {
                     dstRect.h = scoreHeight;
 
                     SDL_RenderCopy(ren, scoreTex, &srcRect, &dstRect);
+
+                    srcRect.x = 0;
+                    srcRect.y = 0;
+                    srcRect.w = powWidth;
+                    srcRect.h = powHeight;
+
+                    dstRect.x = 320 + 2;
+                    dstRect.y = i * 60 + plHeight + scoreHeight + 6;
+                    dstRect.w = powWidth;
+                    dstRect.h = powHeight;
+
+                    SDL_RenderCopy(ren, PowerupsTex, &srcRect, &dstRect);
 
 
                 }

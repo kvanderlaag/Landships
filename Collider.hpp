@@ -22,7 +22,7 @@ public:
     void SetAngle(float angle);
     void Update(uint32_t ticks) {};
 
-    const CollisionInfo CheckCollision(const Collider& other, Vector2D& velocity) const;
+    const CollisionInfo CheckCollision(const Collider& other, const Vector2D& velocity) const;
 
     const Rectangle& GetRectangle() const;
 

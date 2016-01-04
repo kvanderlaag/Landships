@@ -21,7 +21,10 @@ Player::Player(const std::string& filename, int id, SDL_Renderer* ren) :
     mJoyTurret(false),
     mInvincible(0),
     mFlashTicks(0),
-    mInvisible(false)
+    mInvisible(false),
+    mMaxSpeed(1),
+    mFireReady(true),
+    mFireTicksElapsed(0)
 {
     SDL_QueryTexture(mTexture, NULL, NULL, &width, &height);
     width = width / (width / 16);
@@ -136,6 +139,14 @@ void Player::CheckCollision(const Collider& other, uint32_t ticks) {
 
 void Player::Update(uint32_t ticks) {
 
+    if (!mFireReady) {
+        mFireTicksElapsed += ticks;
+        if (mFireTicksElapsed >= ticksBetweenShots) {
+            mFireReady = true;
+            mFireTicksElapsed = 0;
+        }
+    }
+
     if (mInvincible > 0) {
         mInvincible -= ticks;
         mFlashTicks += ticks;
@@ -153,7 +164,20 @@ void Player::Update(uint32_t ticks) {
         mInvisible = false;
     }
 
-    float forwardPerFrame = mForwardVel * ((float)ticks / 1000) * MOVE_SPEED ;
+    float scale = 1;
+    switch (mMaxSpeed) {
+        case 1:
+            scale = 0.75;
+            break;
+        case 2:
+            scale = 1;
+            break;
+        case 3:
+            scale = 1.25;
+            break;
+    }
+
+    float forwardPerFrame = mForwardVel * ((float)ticks / 1000) * MOVE_SPEED * scale;
     float rotationPerFrame = mRotationVel * ((float)ticks / 1000) * ROTATE_SPEED ;
     float turretRotationPerFrame = mTurretRotationVel * ((float) ticks / 1000) * ROTATE_SPEED ;
 
@@ -200,7 +224,7 @@ void Player::Update(uint32_t ticks) {
 }
 
 Bullet* Player::Fire() {
-    if (mBullets >= mMaxBullets) {
+    if (mBullets >= mMaxBullets || !mFireReady) {
         return nullptr;
     }
     mBullets++;
@@ -219,6 +243,7 @@ Bullet* Player::Fire() {
 
     Bullet* b = new Bullet(bx, by, mTurretAngle, direction.Normalized(), *this, mRenderer);
     Utility::PlaySound(sfxFire);
+    mFireReady = false;
     return b;
 }
 
@@ -307,4 +332,24 @@ void Player::SetTurretAngle(const float newangle) {
         mTurretAngle += 360;
     while (mTurretAngle > 360)
         mTurretAngle -= 360;
+}
+
+const int Player::GetMaxSpeed() const {
+    return mMaxSpeed;
+}
+
+void Player::IncreaseMaxBounce() {
+    mMaxBounce++;
+}
+
+void Player::IncreaseMaxBullets() {
+    mMaxBullets++;
+}
+
+void Player::IncreaseMaxSpeed() {
+    mMaxSpeed++;
+}
+
+const bool Player::FireReady() const {
+    return mFireReady;
 }

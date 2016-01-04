@@ -61,6 +61,11 @@ public:
     const int GetMaxBullets() const;
     const int GetBullets() const;
     const int GetMaxBounce() const;
+    const int GetMaxSpeed() const;
+
+    void IncreaseMaxBullets();
+    void IncreaseMaxBounce();
+    void IncreaseMaxSpeed();
 
     const int GetID() const;
     const int GetScore() const;
@@ -80,6 +85,10 @@ public:
 
     const bool IsInvincible() const;
     void Invincible();
+
+    const bool FireReady() const;
+
+
 
 private:
 
@@ -106,6 +115,14 @@ private:
     bool mJoyMove, mJoyRotate, mJoyTurret;
     int32_t mInvincible, mFlashTicks;
     bool mInvisible;
+
+    int mMaxSpeed;
+
+    bool mFireReady;
+    int32_t mFireTicksElapsed;
+    const int ticksBetweenShots = 250;
+
+
 };
 
 #endif // _PLAYER_H_

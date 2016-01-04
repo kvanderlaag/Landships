@@ -16,9 +16,9 @@ public:
     void Render();
 
     enum Contents {
-        powerupBullets,
-        powerupBounce,
-        powerupSpeed
+        powerupBullets = 1,
+        powerupBounce = 2,
+        powerupSpeed = 3
     };
 
     const int GetContents() const;
