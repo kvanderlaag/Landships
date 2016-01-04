@@ -274,8 +274,9 @@ int main(int argc, char** argv) {
 
             } else if (e.type == SDL_JOYAXISMOTION) {
                 if (e.jaxis.axis == JAXIS_FIRE) {
-                    if (e.jaxis.value > JOYFIRE_DEADZONE && !players[index].FireHeld()) {
-                        players[index].FireIsHeld(true);
+                    if (e.jaxis.value > JOYFIRE_DEADZONE) {
+                        if (!players[index].FireHeld())
+                            players[index].FireIsHeld(true);
                     } else {
                         players[index].FireIsHeld(false);
                         players[index].FireIsReleased(true);
