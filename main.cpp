@@ -278,6 +278,7 @@ int main(int argc, char** argv) {
                         players[index].FireIsHeld(true);
                     } else {
                         players[index].FireIsHeld(false);
+                        players[index].FireIsReleased(true);
                     }
 
                 //std::cout << "Joystick " << e.jaxis.which << " - Axis " << e.jaxis.axis << ": " << e.jaxis.value << std::endl;
