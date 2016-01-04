@@ -40,6 +40,7 @@
 #define RENDER_INTERVAL 16
 
 #define JBUTTON_FIRE 9
+#define JBUTTON_DEBUG 10
 #define JAXIS_MOVE   0x01
 #define JAXIS_ROTATE 0x00
 #define JAXIS_TURRET 0x02
@@ -260,18 +261,24 @@ int main(int argc, char** argv) {
             if (e.type == SDL_QUIT) {
                 running = false;
             } else if (e.type == SDL_JOYBUTTONDOWN) {
-                /*
                 if (e.jbutton.button == JBUTTON_FIRE && !players[index].FireHeld()) {
                     players[index].FireIsHeld(true);
                 }
-                */
+                else if (e.jbutton.button == JBUTTON_DEBUG) {
+                    players[index].IncreaseMaxSpeed();
+                    players[index].IncreaseMaxSpeed();
+                    players[index].IncreaseMaxBounce();
+                    players[index].IncreaseMaxBounce();
+                    players[index].IncreaseMaxBullets();
+                    players[index].IncreaseMaxBullets();
+                    players[index].IncreaseMaxBullets();
+                    players[index].IncreaseMaxBullets();
+                }
             } else if (e.type == SDL_JOYBUTTONUP) {
-                /*
                 if (e.jbutton.button == JBUTTON_FIRE) {
                     players[index].FireIsHeld(false);
+                    players[index].FireIsReleased(true);
                 }
-                */
-
             } else if (e.type == SDL_JOYAXISMOTION) {
                 if (e.jaxis.axis == JAXIS_FIRE) {
                     if (e.jaxis.value > JOYFIRE_DEADZONE) {
