@@ -264,6 +264,7 @@ int main(int argc, char** argv) {
                 if (e.jbutton.button == JBUTTON_FIRE && !players[index].FireHeld()) {
                     players[index].FireIsHeld(true);
                 }
+                #ifdef _POWERUP_DEBUG
                 else if (e.jbutton.button == JBUTTON_DEBUG) {
                     players[index].IncreaseMaxSpeed();
                     players[index].IncreaseMaxSpeed();
@@ -274,6 +275,7 @@ int main(int argc, char** argv) {
                     players[index].IncreaseMaxBullets();
                     players[index].IncreaseMaxBullets();
                 }
+                #endif
             } else if (e.type == SDL_JOYBUTTONUP) {
                 if (e.jbutton.button == JBUTTON_FIRE) {
                     players[index].FireIsHeld(false);
