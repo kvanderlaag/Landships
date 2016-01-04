@@ -746,11 +746,12 @@ int main(int argc, char** argv) {
             for (std::map<int, RenderableObject*>::iterator rIt = vRenderable.begin(); rIt != vRenderable.end(); rIt++) {
                 if (rIt->second == c) {
                     vRenderable.erase(rIt->first);
+                    delete c;
                     break;
                 }
             }
             vContainersDelete.erase(it);
-            delete c;
+
 
         }
 
