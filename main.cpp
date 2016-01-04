@@ -260,13 +260,17 @@ int main(int argc, char** argv) {
             if (e.type == SDL_QUIT) {
                 running = false;
             } else if (e.type == SDL_JOYBUTTONDOWN) {
+                /*
                 if (e.jbutton.button == JBUTTON_FIRE && !players[index].FireHeld()) {
                     players[index].FireIsHeld(true);
                 }
+                */
             } else if (e.type == SDL_JOYBUTTONUP) {
+                /*
                 if (e.jbutton.button == JBUTTON_FIRE) {
                     players[index].FireIsHeld(false);
                 }
+                */
 
             } else if (e.type == SDL_JOYAXISMOTION) {
                 if (e.jaxis.axis == JAXIS_FIRE) {
