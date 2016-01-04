@@ -260,7 +260,7 @@ int main(int argc, char** argv) {
             if (e.type == SDL_QUIT) {
                 running = false;
             } else if (e.type == SDL_JOYBUTTONDOWN) {
-                if (e.jbutton.button == JBUTTON_FIRE) {
+                if (e.jbutton.button == JBUTTON_FIRE && !players[index].FireHeld()) {
                     players[index].FireIsHeld(true);
                 }
             } else if (e.type == SDL_JOYBUTTONUP) {
@@ -270,7 +270,7 @@ int main(int argc, char** argv) {
 
             } else if (e.type == SDL_JOYAXISMOTION) {
                 if (e.jaxis.axis == JAXIS_FIRE) {
-                    if (e.jaxis.value > JOYFIRE_DEADZONE) {
+                    if (e.jaxis.value > JOYFIRE_DEADZONE && !players[index].FireHeld()) {
                         players[index].FireIsHeld(true);
                     } else {
                         players[index].FireIsHeld(false);
@@ -397,7 +397,8 @@ int main(int argc, char** argv) {
                         players[0].SetForwardVel(-MAX_MOVE);
                     break;
                 case SDLK_SPACE:
-                    players[0].FireIsHeld(true);
+                    if (!players[0].FireHeld())
+                        players[0].FireIsHeld(true);
                     break;
                 }
 
