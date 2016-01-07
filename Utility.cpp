@@ -81,6 +81,7 @@ Mix_Music* Utility::LoadMusic(const std::string& filename) {
     if (m) {
         return m;
     }
+    std::cout << "Error loading " << path << ": " << Mix_GetError();
     return nullptr;
 }
 
@@ -94,6 +95,7 @@ Mix_Chunk* Utility::LoadSound(const std::string& filename) {
     if (s) {
         return s;
     }
+    std::cout << "Error loading " << path << ": " << Mix_GetError();
     return nullptr;
 }
 

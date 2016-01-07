@@ -4,7 +4,8 @@
 
 Map::Map(const std::string& filename, const std::string& texturefile, SDL_Renderer* ren) :
     RenderableObject(texturefile, 320, 240, 0, 0, 0, ren),
-    StartPos({Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0)})
+    StartPos({Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0)}),
+    mLoadSuccess(true)
 {
     std::string path = SDL_GetBasePath();
     path += filename;
@@ -14,18 +15,60 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
     int col = 0;
 
     if (!inFile.good()) {
-        exit(2);
+        mLoadSuccess = false;
+        return;
+    }
+
+    {
+        char c;
+        char DE = 0xDE;
+        char AD = 0xAD;
+        char BE = 0xBE;
+        char EF = 0xEF;
+
+        inFile.get(c);
+        //std::cout << c;
+        if (c != DE) {
+            mLoadSuccess = false;
+        }
+
+        inFile.get(c);
+        //std::cout << c;
+        if (c != AD) {
+            mLoadSuccess = false;
+        }
+
+        inFile.get(c);
+        //std::cout << c;
+        if (c != BE) {
+            mLoadSuccess = false;
+        }
+
+        inFile.get(c);
+        //std::cout << c;
+        if (c != EF) {
+            mLoadSuccess = false;
+        }
+
+        //std::cout << std::endl;
+        //std::cout << DE << AD << BE << EF << std::endl;
+
+        if (mLoadSuccess == false) {
+            return;
+        }
     }
 
     std::string levelStr;
     {
         char c;
+
         while (inFile.get(c)) {
             levelStr += c;
         }
     }
     if (levelStr.length() != 40 * 30) {
-        exit(2);
+        mLoadSuccess = false;
+        return;
     }
 
     mvColliders.push_back(Collider(320,      8,          160,      4,          0, this));
@@ -119,4 +162,8 @@ const Vector2D& Map::GetStartPos(const int pn) const {
 
 const unsigned int Map::GetTileAt(const int row, const int col) const {
     return tiles[row][col];
+}
+
+const bool Map::LoadSuccess() const {
+    return mLoadSuccess;
 }

@@ -66,7 +66,7 @@ void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int,
 
 int main(int argc, char** argv) {
 
-    freopen("CON", "w", stdout);
+    freopen("error.log", "w", stdout);
 
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
@@ -159,6 +159,10 @@ int main(int argc, char** argv) {
     else
         mapfilename = "default.d";
     Map m(mapfilename, "WallTiles.png", ren);
+    if (!m.LoadSuccess()) {
+        std::cout << "Level file " << mapfilename << " not a valid map.";
+        exit(10);
+    }
 
     Player players[4] = { Player("Tank1.png", 1, ren), Player("Tank2.png", 2, ren), Player("Tank3.png", 3, ren), Player("Tank4.png", 4, ren) };
     //Player& p = players[0];

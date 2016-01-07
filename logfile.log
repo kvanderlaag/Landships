@@ -1,5 +1,13 @@
-Loading music D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Debug\music.ogg
-Loading sound D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Debug\sfx_fire.ogg
-Loading sound D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Debug\sfx_bounce.ogg
-Loading sound D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Debug\sfx_die.ogg
+Loading music D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\music.ogg
+Error loading D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\music.ogg: Failed loading libvorbisfile-3.dll: The specified module could not be found.
+Loading sound D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\sfx_fire.ogg
+Error loading D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\sfx_fire.ogg: Failed loading libvorbisfile-3.dll: The specified module could not be found.
+Loading sound D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\sfx_bounce.ogg
+Error loading D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\sfx_bounce.ogg: Failed loading libvorbisfile-3.dll: The specified module could not be found.
+Loading sound D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\sfx_bounce2.ogg
+Error loading D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\sfx_bounce2.ogg: Failed loading libvorbisfile-3.dll: The specified module could not be found.
+Loading sound D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\sfx_bounce3.ogg
+Error loading D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\sfx_bounce3.ogg: Failed loading libvorbisfile-3.dll: The specified module could not be found.
+Loading sound D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\sfx_die.ogg
+Error loading D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Release\sfx_die.ogg: Failed loading libvorbisfile-3.dll: The specified module could not be found.
 Could not load sound effects. Exiting.
