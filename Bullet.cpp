@@ -162,3 +162,7 @@ void Bullet::Render() {
     /* End of Collider Rendering */
     #endif
 }
+
+const Vector2D& Bullet::GetVelocity() const {
+    return mVelocity;
+}

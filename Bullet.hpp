@@ -18,7 +18,7 @@ private:
     Player& mOwner;
     Vector2D mDirection;
     Vector2D mVelocity;
-    const int BULLET_SPEED = 70;
+    const int BULLET_SPEED = 75;
     int mMaxBounce, mBounce;
 public:
     static int next;
@@ -28,6 +28,7 @@ public:
     const Collider& GetCollider() const;
     Player& GetOwner();
     const Vector2D& GetDirection() const;
+    const Vector2D& GetVelocity() const;
 
     void Bounce(const CollisionInfo& coll, const uint32_t ticks);
     const int GetBounce() const;

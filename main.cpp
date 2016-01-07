@@ -369,6 +369,18 @@ int main(int argc, char** argv) {
 
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
+                case SDLK_p:
+                    #ifdef _POWERUP_DEBUG
+                    players[0].IncreaseMaxSpeed();
+                    players[0].IncreaseMaxSpeed();
+                    players[0].IncreaseMaxBounce();
+                    players[0].IncreaseMaxBounce();
+                    players[0].IncreaseMaxBullets();
+                    players[0].IncreaseMaxBullets();
+                    players[0].IncreaseMaxBullets();
+                    players[0].IncreaseMaxBullets();
+                    #endif
+                    break;
                 case SDLK_LALT:
                 case SDLK_RALT:
                     altHeld = true;
@@ -720,7 +732,7 @@ int main(int argc, char** argv) {
                 }
 
                 for (std::pair<int, Bullet*> other : vBullets) {
-                    if (b.second != other.second && !other.second->IsDead()) {
+                    if (b.second != other.second && !other.second->IsDead() && b.second->GetDirection() != other.second->GetDirection()) {
                         CollisionInfo coll = b.second->CheckCollision(*other.second, frame_time);
                         if ((coll.Colliding() || coll.WillCollide())) {
                             b.second->GetOwner().DestroyBullet();

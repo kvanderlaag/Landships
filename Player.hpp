@@ -122,7 +122,7 @@ private:
 
     bool mFireReady;
     int32_t mFireTicksElapsed;
-    const int ticksBetweenShots = 100;
+    const int ticksBetweenShots = 125;
 
 
 };

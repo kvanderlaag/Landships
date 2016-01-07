@@ -174,7 +174,7 @@ void Player::Update(uint32_t ticks) {
             scale = 1;
             break;
         case 3:
-            scale = 1.25;
+            scale = 1.2;
             break;
     }
 

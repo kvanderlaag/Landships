@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1452129910 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1452188218 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -389,7 +389,7 @@
 	"Container.hpp"
 	"Powerup.hpp"
 
-1451949105 d:\users\kvand_000\documents\github\tanks\player.hpp
+1452187882 d:\users\kvand_000\documents\github\tanks\player.hpp
 	"GameObject.hpp"
 	"RenderableObject.hpp"
 	"Utility.hpp"
@@ -429,7 +429,7 @@
 1452127094 source:d:\users\kvand_000\documents\github\tanks\map.cpp
 	"Map.hpp"
 
-1452129752 source:d:\users\kvand_000\documents\github\tanks\player.cpp
+1452187484 source:d:\users\kvand_000\documents\github\tanks\player.cpp
 	"Player.hpp"
 
 1451706143 source:d:\users\kvand_000\documents\github\tanks\tile.cpp
@@ -505,13 +505,13 @@
 1451158244 d:\users\kvand_000\documents\github\tanks\collisioninfo.hpp
 	"Vector2D.hpp"
 
-1452129465 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
+1452188177 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
 	"Bullet.hpp"
 	<iostream>
 	<random>
 	<ctime>
 
-1452129431 d:\users\kvand_000\documents\github\tanks\bullet.hpp
+1452188153 d:\users\kvand_000\documents\github\tanks\bullet.hpp
 	"RenderableObject.hpp"
 	"Collider.hpp"
 	"CollisionInfo.hpp"
