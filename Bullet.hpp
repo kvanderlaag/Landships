@@ -41,6 +41,7 @@ public:
     CollisionInfo CheckCollision(const Player& player, const uint32_t ticks);
     CollisionInfo CheckCollision(const Container& container, const uint32_t ticks);
     CollisionInfo CheckCollision(const Collider& other, const uint32_t ticks);
+    CollisionInfo CheckCollision(const Bullet& other, const uint32_t ticks);
 
     void Render();
 

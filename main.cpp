@@ -719,6 +719,25 @@ int main(int argc, char** argv) {
                     break;
                 }
 
+                for (std::pair<int, Bullet*> other : vBullets) {
+                    if (b.second != other.second && !other.second->IsDead()) {
+                        CollisionInfo coll = b.second->CheckCollision(*other.second, frame_time);
+                        if ((coll.Colliding() || coll.WillCollide())) {
+                            b.second->GetOwner().DestroyBullet();
+                            other.second->GetOwner().DestroyBullet();
+                            NewExplosion(b.second->GetX(), b.second->GetY(), ren, vRenderable, vExplosions);
+                            b.second->Die();
+                            other.second->Die();
+                            break;
+                        }
+                    }
+
+                }
+
+                if (b.second->IsDead()) {
+                    break;
+                }
+
                 for (Collider* c : vStationary) {
                     CollisionInfo coll = b.second->CheckCollision(*c, frame_time);
                     if (b.second->IsDead() && (coll.Colliding() || coll.WillCollide()) ) {

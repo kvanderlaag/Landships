@@ -118,6 +118,14 @@ CollisionInfo Bullet::CheckCollision(const Container& container, const uint32_t 
     return coll;
 }
 
+CollisionInfo Bullet::CheckCollision(const Bullet& bullet, const uint32_t ticks) {
+    CollisionInfo coll = mCollider.CheckCollision(bullet.GetCollider(), mVelocity);
+
+    //dead = true;
+
+    return coll;
+}
+
 CollisionInfo Bullet::CheckCollision(const Collider& other, const uint32_t ticks) {
     CollisionInfo coll = mCollider.CheckCollision(other, mVelocity);
 
