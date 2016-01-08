@@ -728,8 +728,11 @@ int main(int argc, char** argv) {
                         if (pl->IsInvincible()) {
                             continue;
                         }
+                        if (pl->GetID() == b.second->GetOwner().GetID() && b.second->GetBounce() == 0) {
+                            continue;
+                        }
                         CollisionInfo coll = b.second->CheckCollision(*pl, frame_time);
-                        if (coll.Colliding() && b.second->GetBounce() > 0) {
+                        if (coll.Colliding()) {
                             if (&(b.second->GetOwner()) == pl) {
                                 pl->AddScore(-1);
                             } else {
@@ -987,6 +990,8 @@ int main(int argc, char** argv) {
                 }
                 SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
                 for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
+                    if (!playersIn[i])
+                        continue;
                     int rWidth, rHeight;
                     rWidth = 106;
                     rHeight = 60;
