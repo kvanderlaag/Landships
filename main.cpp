@@ -1400,13 +1400,13 @@ int Menu() {
             SDL_Rect p4DestRect;
 
             p4DestRect.x = 3 * 320 / 4 - (p4TextWidth / 2);
-            p4DestRect.y = 240 / 4 - (p4TextHeight) - 2;
+            p4DestRect.y = 3 * 240 / 4 - (p4TextHeight) - 2;
             p4DestRect.w = p4TextWidth;
             p4DestRect.h = p4TextHeight;
             SDL_RenderCopy(ren, p4Text, NULL, &p4DestRect);
 
             p4DestRect.x = 3 * 320 / 4 - (p4ButtonWidth / 2);
-            p4DestRect.y = 240 / 4 + 2;
+            p4DestRect.y = 3 * 240 / 4 + 2;
             p4DestRect.w = p4ButtonWidth;
             p4DestRect.h = p4ButtonHeight;
             SDL_RenderCopy(ren, p4Button, NULL, &p4DestRect);
