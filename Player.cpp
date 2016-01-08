@@ -25,10 +25,15 @@ Player::Player(const std::string& filename, int id, SDL_Renderer* ren) :
     mInvisible(false),
     mMaxSpeed(1),
     mFireReady(true),
-    mFireTicksElapsed(0)
+    mFireTicksElapsed(0),
+    mAnimationTicksElapsed(0),
+    mFrame(0),
+    mMoving(false)
 {
     SDL_QueryTexture(mTexture, NULL, NULL, &width, &height);
-    width = width / (width / 16);
+    mAnimationFrames = (width / 16) - 1;
+    width = 16;
+
 }
 
 Player::~Player() {
@@ -94,7 +99,7 @@ void Player::Render() {
 
     SDL_Rect srcRect, dstRect;
 
-    srcRect.x = 0;
+    srcRect.x = mFrame * width;
     srcRect.y = 0;
     srcRect.h = height;
     srcRect.w = width;
@@ -105,7 +110,7 @@ void Player::Render() {
     dstRect.w = width;
     SDL_RenderCopyEx(mRenderer, mTexture, &srcRect, &dstRect, angle, NULL, SDL_FLIP_NONE);
 
-    srcRect.x = 16;
+    srcRect.x = 16 * mAnimationFrames;
     srcRect.y = 0;
     srcRect.h = height;
     srcRect.w = width;
@@ -139,6 +144,19 @@ void Player::CheckCollision(const Collider& other, uint32_t ticks) {
 }
 
 void Player::Update(uint32_t ticks) {
+
+    if (mMoving) {
+        mAnimationTicksElapsed += ticks;
+        if (mAnimationTicksElapsed >= ticksPerAnimationFrame ) {
+            mAnimationTicksElapsed = 0;
+            if (mFrame < mAnimationFrames - 1) {
+                mFrame++;
+            } else {
+                mFrame = 0;
+            }
+
+        }
+    }
 
     if (!mFireReady) {
         mFireTicksElapsed += ticks;
@@ -362,4 +380,12 @@ const bool Player::FireReleased() const {
 
 void Player::FireIsReleased(const bool value) {
     mFireReleased = value;
+}
+
+void Player::IsMoving(const bool value) {
+    mMoving = value;
+}
+
+const bool Player::Moving() const {
+    return mMoving;
 }

@@ -90,6 +90,9 @@ public:
     const bool FireReleased() const;
     void FireIsReleased(const bool value);
 
+    void IsMoving(const bool value);
+    const bool Moving() const;
+
 
 
 private:
@@ -123,6 +126,12 @@ private:
     bool mFireReady;
     int32_t mFireTicksElapsed;
     const int ticksBetweenShots = 125;
+
+    const int ticksPerAnimationFrame = 100;
+    int mAnimationTicksElapsed;
+    int mAnimationFrames;
+    int mFrame;
+    bool mMoving;
 
 
 };

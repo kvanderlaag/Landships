@@ -599,6 +599,7 @@ int main(int argc, char** argv) {
 
         for (int i = 0; i < 4; i++) {
             if (players[i].JoyMove()) {
+                players[i].IsMoving(true);
                 int32_t joyX, joyY;
                 joyX = SDL_JoystickGetAxis(gController[i], JAXIS_MOVEX);
                 joyY = SDL_JoystickGetAxis(gController[i], JAXIS_MOVEY);
@@ -647,6 +648,8 @@ int main(int argc, char** argv) {
                 //players[e.jaxis.which].SetTurretAngle(joyAngle + 90);
                 players[i].SetRotationVel(MAX_ROTATE * scale);
                 players[i].SetForwardVel(MAX_MOVE * joyVec.GetMagnitude());
+            } else if (players[i].Moving()) {
+                players[i].IsMoving(false);
             }
         }
 
