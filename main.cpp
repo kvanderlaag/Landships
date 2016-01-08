@@ -11,6 +11,8 @@
 #include <map>
 #include <ctime>
 
+#include <dirent.h>
+
 #include "Player.hpp"
 #include "Tile.hpp"
 #include "Map.hpp"
@@ -39,8 +41,13 @@
 
 #define RENDER_INTERVAL 16
 
+
+#define JBUTTON_DPADUP 0
+#define JBUTTON_DPADDOWN 1
+#define JBUTTON_START 4
+#define JBUTTON_BACK 5
 #define JBUTTON_FIRE 9
-#define JBUTTON_DEBUG 10
+#define JBUTTON_A 10
 #define JAXIS_MOVE   0x01
 #define JAXIS_ROTATE 0x00
 #define JAXIS_TURRET 0x02
@@ -58,11 +65,25 @@ Mix_Chunk* sfxBounce[3] = { NULL, NULL, NULL };
 Mix_Chunk* sfxDie = NULL;
 std::default_random_engine generator(time(0));
 
+bool playersIn[4] = { false, false, false, false };
+int playersInCount = 0;
+int maxPlayers = 0;
+std::string mapfilename;
+
 bool altHeld = false;
 bool fullscreen = true;
 
+SDL_Window* win = NULL;
+SDL_Renderer* ren = NULL;
+SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
+
+const int JOYTURRET_DEADZONE = 12000;
+const int JOYMOVE_DEADZONE = 12000;
+const int JOYFIRE_DEADZONE = 0;
+
 const std::string basePath = SDL_GetBasePath();
 void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int, RenderableObject*>& vRenderable, std::vector<Explosion*>& vExplosions);
+int Menu();
 
 int main(int argc, char** argv) {
 
@@ -121,12 +142,8 @@ int main(int argc, char** argv) {
 
     // Initialize joysticks
     //const int JOYSTICK_DEADZONE = 10000;
-    const int JOYTURRET_DEADZONE = 12000;
-    const int JOYMOVE_DEADZONE = 12000;
-    const int JOYFIRE_DEADZONE = 0;
-    SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 
-    int maxPlayers = 0;
+
     if (SDL_NumJoysticks() > 0) {
         maxPlayers = std::min(SDL_NumJoysticks(), 4);
         for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
@@ -142,22 +159,25 @@ int main(int argc, char** argv) {
     playerx = (SCREEN_WIDTH / 2);
     playery = (SCREEN_HEIGHT / 2);
 
-    SDL_Window* win = SDL_CreateWindow("Balls", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
+    win = SDL_CreateWindow("Tanks", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
     SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_ShowCursor(0);
 
-    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+    ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
     SDL_RenderSetLogicalSize(ren, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    std::string mapfilename;
+    if (Menu() == -1) {
+        exit(0);
+    }
+
     if (argc > 1)
         mapfilename = argv[1];
-    else
-        mapfilename = "default.d";
+    //else
+        //mapfilename = "default.d";
     Map m(mapfilename, "WallTiles.png", ren);
     if (!m.LoadSuccess()) {
         std::cout << "Level file " << mapfilename << " not a valid map.";
@@ -212,9 +232,11 @@ int main(int argc, char** argv) {
     std::vector<Powerup*> vPowerups, vPowerupsDelete;
 
     for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
-        vPlayers.push_back(&players[i]);
-        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &players[i]));
-        RenderableObject::next++;
+        if (playersIn[i]) {
+            vPlayers.push_back(&players[i]);
+            vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &players[i]));
+            RenderableObject::next++;
+        }
     }
 
     std::vector<Collider>& mapColliders = m.GetColliders();
@@ -269,7 +291,7 @@ int main(int argc, char** argv) {
                     players[index].FireIsHeld(true);
                 }
                 #ifdef _POWERUP_DEBUG
-                else if (e.jbutton.button == JBUTTON_DEBUG) {
+                else if (e.jbutton.button == JBUTTON_A) {
                     players[index].IncreaseMaxSpeed();
                     players[index].IncreaseMaxSpeed();
                     players[index].IncreaseMaxBounce();
@@ -1081,4 +1103,365 @@ void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int,
     RenderableObject::next++;
     vRenderable.insert(newPair);
     vExplosions.push_back(newExpl);
+}
+
+
+int Menu() {
+    bool menuRunning = true;
+
+    std::vector<std::string> levelFiles;
+
+    dirent* de;
+    DIR* dp;
+
+    std::string basePath = SDL_GetBasePath();
+    dp = opendir(basePath.c_str());
+    if (dp) {
+        while (true) {
+            errno = 0;
+
+            de = readdir(dp);
+            if (de == NULL)
+                break;
+            std::string filename = de->d_name;
+            if (filename.at(filename.length() - 1) == 'd' && filename.at(filename.length() - 2) == '.') {
+                std::string fullPath = basePath + filename;
+                std::ifstream inFile(fullPath);
+                if (inFile.good() ) {
+                    char c;
+                    char DE = 0xDE;
+                    char AD = 0xAD;
+                    char BE = 0xBE;
+                    char EF = 0xEF;
+
+                    inFile.get(c);
+                    if (c != DE)
+                        continue;
+
+                    inFile.get(c);
+                    if (c != AD)
+                        continue;
+
+                    inFile.get(c);
+                    if (c != BE)
+                        continue;
+
+                    inFile.get(c);
+                    if (c != EF)
+                        continue;
+
+                    levelFiles.push_back(filename);
+                }
+
+            }
+
+        }
+    }
+
+    for (std::string file : levelFiles) {
+        std::cout << file << std::endl;
+    }
+
+    bool playersUpHeld[4] = { false, false, false, false };
+    bool playersDownHeld[4] = {false, false, false, false };
+    bool mapSelect = false;
+
+    int mapCount = levelFiles.size();
+    int mapSelected = 0;
+
+    while (menuRunning) {
+        SDL_Event e;
+        int index = -1;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                menuRunning = false;
+                return -1;
+            }
+            if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP || e.type == SDL_JOYAXISMOTION) {
+                for (int i = 0; i < maxPlayers; ++i) {
+                    if (SDL_JoystickInstanceID(gController[i]) == e.jaxis.which) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+            if (e.type == SDL_JOYBUTTONDOWN) {
+                switch (e.jbutton.button) {
+                    case JBUTTON_START:
+                        if (playersIn[index] == false)
+                            playersIn[index] = true;
+                        break;
+                    case JBUTTON_BACK:
+                        if (playersIn[index] == true)
+                            playersIn[index] = false;
+                        break;
+                    case JBUTTON_A:
+                        if (playersInCount > 1) {
+                            mapSelect = true;
+                        }
+                        break;
+                    case JBUTTON_DPADUP:
+                        if (mapSelected > 0)
+                            mapSelected--;
+                        break;
+                    case JBUTTON_DPADDOWN:
+                        if (mapSelected < mapCount)
+                            mapSelected++;
+                }
+            } else if (e.type == SDL_JOYBUTTONUP) {
+
+            } else if (e.type == SDL_JOYAXISMOTION) {
+                if (e.jaxis.axis == JAXIS_MOVEY) {
+                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
+                        playersDownHeld[index] = true;
+                        playersUpHeld[index] = false;
+                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
+                        playersUpHeld[index] = true;
+                        playersDownHeld[index] = false;
+                    } else {
+                        playersDownHeld[index] = false;
+                        playersUpHeld[index] = false;
+                    }
+                }
+            } else if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_ESCAPE:
+                    case SDLK_END:
+                        menuRunning = false;
+                        return -1;
+                        break;
+                    case SDLK_SPACE:
+                        playersIn[0] = true;
+                        break;
+                    case SDLK_RETURN:
+                        if (playersInCount > 0)
+                            mapSelect = true;
+                }
+            }
+
+
+        } // End of SDL_PollEvent(e)
+
+        int tempPlayersIn = 0;
+        for (int i = 0; i < 4; i++) {
+            if (playersIn[i]) {
+                tempPlayersIn++;
+            }
+        }
+        playersInCount = tempPlayersIn;
+
+        if (mapSelect) {
+            mapfilename = levelFiles[mapSelected];
+            return 0;
+        }
+
+        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+        SDL_RenderClear(ren);
+
+        SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
+
+        SDL_Rect frameRect;
+
+        SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
+
+        if (maxPlayers >= 0) {
+            SDL_Texture* p1Text = Utility::RenderText("Player 1", GAME_FONT, white, 12, ren);
+            SDL_Texture* p1Button = NULL;
+
+            if (playersIn[0] == false) {
+                p1Button = Utility::RenderText("Press Start", GAME_FONT, white, 10, ren);
+            } else {
+                p1Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
+            }
+            int p1TextWidth, p1TextHeight;
+            SDL_QueryTexture(p1Text, NULL, NULL, &p1TextWidth, &p1TextHeight);
+            int p1ButtonWidth, p1ButtonHeight;
+            SDL_QueryTexture(p1Button, NULL, NULL, &p1ButtonWidth, &p1ButtonHeight);
+
+            SDL_Rect p1DestRect;
+
+            p1DestRect.x = 320 / 4 - (p1TextWidth / 2);
+            p1DestRect.y = 240 / 4 - (p1TextHeight) - 2;
+            p1DestRect.w = p1TextWidth;
+            p1DestRect.h = p1TextHeight;
+            SDL_RenderCopy(ren, p1Text, NULL, &p1DestRect);
+
+            p1DestRect.x = 320 / 4 - (p1ButtonWidth / 2);
+            p1DestRect.y = 240 / 4 + 2;
+            p1DestRect.w = p1ButtonWidth;
+            p1DestRect.h = p1ButtonHeight;
+            SDL_RenderCopy(ren, p1Button, NULL, &p1DestRect);
+
+            frameRect.x = 0;
+            frameRect.y = 0;
+            frameRect.h = SCREEN_HEIGHT / 2;
+            frameRect.w = 320 / 2;
+
+
+            SDL_RenderDrawRect(ren, &frameRect);
+
+            SDL_DestroyTexture(p1Text);
+            SDL_DestroyTexture(p1Button);
+        }
+
+        if (maxPlayers > 1) {
+
+            SDL_Texture* p2Text = Utility::RenderText("Player 2", GAME_FONT, white, 12, ren);
+            SDL_Texture* p2Button = NULL;
+
+            if (playersIn[1] == false) {
+                p2Button = Utility::RenderText("Press Start", GAME_FONT, white, 10, ren);
+            } else {
+                p2Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
+            }
+            int p2TextWidth, p2TextHeight;
+            SDL_QueryTexture(p2Text, NULL, NULL, &p2TextWidth, &p2TextHeight);
+            int p2ButtonWidth, p2ButtonHeight;
+            SDL_QueryTexture(p2Button, NULL, NULL, &p2ButtonWidth, &p2ButtonHeight);
+
+            SDL_Rect p2DestRect;
+
+            p2DestRect.x = 3 * 320 / 4 - (p2TextWidth / 2);
+            p2DestRect.y = 240 / 4 - (p2TextHeight) - 2;
+            p2DestRect.w = p2TextWidth;
+            p2DestRect.h = p2TextHeight;
+            SDL_RenderCopy(ren, p2Text, NULL, &p2DestRect);
+
+            p2DestRect.x = 3 * 320 / 4 - (p2ButtonWidth / 2);
+            p2DestRect.y = 240 / 4 + 2;
+            p2DestRect.w = p2ButtonWidth;
+            p2DestRect.h = p2ButtonHeight;
+            SDL_RenderCopy(ren, p2Button, NULL, &p2DestRect);
+
+            frameRect.x = 320 / 2;
+            frameRect.y = 0;
+            frameRect.h = SCREEN_HEIGHT / 2;
+            frameRect.w = 320 / 2;
+            SDL_RenderDrawRect(ren, &frameRect);
+
+            SDL_DestroyTexture(p2Text);
+            SDL_DestroyTexture(p2Button);
+        }
+
+        if (maxPlayers > 2) {
+
+            SDL_Texture* p3Text = Utility::RenderText("Player 3", GAME_FONT, white, 12, ren);
+            SDL_Texture* p3Button = NULL;
+
+            if (playersIn[2] == false) {
+                p3Button = Utility::RenderText("Press Start", GAME_FONT, white, 10, ren);
+            } else {
+                p3Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
+            }
+            int p3TextWidth, p3TextHeight;
+            SDL_QueryTexture(p3Text, NULL, NULL, &p3TextWidth, &p3TextHeight);
+            int p3ButtonWidth, p3ButtonHeight;
+            SDL_QueryTexture(p3Button, NULL, NULL, &p3ButtonWidth, &p3ButtonHeight);
+
+            SDL_Rect p3DestRect;
+
+            p3DestRect.x = 320 / 4 - (p3TextWidth / 2);
+            p3DestRect.y = 3 * 240 / 4 - (p3TextHeight) - 2;
+            p3DestRect.w = p3TextWidth;
+            p3DestRect.h = p3TextHeight;
+            SDL_RenderCopy(ren, p3Text, NULL, &p3DestRect);
+
+            p3DestRect.x = 320 / 4 - (p3ButtonWidth / 2);
+            p3DestRect.y = 3 * 240 / 4 + 2;
+            p3DestRect.w = p3ButtonWidth;
+            p3DestRect.h = p3ButtonHeight;
+            SDL_RenderCopy(ren, p3Button, NULL, &p3DestRect);
+
+            frameRect.x = 0;
+            frameRect.y = 240 / 2;
+            frameRect.h = SCREEN_HEIGHT / 2;
+            frameRect.w = 320 / 2;
+            SDL_RenderDrawRect(ren, &frameRect);
+
+            SDL_DestroyTexture(p3Text);
+            SDL_DestroyTexture(p3Button);
+        }
+
+        if (maxPlayers > 3) {
+
+            SDL_Texture* p4Text = Utility::RenderText("Player 4", GAME_FONT, white, 12, ren);
+            SDL_Texture* p4Button = NULL;
+
+            if (playersIn[3] == false) {
+                p4Button = Utility::RenderText("Press Start", GAME_FONT, white, 10, ren);
+            } else {
+                p4Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
+            }
+            int p4TextWidth, p4TextHeight;
+            SDL_QueryTexture(p4Text, NULL, NULL, &p4TextWidth, &p4TextHeight);
+            int p4ButtonWidth, p4ButtonHeight;
+            SDL_QueryTexture(p4Button, NULL, NULL, &p4ButtonWidth, &p4ButtonHeight);
+
+            SDL_Rect p4DestRect;
+
+            p4DestRect.x = 3 * 320 / 4 - (p4TextWidth / 2);
+            p4DestRect.y = 240 / 4 - (p4TextHeight) - 2;
+            p4DestRect.w = p4TextWidth;
+            p4DestRect.h = p4TextHeight;
+            SDL_RenderCopy(ren, p4Text, NULL, &p4DestRect);
+
+            p4DestRect.x = 3 * 320 / 4 - (p4ButtonWidth / 2);
+            p4DestRect.y = 240 / 4 + 2;
+            p4DestRect.w = p4ButtonWidth;
+            p4DestRect.h = p4ButtonHeight;
+            SDL_RenderCopy(ren, p4Button, NULL, &p4DestRect);
+
+            frameRect.x = 320 / 2;
+            frameRect.y = 240 / 2;
+            frameRect.h = SCREEN_HEIGHT / 2;
+            frameRect.w = 320 / 2;
+            SDL_RenderDrawRect(ren, &frameRect);
+
+            SDL_DestroyTexture(p4Text);
+            SDL_DestroyTexture(p4Button);
+        }
+
+
+        // Level Select Frame
+        frameRect.x = 320;
+        frameRect.y = 0;
+        frameRect.h = 240;
+        frameRect.w = 106;
+
+        {
+            SDL_Color grey = { 0x60, 0x60, 0x60, 0xFF };
+            int i = 0;
+            for (std::string filename : levelFiles) {
+
+
+                SDL_Texture* fileTex;
+
+                if (mapSelected == i) {
+                    fileTex = Utility::RenderText(filename, GAME_FONT, white, 10, ren);
+                } else {
+                    fileTex = Utility::RenderText(filename, GAME_FONT, grey, 10, ren);
+                }
+
+                int fileHeight, fileWidth;
+                SDL_QueryTexture(fileTex, NULL, NULL, &fileWidth, &fileHeight);
+                SDL_Rect fileRect;
+                fileRect.x = 320 + 2;
+                fileRect.y = i * fileHeight + i * 2;
+                fileRect.w = fileWidth;
+                fileRect.h = fileHeight;
+
+                if (i * fileHeight + i * 2 < 240 - fileHeight - 2)
+                    SDL_RenderCopy(ren, fileTex, NULL, &fileRect);
+                i++;
+                SDL_DestroyTexture(fileTex);
+            }
+        }
+        SDL_RenderDrawRect(ren, &frameRect);
+
+
+
+        SDL_RenderPresent(ren);
+    }
+
+    return 0;
 }

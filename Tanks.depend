@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1452188218 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1452211768 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -378,6 +378,7 @@
 	<climits>
 	<map>
 	<ctime>
+	<dirent.h>
 	"Player.hpp"
 	"Tile.hpp"
 	"Map.hpp"
