@@ -94,6 +94,12 @@ void Bullet::SetAngle(float ang) {
 }
 
 void Bullet::Update(uint32_t ticks) {
+
+    if (x > ARENA_WIDTH || x < 0 || y > ARENA_HEIGHT || y < 0) {
+        Die();
+        mOwner.DestroyBullet();
+    }
+
     mVelocity.SetX(mDirection.GetX() * ((float) ticks / 1000) * BULLET_SPEED);
     mVelocity.SetY(mDirection.GetY() * ((float) ticks / 1000) * BULLET_SPEED);
 

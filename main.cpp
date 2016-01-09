@@ -23,39 +23,7 @@
 #include "Explosion.hpp"
 #include "Container.hpp"
 #include "Powerup.hpp"
-
-#define SCREEN_WIDTH 426
-#define SCREEN_HEIGHT 240
-
-#define MAX_MOVE 1
-#define MAX_ROTATE 3
-
-#define GAME_FONT "8bit.ttf"
-
-#define GAME_MUSIC "music.ogg"
-#define SFX_FIRE "sfx_fire.ogg"
-#define SFX_BOUNCE "sfx_bounce.ogg"
-#define SFX_BOUNCE2 "sfx_bounce2.ogg"
-#define SFX_BOUNCE3 "sfx_bounce3.ogg"
-#define SFX_DIE "sfx_die.ogg"
-
-#define RENDER_INTERVAL 16
-
-
-#define JBUTTON_DPADUP 0
-#define JBUTTON_DPADDOWN 1
-#define JBUTTON_START 4
-#define JBUTTON_BACK 5
-#define JBUTTON_FIRE 9
-#define JBUTTON_A 10
-#define JAXIS_MOVE   0x01
-#define JAXIS_ROTATE 0x00
-#define JAXIS_TURRET 0x02
-#define JAXIS_TURRETX 0x02
-#define JAXIS_TURRETY 0x03
-#define JAXIS_MOVEX 0x00
-#define JAXIS_MOVEY 0x01
-#define JAXIS_FIRE 0x05
+#include "Defines.hpp"
 
 
 bool gRunning = true;
@@ -260,7 +228,7 @@ int main(int argc, char** argv) {
 
     while (running == true) {
         uint32_t new_time = SDL_GetTicks();
-        uint32_t frame_time = new_time - old_time;
+        uint32_t frame_time = std::min(new_time - old_time, (uint32_t) 30);
         old_time = new_time;
 
         SDL_Event e;
@@ -497,12 +465,11 @@ int main(int argc, char** argv) {
 
         containerSpawnTicks -= frame_time;
         if (containerSpawnTicks <= 0) {
-            containerSpawnTicks = containerSpawnDist(generator);
             if (containers <= maxContainers) {
                 std::uniform_int_distribution<int> cXdist(1,38);
                 std::uniform_int_distribution<int> cYdist(1,28);
                 bool created = false;
-                while (!created) {
+                //while (!created) {
                     int cX = cXdist(generator);
                     int cY = cYdist(generator);
                     if (m.GetTileAt(cY, cX) == 0x00 && m.GetTileAt(cY-1, cX) == 0x00 &&
@@ -528,9 +495,10 @@ int main(int argc, char** argv) {
                             vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, c));
                             RenderableObject::next++;
                             containers++;
+                            containerSpawnTicks = containerSpawnDist(generator) + containerSpawnTicks;
                         }
                     }
-                }
+                //}
             }
         }
 
@@ -696,6 +664,10 @@ int main(int argc, char** argv) {
 
         for (GameObject* g : vPlayers) {
             g->Update(frame_time);
+            if (g->GetX() > ARENA_WIDTH || g->GetX() < 0 || g->GetY() < 0 || g->GetY() > ARENA_HEIGHT) {
+                g->SetX(m.GetStartPos( ((Player*) g)->GetID()).GetX());
+                g->SetY(m.GetStartPos( ((Player*) g)->GetID()).GetY());
+            }
         }
 
         for (std::pair<int, Bullet*> b : vBullets) {

@@ -7,6 +7,8 @@
 #include "Player.hpp"
 #include "Container.hpp"
 
+#include "Defines.hpp"
+
 extern Mix_Chunk* sfxBounce[3];
 extern std::default_random_engine generator;
 
