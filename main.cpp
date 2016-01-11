@@ -872,7 +872,13 @@ int main(int argc, char** argv) {
             SDL_RenderClear(ren);
 
             /* Copy background texture */
-            SDL_RenderCopy(ren, tex, NULL, NULL);
+            SDL_Rect bgDestRect;
+            bgDestRect.x = 0;
+            bgDestRect.y = 0;
+            bgDestRect.w = 320;
+            bgDestRect.h = 240;
+            SDL_RenderCopy(ren, tex, NULL, &bgDestRect);
+
 
             /* Delete background texture since it's recreated every frame */
             SDL_DestroyTexture(tex);

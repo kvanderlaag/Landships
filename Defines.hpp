@@ -1,7 +1,7 @@
 #ifndef _DEFINES_H
 #define _DEFINES_H
 
-#define SCREEN_WIDTH 426
+#define SCREEN_WIDTH 428
 #define SCREEN_HEIGHT 240
 
 #define MAX_MOVE 1
