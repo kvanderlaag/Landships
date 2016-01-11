@@ -469,7 +469,7 @@ int SaveAs(SDL_Renderer* ren, unsigned char tiles[30][40]) {
     if (saveFileName.length() > 0) {
         std::string basePath = SDL_GetBasePath();
         basePath += saveFileName + ".d";
-        std::ofstream outFile(basePath, std::ofstream::out);
+        std::ofstream outFile(basePath, std::ios::binary);
         char DE = 0xDE;
         char AD = 0xAD;
         char BE = 0xBE;
@@ -696,7 +696,7 @@ int Load(SDL_Renderer* ren, unsigned char tiles[30][40]) {
     if (loadFileName.length() > 0) {
         std::string basePath = SDL_GetBasePath();
         basePath += loadFileName + ".d";
-        std::ifstream inFile(basePath, std::ofstream::in);
+        std::ifstream inFile(basePath, std::ios::binary);
         if (!inFile.good())
             return 0;
 

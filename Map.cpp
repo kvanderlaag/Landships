@@ -9,10 +9,7 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
 {
     std::string path = SDL_GetBasePath();
     path += filename;
-    std::ifstream inFile(path, std::ifstream::in);
-
-    int row = 0;
-    int col = 0;
+    std::ifstream inFile(path, std::ios::binary);
 
     if (!inFile.good()) {
         mLoadSuccess = false;
@@ -58,47 +55,40 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
         }
     }
 
-    std::string levelStr;
-    {
-        char c;
-
-        while (inFile.get(c)) {
-            levelStr += c;
-        }
-    }
-    if (levelStr.length() != 40 * 30) {
-        mLoadSuccess = false;
-        return;
-    }
 
     mvColliders.push_back(Collider(320,      8,          160,      4,          0, this));
     mvColliders.push_back(Collider(320,      8,          160,      240 - 4,     0, this));
     mvColliders.push_back(Collider(8,           8 * 28,     4,      240 / 2,          0, this));
     mvColliders.push_back(Collider(8,           8 * 28,     8*40 - 4,   240 / 2,          0, this));
 
-    for (char c : levelStr) {
-        if (c == EMPTY) {
-            tiles[row][col] = c;
-        } else if (c == P1START) {
-            StartPos[0] = Vector2D(col * 8, row * 8);
-            tiles[row][col] = EMPTY;
-        } else if (c == P2START) {
-            StartPos[1] = Vector2D(col * 8, row * 8);
-            tiles[row][col] = EMPTY;
-        } else if (c == P3START) {
-            StartPos[2] = Vector2D(col * 8, row * 8);
-            tiles[row][col] = EMPTY;
-        } else if (c == P4START) {
-            StartPos[3] = Vector2D(col * 8, row * 8);
-            tiles[row][col] = EMPTY;
-        } else {
-            if (row != 0 && row != 29 && col != 0 && col != 39)
-                mvColliders.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this));
-            tiles[row][col] = c;
-        }
-        if (++col == 40) {
-            row++;
-            col = 0;
+    for (int row = 0; row < 30; ++row) {
+        for (int col = 0; col < 40; ++col) {
+            char c;
+            if (!inFile.good() ) {
+                    mLoadSuccess = false;
+                    return;
+            }
+            inFile.get(c);
+
+            if (c == EMPTY) {
+                tiles[row][col] = c;
+            } else if (c == P1START) {
+                StartPos[0] = Vector2D(col * 8, row * 8);
+                tiles[row][col] = EMPTY;
+            } else if (c == P2START) {
+                StartPos[1] = Vector2D(col * 8, row * 8);
+                tiles[row][col] = EMPTY;
+            } else if (c == P3START) {
+                StartPos[2] = Vector2D(col * 8, row * 8);
+                tiles[row][col] = EMPTY;
+            } else if (c == P4START) {
+                StartPos[3] = Vector2D(col * 8, row * 8);
+                tiles[row][col] = EMPTY;
+            } else {
+                if (row != 0 && row != 29 && col != 0 && col != 39)
+                    mvColliders.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this));
+                tiles[row][col] = c;
+            }
         }
     }
     inFile.close();
