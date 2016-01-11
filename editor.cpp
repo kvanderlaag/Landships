@@ -114,8 +114,17 @@ int main(int argc, char** argv)
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 running = false;
-            }
-            else if (e.type == SDL_MOUSEMOTION) {
+            } else if (e.type == SDL_MOUSEWHEEL) {
+                if (e.wheel.y > 0) {
+                    if (tiletype > EMPTY) {
+                        tiletype--;
+                    }
+                } else if (e.wheel.y < 0) {
+                    if (tiletype < tileCount) {
+                        tiletype++;
+                    }
+                }
+            } else if (e.type == SDL_MOUSEMOTION) {
                 mousex = e.motion.x;
                 mousey = e.motion.y;
             } else if (e.type == SDL_MOUSEBUTTONDOWN) {

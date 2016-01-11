@@ -16,7 +16,7 @@
 	<cmath>
 	<algorithm>
 
-1451850520 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
+1452127110 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
 	"Utility.hpp"
 
 1451708704 d:\users\kvand_000\documents\github\tanks\utility.hpp
@@ -34,7 +34,7 @@
 1451434976 source:d:\users\kvand_000\documents\github\tanks\vector2d.cpp
 	"Vector2D.hpp"
 
-1452125689 source:d:\users\kvand_000\documents\github\tanks\editor.cpp
+1452499605 source:d:\users\kvand_000\documents\github\tanks\editor.cpp
 	<iostream>
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
