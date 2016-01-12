@@ -93,12 +93,15 @@ public:
     void IsMoving(const bool value);
     const bool Moving() const;
 
+    const int GetLives() const;
+
 
 
 private:
 
     int mID;
     int score;
+    int lives;
     const int PLAYER_SIZE = 16;
     const int MOVE_SPEED = 50;
     const int ROTATE_SPEED = 90;

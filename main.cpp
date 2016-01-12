@@ -156,6 +156,7 @@ int main(int argc, char** argv) {
         SDL_Quit();
         exit(0);
     }
+    int gameTime = gameOptions->GetTime();
 
     if (argc > 1)
         mapfilename = argv[1];
@@ -637,6 +638,9 @@ int main(int argc, char** argv) {
                 if (!c->GetOwner().IsDead()) {
                     p->CheckCollision(*c, frame_time);
                 }
+            }
+            for (Player* p_other : vPlayers) {
+                p->CheckCollision(p_other->GetCollider(), frame_time);
 
             }
             for (Container* c : vContainers) {
@@ -960,25 +964,76 @@ int main(int argc, char** argv) {
             #endif // _ANGLE_DEBUG
 
             /* HUD */
+            int verticalOffset = 0;
             {
+                SDL_Color c = { 0xFF, 0xFF, 0xFF, 0xFF };
                 {
-                    SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
-                    SDL_Surface* scoreboardSurface = SDL_CreateRGBSurface(0, 106, 240, 32, rmask, gmask, bmask, amask);
-                    SDL_FillRect(scoreboardSurface, NULL, SDL_MapRGB(scoreboardSurface->format, 0x00, 0x00, 0x00));
-                    SDL_Texture* scoreboardTexture = SDL_CreateTextureFromSurface(ren, scoreboardSurface);
-                    SDL_FreeSurface(scoreboardSurface);
+                    SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
 
-                    int scoreboardW, scoreboardH;
-                    SDL_QueryTexture(scoreboardTexture, NULL, NULL, &scoreboardW, &scoreboardH);
+                    std::stringstream gtypeString, gvalueString;
+                    gtypeString << "Match: ";
+                    switch (gameOptions->GetMatchType()) {
+                        case SCORE_MATCH:
+                            gtypeString << "Score";
+                            gvalueString << "Max score: " << gameOptions->GetScore();
+                            break;
+                        case STOCK_MATCH:
+                            gtypeString << "Stock";
+                            gvalueString << "Max lives: " << gameOptions->GetScore();
+                            break;
+                        case TIME_MATCH:
+                            gtypeString << "Time";
+                            gvalueString << "Time: " << gameTime;
+                            break;
+                    }
 
-                    SDL_Rect dstRect;
-                    dstRect.x = 320;
-                    dstRect.y = 0;
-                    dstRect.w = scoreboardW;
-                    dstRect.h = scoreboardH;
+                    SDL_Texture* gtypeTexture = Utility::RenderText(gtypeString.str(), GAME_FONT, c, 12, ren);
+                    SDL_Texture* gvalueTexture = Utility::RenderText(gvalueString.str(), GAME_FONT, c, 12, ren);
 
-                    SDL_RenderCopy(ren, scoreboardTexture, NULL, &dstRect);
-                    SDL_DestroyTexture(scoreboardTexture);
+                    int gtypeW, gtypeH, gvalueW, gvalueH;
+
+                    SDL_QueryTexture(gtypeTexture, NULL, NULL, &gtypeW, &gtypeH);
+                    SDL_QueryTexture(gvalueTexture, NULL, NULL, &gvalueW, &gvalueH);
+
+                    SDL_Rect frameRect, typeRect, valueRect;
+
+                    frameRect.x = 320;
+                    frameRect.y = 0;
+                    frameRect.h = verticalOffset = gtypeH + gvalueH + 2 + 2 + 2;
+                    frameRect.w = 106;
+
+                    typeRect.x = 320 + 2;
+                    typeRect.y = 0 + 2;
+                    typeRect.w = gtypeW;
+                    typeRect.h = gtypeH;
+
+                    valueRect.x = 320 + 2;
+                    valueRect.y = 2 + gtypeH + 2;
+                    valueRect.w = gvalueW;
+                    valueRect.h = gvalueH;
+
+                    SDL_RenderDrawRect(ren, &frameRect);
+                    SDL_RenderCopy(ren, gtypeTexture, NULL, &typeRect);
+                    SDL_RenderCopy(ren, gvalueTexture, NULL, &valueRect);
+                    //SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+                    //SDL_Surface* scoreboardSurface = SDL_CreateRGBSurface(0, 106, 240, 32, rmask, gmask, bmask, amask);
+                    //SDL_FillRect(scoreboardSurface, NULL, SDL_MapRGB(scoreboardSurface->format, 0x00, 0x00, 0x00));
+                    //SDL_Texture* scoreboardTexture = SDL_CreateTextureFromSurface(ren, scoreboardSurface);
+                    //SDL_FreeSurface(scoreboardSurface);
+
+                    //int scoreboardW, scoreboardH;
+                    //SDL_QueryTexture(scoreboardTexture, NULL, NULL, &scoreboardW, &scoreboardH);
+
+                    //SDL_Rect dstRect;
+                    //dstRect.x = 320;
+                    //dstRect.y = 0;
+                    //dstRect.w = scoreboardW;
+                    //dstRect.h = scoreboardH;
+
+                    //SDL_RenderCopy(ren, scoreboardTexture, NULL, &dstRect);
+                    //SDL_DestroyTexture(scoreboardTexture);
+                    SDL_DestroyTexture(gtypeTexture);
+                    SDL_DestroyTexture(gvalueTexture);
                 }
                 SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
                 for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
@@ -986,17 +1041,17 @@ int main(int argc, char** argv) {
                         continue;
                     int rWidth, rHeight;
                     rWidth = 106;
-                    rHeight = 60;
+                    rHeight = (240 - verticalOffset) / 4;
 
                     SDL_Rect srcRect, dstRect;
                     dstRect.x = 320;
-                    dstRect.y = i * 60;
+                    dstRect.y = verticalOffset + i * rHeight;
                     dstRect.w = rWidth;
                     dstRect.h = rHeight;
 
                     SDL_RenderDrawRect(ren, &dstRect);
 
-                    SDL_Color c = { 0xFF, 0xFF, 0xFF, 0xFF };
+
 
                     std::stringstream scoreString;
 
@@ -1024,7 +1079,7 @@ int main(int argc, char** argv) {
                     srcRect.h = plHeight;
 
                     dstRect.x = 320 + 2;
-                    dstRect.y = i * 60 + 2;
+                    dstRect.y = verticalOffset + (i * 60 + 2);
                     dstRect.w = plWidth;
                     dstRect.h = plHeight;
 
@@ -1036,7 +1091,7 @@ int main(int argc, char** argv) {
                     srcRect.h = scoreHeight;
 
                     dstRect.x = 320 + 2;
-                    dstRect.y = i * 60 + plHeight + 4;
+                    dstRect.y = verticalOffset + (i * 60 + plHeight + 4);
                     dstRect.w = scoreWidth;
                     dstRect.h = scoreHeight;
 
@@ -1048,7 +1103,7 @@ int main(int argc, char** argv) {
                     srcRect.h = powHeight;
 
                     dstRect.x = 320 + 2;
-                    dstRect.y = i * 60 + plHeight + scoreHeight + 6;
+                    dstRect.y = verticalOffset + (i * 60 + plHeight + scoreHeight + 6);
                     dstRect.w = powWidth;
                     dstRect.h = powHeight;
 
@@ -1469,8 +1524,8 @@ Options* OptionsMenu() {
 
     int gameType = SCORE_MATCH;
     int score = MIN_SCORE + ((MAX_SCORE - MIN_SCORE) / 2);
-    int time = MAX_TIME + ((MAX_TIME - MIN_TIME) / 2);
-    int stock = MAX_STOCK + ((MAX_STOCK - MIN_STOCK) / 2);
+    int time = MIN_TIME + ((MAX_TIME - MIN_TIME) / 2);
+    int stock = MIN_STOCK + ((MAX_STOCK - MIN_STOCK) / 2);
 
     while (optionsMenuRunning) {
         SDL_Event e;
@@ -1488,12 +1543,44 @@ Options* OptionsMenu() {
                         optionsMenuRunning = false;
                         break;
                     case SDLK_RIGHT:
+                        switch (gameType) {
+                            case SCORE_MATCH:
+                                if (score < MAX_SCORE)
+                                    score++;
+                                break;
+                            case STOCK_MATCH:
+                                if (stock < MAX_STOCK)
+                                    stock++;
+                                break;
+                            case TIME_MATCH:
+                                if (time < MAX_TIME)
+                                    time++;
+                                break;
+                        } // switch gameType
                         break;
                     case SDLK_LEFT:
+                        switch (gameType) {
+                            case SCORE_MATCH:
+                                if (score > MIN_SCORE)
+                                    score--;
+                                break;
+                            case STOCK_MATCH:
+                                if (stock > MIN_STOCK)
+                                    stock--;
+                                break;
+                            case TIME_MATCH:
+                                if (time > MIN_TIME)
+                                    time--;
+                                break;
+                        } // switch gameType
                         break;
                     case SDLK_DOWN:
+                        if (gameType > SCORE_MATCH)
+                            gameType--;
                         break;
                     case SDLK_UP:
+                        if (gameType < TIME_MATCH)
+                            gameType++;
                         break;
                 } // switch e.key.keysym.sym
             } else if (e.type == SDL_JOYBUTTONDOWN) {
@@ -1504,7 +1591,7 @@ Options* OptionsMenu() {
                         break;
                     case JBUTTON_DPADDOWN:
                         if (gameType > SCORE_MATCH)
-                            if (gameType == SCORE_MATCH)
+                            gameType--;
                         break;
                     case JBUTTON_DPADUP:
                         if (gameType < TIME_MATCH)

@@ -6,6 +6,7 @@ Player::Player(const std::string& filename, int id, SDL_Renderer* ren) :
     RenderableObject(filename, PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, ren),
     mID(id),
     score(0),
+    lives(0),
     mVelocity(Vector2D(0, 0)),
     mForwardVel(0),
     mRotationVel(0),
