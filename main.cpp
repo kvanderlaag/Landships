@@ -24,6 +24,7 @@
 #include "Container.hpp"
 #include "Powerup.hpp"
 #include "Defines.hpp"
+#include "Options.hpp"
 
 
 bool gRunning = true;
@@ -52,6 +53,7 @@ const int JOYFIRE_DEADZONE = 0;
 const std::string basePath = SDL_GetBasePath();
 void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int, RenderableObject*>& vRenderable, std::vector<Explosion*>& vExplosions);
 int Menu();
+Options* OptionsMenu();
 
 int main(int argc, char** argv) {
 
@@ -129,7 +131,7 @@ int main(int argc, char** argv) {
 
     win = SDL_CreateWindow("Tanks", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
-    SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_ShowCursor(0);
 
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
@@ -139,6 +141,19 @@ int main(int argc, char** argv) {
     SDL_RenderSetLogicalSize(ren, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     if (Menu() == -1) {
+        IMG_Quit();
+        TTF_Quit();
+        Mix_Quit();
+        SDL_Quit();
+        exit(0);
+    }
+
+    Options* gameOptions = OptionsMenu();
+    if (gameOptions == nullptr) {
+        IMG_Quit();
+        TTF_Quit();
+        Mix_Quit();
+        SDL_Quit();
         exit(0);
     }
 
@@ -468,37 +483,33 @@ int main(int argc, char** argv) {
             if (containers <= maxContainers) {
                 std::uniform_int_distribution<int> cXdist(1,38);
                 std::uniform_int_distribution<int> cYdist(1,28);
-                bool created = false;
-                //while (!created) {
-                    int cX = cXdist(generator);
-                    int cY = cYdist(generator);
-                    if (m.GetTileAt(cY, cX) == 0x00 && m.GetTileAt(cY-1, cX) == 0x00 &&
-                        m.GetTileAt(cY, cX-1) == 0x00 && m.GetTileAt(cY-1, cX-1) == 0x00) {
-                        bool overlap = false;
-                        for (Container* c1 : vContainers) {
-                            if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
-                                (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
-                                    overlap = true;
-                                }
-                        }
-                        for (Player* c1 : vPlayers) {
-                            if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
-                                (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
-                                    overlap = true;
-                                }
-                        }
-                        if (!overlap) {
-                            Container* c = new Container(cX * 8, cY * 8, ren);
-                            std::cout << "Creating new container at (" << cX << ", " << cY << ")" << std::endl;
-                            created = true;
-                            vContainers.push_back(c);
-                            vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, c));
-                            RenderableObject::next++;
-                            containers++;
-                            containerSpawnTicks = containerSpawnDist(generator) + containerSpawnTicks;
-                        }
+                int cX = cXdist(generator);
+                int cY = cYdist(generator);
+                if (m.GetTileAt(cY, cX) == 0x00 && m.GetTileAt(cY-1, cX) == 0x00 &&
+                    m.GetTileAt(cY, cX-1) == 0x00 && m.GetTileAt(cY-1, cX-1) == 0x00) {
+                    bool overlap = false;
+                    for (Container* c1 : vContainers) {
+                        if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
+                            (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
+                                overlap = true;
+                            }
                     }
-                //}
+                    for (Player* c1 : vPlayers) {
+                        if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
+                            (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
+                                overlap = true;
+                            }
+                    }
+                    if (!overlap) {
+                        Container* c = new Container(cX * 8, cY * 8, ren);
+                        std::cout << "Creating new container at (" << cX << ", " << cY << ")" << std::endl;
+                        vContainers.push_back(c);
+                        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, c));
+                        RenderableObject::next++;
+                        containers++;
+                        containerSpawnTicks = containerSpawnDist(generator) + containerSpawnTicks;
+                    }
+                }
             }
         }
 
@@ -1450,4 +1461,146 @@ int Menu() {
     }
 
     return 0;
+}
+
+
+Options* OptionsMenu() {
+    bool optionsMenuRunning = true;
+
+    int gameType = SCORE_MATCH;
+    int score = MIN_SCORE + ((MAX_SCORE - MIN_SCORE) / 2);
+    int time = MAX_TIME + ((MAX_TIME - MIN_TIME) / 2);
+    int stock = MAX_STOCK + ((MAX_STOCK - MIN_STOCK) / 2);
+
+    while (optionsMenuRunning) {
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+              return nullptr;
+            } else if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_END:
+                    case SDLK_ESCAPE:
+                        return nullptr;
+                        break;
+                    case SDLK_RETURN:
+                    case SDLK_SPACE:
+                        optionsMenuRunning = false;
+                        break;
+                    case SDLK_RIGHT:
+                        break;
+                    case SDLK_LEFT:
+                        break;
+                    case SDLK_DOWN:
+                        break;
+                    case SDLK_UP:
+                        break;
+                } // switch e.key.keysym.sym
+            } else if (e.type == SDL_JOYBUTTONDOWN) {
+                switch (e.jbutton.button) {
+                    case JBUTTON_START:
+                    case JBUTTON_A:
+                        optionsMenuRunning = false;
+                        break;
+                    case JBUTTON_DPADDOWN:
+                        if (gameType > SCORE_MATCH)
+                            if (gameType == SCORE_MATCH)
+                        break;
+                    case JBUTTON_DPADUP:
+                        if (gameType < TIME_MATCH)
+                            gameType++;
+                        break;
+                    case JBUTTON_DPADLEFT:
+                        switch (gameType) {
+                            case SCORE_MATCH:
+                                if (score > MIN_SCORE)
+                                    score--;
+                                break;
+                            case STOCK_MATCH:
+                                if (stock > MIN_STOCK)
+                                    stock--;
+                                break;
+                            case TIME_MATCH:
+                                if (time > MIN_TIME)
+                                    time--;
+                                break;
+                        } // switch gameType
+                        break;
+                    case JBUTTON_DPADRIGHT:
+                        switch (gameType) {
+                            case SCORE_MATCH:
+                                if (score < MAX_SCORE)
+                                    score++;
+                                break;
+                            case STOCK_MATCH:
+                                if (stock < MAX_STOCK)
+                                    stock++;
+                                break;
+                            case TIME_MATCH:
+                                if (time < MAX_TIME)
+                                    time++;
+                                break;
+                        } // switch gameType
+                        break;
+                } // switch e.jbutton.button
+            } // if e.type == SDL_JOYBUTTONDOWN
+        } // While SDL_PollEvent()
+
+        SDL_Texture* gameTypeTexture = nullptr;
+        int gameTypeWidth, gameTypeHeight;
+
+        SDL_Texture* gameValueTexture = nullptr;
+        int gameValueWidth, gameValueHeight;
+
+        std::string gameTypeString = "Game Type: ";
+        std::stringstream gameValueString;
+
+        switch (gameType) {
+            case SCORE_MATCH:
+                gameTypeString += "Score";
+                gameValueString << "Score: " << score;
+                break;
+            case STOCK_MATCH:
+                gameTypeString += "Stock";
+                gameValueString << "Stock: " << stock;
+                break;
+            case TIME_MATCH:
+                gameTypeString += "Time";
+                gameValueString << "Time: " << time;
+                break;
+        } // switch gameType
+
+        SDL_Color white = { 0xFF, 0xFF, 0xFF, 0xFF };
+
+        gameTypeTexture = Utility::RenderText(gameTypeString, GAME_FONT, white, 12, ren);
+        gameValueTexture = Utility::RenderText(gameValueString.str(), GAME_FONT, white, 12, ren);
+
+        SDL_QueryTexture(gameTypeTexture, NULL, NULL, &gameTypeWidth, &gameTypeHeight);
+        SDL_QueryTexture(gameValueTexture, NULL, NULL, &gameValueWidth, &gameValueHeight);
+
+        SDL_Rect gameTypeRect, gameValueRect;
+
+        gameTypeRect.x = (320 / 2) - (gameTypeWidth / 2);
+        gameTypeRect.y = (240 / 2) - (gameTypeHeight / 2) - 2;
+        gameTypeRect.w = gameTypeWidth;
+        gameTypeRect.h = gameTypeHeight;
+
+        gameValueRect.x = (320 / 2) - (gameValueWidth / 2);
+        gameValueRect.y = (240 / 2) + (gameValueHeight / 2) + 2;
+        gameValueRect.w = gameValueWidth;
+        gameValueRect.h = gameValueHeight;
+
+        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+        SDL_RenderClear(ren);
+
+        SDL_RenderCopy(ren, gameTypeTexture, NULL, &gameTypeRect);
+        SDL_RenderCopy(ren, gameValueTexture, NULL, &gameValueRect);
+
+        SDL_DestroyTexture(gameTypeTexture);
+        SDL_DestroyTexture(gameValueTexture);
+
+        SDL_RenderPresent(ren);
+    } // while optionsMenuRunning
+
+    return new Options(gameType, score, stock, time);
 }

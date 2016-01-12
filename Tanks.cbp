@@ -60,6 +60,8 @@
 		<Unit filename="Map.hpp" />
 		<Unit filename="Menu.cpp" />
 		<Unit filename="Menu.hpp" />
+		<Unit filename="Options.cpp" />
+		<Unit filename="Options.hpp" />
 		<Unit filename="Player.cpp" />
 		<Unit filename="Player.hpp" />
 		<Unit filename="Point.cpp" />

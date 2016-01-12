@@ -24,6 +24,8 @@
 
 #define JBUTTON_DPADUP 0
 #define JBUTTON_DPADDOWN 1
+#define JBUTTON_DPADLEFT 2
+#define JBUTTON_DPADRIGHT 3
 #define JBUTTON_START 4
 #define JBUTTON_BACK 5
 #define JBUTTON_FIRE 9
@@ -36,5 +38,16 @@
 #define JAXIS_MOVEX 0x00
 #define JAXIS_MOVEY 0x01
 #define JAXIS_FIRE 0x05
+
+#define SCORE_MATCH 1
+#define STOCK_MATCH 2
+#define TIME_MATCH 3
+
+#define MIN_STOCK 1
+#define MAX_STOCK 100
+#define MIN_TIME 30
+#define MAX_TIME 600
+#define MIN_SCORE 1
+#define MAX_SCORE 100
 
 #endif // _DEFINES_H
