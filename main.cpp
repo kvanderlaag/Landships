@@ -187,11 +187,12 @@ int main(int argc, char** argv) {
 
     bool loopGame = true;
 
-    while (loopGame) {
-
-        if (Title() == -1) {
+    if (Title() == -1) {
             Quit(0);
         }
+
+    while (loopGame) {
+
 
         Mix_FadeInMusic(menuMusic, -1, 1000);
 
