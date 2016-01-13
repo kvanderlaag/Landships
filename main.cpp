@@ -1485,7 +1485,7 @@ int Menu() {
             SDL_Texture* p2Button = NULL;
 
             if (playersIn[1] == false) {
-                p2Button = Utility::RenderText("Press Start", GAME_FONT, white, 10, ren);
+                p2Button = Utility::RenderText("Press A", GAME_FONT, white, 10, ren);
             } else {
                 p2Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
             }
@@ -1524,7 +1524,7 @@ int Menu() {
             SDL_Texture* p3Button = NULL;
 
             if (playersIn[2] == false) {
-                p3Button = Utility::RenderText("Press Start", GAME_FONT, white, 10, ren);
+                p3Button = Utility::RenderText("Press A", GAME_FONT, white, 10, ren);
             } else {
                 p3Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
             }
@@ -1563,7 +1563,7 @@ int Menu() {
             SDL_Texture* p4Button = NULL;
 
             if (playersIn[3] == false) {
-                p4Button = Utility::RenderText("Press Start", GAME_FONT, white, 10, ren);
+                p4Button = Utility::RenderText("Press A", GAME_FONT, white, 10, ren);
             } else {
                 p4Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
             }

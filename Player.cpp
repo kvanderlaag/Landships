@@ -199,7 +199,7 @@ void Player::Update(uint32_t ticks) {
 
     float forwardPerFrame = mForwardVel * ((float)ticks / 1000) * MOVE_SPEED * scale;
     float rotationPerFrame = mRotationVel * ((float)ticks / 1000) * ROTATE_SPEED ;
-    float turretRotationPerFrame = mTurretRotationVel * ((float) ticks / 1000) * ROTATE_SPEED ;
+    float turretRotationPerFrame = mTurretRotationVel * ((float) ticks / 1000) * TURRET_ROTATE_SPEED ;
 
     angle += rotationPerFrame;
     if (angle < 0) {

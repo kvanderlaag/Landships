@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1452647231 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1452647821 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -392,7 +392,7 @@
 	"Defines.hpp"
 	"Options.hpp"
 
-1452646106 d:\users\kvand_000\documents\github\tanks\player.hpp
+1452647983 d:\users\kvand_000\documents\github\tanks\player.hpp
 	"GameObject.hpp"
 	"RenderableObject.hpp"
 	"Utility.hpp"
@@ -432,7 +432,7 @@
 1452647402 source:d:\users\kvand_000\documents\github\tanks\map.cpp
 	"Map.hpp"
 
-1452646106 source:d:\users\kvand_000\documents\github\tanks\player.cpp
+1452647954 source:d:\users\kvand_000\documents\github\tanks\player.cpp
 	"Player.hpp"
 
 1451706143 source:d:\users\kvand_000\documents\github\tanks\tile.cpp

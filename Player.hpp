@@ -106,6 +106,7 @@ private:
     const int PLAYER_SIZE = 16;
     const int MOVE_SPEED = 50;
     const int ROTATE_SPEED = 90;
+    const int TURRET_ROTATE_SPEED = 100;
     const int INVINCIBLE_TICKS = 2000;
     const int TICKS_PER_FLASH = 100;
     const float maxX = 320;
