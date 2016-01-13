@@ -19,7 +19,7 @@ class Bullet;
 
 class Player : public RenderableObject {
 public:
-    Player(const std::string& filename, int id, SDL_Renderer* ren);
+    Player(const std::string& filename, int id, int lives, SDL_Renderer* ren);
     ~Player();
 
     void SetX(float newx);
@@ -94,6 +94,7 @@ public:
     const bool Moving() const;
 
     const int GetLives() const;
+    void LoseLife();
 
 
 

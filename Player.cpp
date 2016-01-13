@@ -2,11 +2,11 @@
 
 //#define _COLLISION_DEBUG
 
-Player::Player(const std::string& filename, int id, SDL_Renderer* ren) :
+Player::Player(const std::string& filename, int id, int lives, SDL_Renderer* ren) :
     RenderableObject(filename, PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, ren),
     mID(id),
     score(0),
-    lives(0),
+    lives(lives),
     mVelocity(Vector2D(0, 0)),
     mForwardVel(0),
     mRotationVel(0),
@@ -389,4 +389,12 @@ void Player::IsMoving(const bool value) {
 
 const bool Player::Moving() const {
     return mMoving;
+}
+
+const int Player::GetLives() const {
+    return lives;
+}
+
+void Player::LoseLife() {
+    lives--;
 }
