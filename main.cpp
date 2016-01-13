@@ -305,7 +305,7 @@ int main(int argc, char** argv) {
                             playersAlive++;
                         }
                     }
-                    if (playersAlive < 1) {
+                    if (playersAlive < std::min(maxPlayers + 1, 2)) {
                         running = false;
                     }
 
@@ -1825,7 +1825,6 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
 
     std::vector<int> vWinners;
 
-    int numberOfWinners = 0;
     for (int i = 0; i < 4; ++i) {
         if (winningPlayer[i])
             vWinners.push_back(i);
