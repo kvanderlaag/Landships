@@ -12,12 +12,38 @@
 
 #define GAME_FONT "8bit.ttf"
 
-#define GAME_MUSIC "music.ogg"
+#define WALL_TILES_DIRT "WallTiles.png"
+#define WALL_TILES_ICE "WallTiles2.png"
+#define WALL_TILES_URBAN "WallTiles3.png"
+
+#define MAX_TILESET 2
+
+#define GAME_MUSIC1 "music1.ogg"
+#define GAME_MUSIC2 "music1.ogg"
+#define GAME_MUSIC3 "music1.ogg"
+
+#define INTRO_MUSIC1 "intro1.ogg"
+#define INTRO_MUSIC2 "intro1.ogg"
+#define INTRO_MUSIC3 "intro1.ogg"
+
+#define MENU_MUSIC  "menu.ogg"
 #define SFX_FIRE "sfx_fire.ogg"
 #define SFX_BOUNCE "sfx_bounce.ogg"
 #define SFX_BOUNCE2 "sfx_bounce2.ogg"
 #define SFX_BOUNCE3 "sfx_bounce3.ogg"
 #define SFX_DIE "sfx_die.ogg"
+
+#define SFX_POWERUP_BOUNCE1 "sfx_powerupBounce1.ogg"
+#define SFX_POWERUP_BOUNCE2 "sfx_powerupBounce1.ogg"
+#define SFX_POWERUP_BOUNCE3 "sfx_powerupBounce1.ogg"
+
+#define SFX_POWERUP_BULLET1 "sfx_powerupBullet1.ogg"
+#define SFX_POWERUP_BULLET2 "sfx_powerupBullet1.ogg"
+#define SFX_POWERUP_BULLET3 "sfx_powerupBullet1.ogg"
+
+#define SFX_POWERUP_SPEED1 "sfx_powerupSpeed1.ogg"
+#define SFX_POWERUP_SPEED2 "sfx_powerupSpeed1.ogg"
+#define SFX_POWERUP_SPEED3 "sfx_powerupSpeed1.ogg"
 
 #define RENDER_INTERVAL 16
 

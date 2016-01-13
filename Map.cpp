@@ -84,9 +84,9 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
             } else if (c == P4START) {
                 StartPos[3] = Vector2D(col * 8, row * 8);
                 tiles[row][col] = EMPTY;
-            //} else if (c == DSTRBLK) {
+            } else if (c == DSTRBLK) {
                 // Do destructible block stuff
-            //    tiles[row][col] = EMPTY;
+                tiles[row][col] = EMPTY;
             } else {
                 if (row != 0 && row != 29 && col != 0 && col != 39)
                     mvColliders.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this));

@@ -15,7 +15,8 @@
 #define P2START 0x02
 #define P3START 0x03
 #define P4START 0x04
-#define BLOCK   0x05
+#define DSTRBLK 0x05
+#define BLOCK   0x06
 
 class Map : public RenderableObject
 {

@@ -28,11 +28,19 @@
 
 
 bool gRunning = true;
-Mix_Music* gameMusic = NULL;
+std::string wallTileNames[MAX_TILESET + 1] = { WALL_TILES_DIRT, WALL_TILES_ICE, WALL_TILES_URBAN };
+Mix_Music* gameMusic[MAX_TILESET + 1] = { NULL, NULL, NULL };
+Mix_Music* introMusic[MAX_TILESET + 1] = { NULL, NULL, NULL };
+Mix_Music* menuMusic = { NULL };
 Mix_Chunk* sfxFire = NULL;
 Mix_Chunk* sfxBounce[3] = { NULL, NULL, NULL };
 Mix_Chunk* sfxDie = NULL;
+Mix_Chunk* sfxPowerupSpeed[MAX_TILESET + 1] = { NULL, NULL, NULL };
+Mix_Chunk* sfxPowerupBounce[MAX_TILESET + 1] = { NULL, NULL, NULL };
+Mix_Chunk* sfxPowerupBullet[MAX_TILESET + 1] = { NULL, NULL, NULL };
 std::default_random_engine generator(time(0));
+
+
 
 bool playersIn[4] = { false, false, false, false };
 int playersInCount = 0;
@@ -91,14 +99,34 @@ int main(int argc, char** argv) {
         return 4;
     }
 
-    gameMusic = Utility::LoadMusic(GAME_MUSIC);
+    gameMusic[0] = Utility::LoadMusic(GAME_MUSIC1);
+    gameMusic[1] = Utility::LoadMusic(GAME_MUSIC2);
+    gameMusic[2] = Utility::LoadMusic(GAME_MUSIC3);
+
+    introMusic[0] = Utility::LoadMusic(INTRO_MUSIC1);
+    introMusic[1] = Utility::LoadMusic(INTRO_MUSIC2);
+    introMusic[2] = Utility::LoadMusic(INTRO_MUSIC3);
+
+    menuMusic = Utility::LoadMusic(MENU_MUSIC);
     sfxFire = Utility::LoadSound(SFX_FIRE);
     sfxBounce[0] = Utility::LoadSound(SFX_BOUNCE);
     sfxBounce[1] = Utility::LoadSound(SFX_BOUNCE2);
     sfxBounce[2] = Utility::LoadSound(SFX_BOUNCE3);
     sfxDie = Utility::LoadSound(SFX_DIE);
 
-    if (gameMusic == nullptr || sfxFire == nullptr || sfxBounce[0] == nullptr || sfxBounce[1] == nullptr
+    sfxPowerupBounce[0] = Utility::LoadSound(SFX_POWERUP_BOUNCE1);
+    sfxPowerupBounce[1] = Utility::LoadSound(SFX_POWERUP_BOUNCE1);
+    sfxPowerupBounce[2] = Utility::LoadSound(SFX_POWERUP_BOUNCE1);
+
+    sfxPowerupBullet[0] = Utility::LoadSound(SFX_POWERUP_BULLET1);
+    sfxPowerupBullet[1] = Utility::LoadSound(SFX_POWERUP_BULLET2);
+    sfxPowerupBullet[2] = Utility::LoadSound(SFX_POWERUP_BULLET3);
+
+    sfxPowerupSpeed[0] = Utility::LoadSound(SFX_POWERUP_SPEED1);
+    sfxPowerupSpeed[1] = Utility::LoadSound(SFX_POWERUP_SPEED2);
+    sfxPowerupSpeed[2] = Utility::LoadSound(SFX_POWERUP_SPEED3);
+
+    if (gameMusic[0] == nullptr || sfxFire == nullptr || sfxBounce[0] == nullptr || sfxBounce[1] == nullptr
         || sfxBounce[2] == nullptr || sfxDie == nullptr ) {
         std::cout << "Could not load sound effects. Exiting." << std::endl;
         IMG_Quit();
@@ -132,7 +160,7 @@ int main(int argc, char** argv) {
 
     win = SDL_CreateWindow("Tanks", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
-    SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_ShowCursor(0);
 
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
@@ -144,6 +172,7 @@ int main(int argc, char** argv) {
     bool loopGame = true;
 
     while (loopGame) {
+        Mix_FadeInMusic(menuMusic, -1, 1000);
         if (Menu() == -1) {
             IMG_Quit();
             TTF_Quit();
@@ -160,13 +189,20 @@ int main(int argc, char** argv) {
             SDL_Quit();
             exit(0);
         }
+        Mix_FadeOutMusic(500);
+        SDL_Delay(500);
         uint32_t gameTime = gameOptions->GetTime() * 1000;
 
         if (argc > 1)
             mapfilename = argv[1];
         //else
             //mapfilename = "default.d";
-        Map m(mapfilename, "WallTiles.png", ren);
+
+        std::uniform_int_distribution<int> distTiles(0,MAX_TILESET);
+        int rndTiles = distTiles(generator);
+        uint32_t backgroundColor = 0;
+
+        Map m(mapfilename, wallTileNames[rndTiles], ren);
         if (!m.LoadSuccess()) {
             std::cout << "Level file " << mapfilename << " not a valid map.";
             exit(10);
@@ -250,8 +286,9 @@ int main(int argc, char** argv) {
         vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &m));
         RenderableObject::next++;
 
-
-        Utility::PlayMusic(gameMusic);
+        //Mix_PlayMusic(introMusic[rndTiles], 0);
+        //SDL_Delay(700);
+        Utility::PlayMusic(gameMusic[rndTiles]);
 
         bool running = true;
 
@@ -968,8 +1005,23 @@ int main(int argc, char** argv) {
             if (SDL_TICKS_PASSED(new_time - ticks, RENDER_INTERVAL)) {
 
                 /* Background texture */
+
                 SDL_Surface* surf = SDL_CreateRGBSurface(0, 320, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
-                SDL_FillRect(surf, NULL, SDL_MapRGB(surf->format, 0x20, 0x20, 0x05));
+
+                switch (rndTiles) {
+                    case 0:
+                        backgroundColor = SDL_MapRGB(surf->format, 0x20, 0x20, 0x05);
+                        break;
+                    case 1:
+                        backgroundColor = SDL_MapRGB(surf->format, 0x00, 0x00, 0x20);
+                        break;
+                    case 2:
+                        backgroundColor = SDL_MapRGB(surf->format, 0x20, 0x20, 0x20);
+                        break;
+                }
+
+
+                SDL_FillRect(surf, NULL, backgroundColor);
                 SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surf);
                 SDL_FreeSurface(surf);
 
@@ -1247,7 +1299,16 @@ int main(int argc, char** argv) {
     Mix_FreeChunk(sfxDie);
     for (int i = 0; i < 3; ++i)
         Mix_FreeChunk(sfxBounce[i]);
-    Mix_FreeMusic(gameMusic);
+    for (int i = 0; i < MAX_TILESET + 1; ++i)
+        Mix_FreeChunk(sfxPowerupBounce[i]);
+    for (int i = 0; i < MAX_TILESET + 1; ++i)
+        Mix_FreeChunk(sfxPowerupBullet[i]);
+    for (int i = 0; i < MAX_TILESET + 1; ++i)
+        Mix_FreeChunk(sfxPowerupSpeed[i]);
+    for (int i = 0; i < MAX_TILESET + 1; ++i)
+        Mix_FreeMusic(gameMusic[i]);
+    for (int i = 0; i < MAX_TILESET + 1; ++i)
+        Mix_FreeMusic(introMusic[i]);
 
     IMG_Quit();
     TTF_Quit();
@@ -1269,7 +1330,6 @@ void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int,
 
 int Menu() {
     bool menuRunning = true;
-
     std::vector<std::string> levelFiles;
 
     dirent* de;
@@ -1319,9 +1379,11 @@ int Menu() {
         }
     }
 
+    /*
     for (std::string file : levelFiles) {
         std::cout << file << std::endl;
     }
+    */
 
     bool playersUpHeld[4] = { false, false, false, false };
     bool playersDownHeld[4] = {false, false, false, false };
@@ -1637,7 +1699,6 @@ int Menu() {
 
         SDL_RenderPresent(ren);
     }
-
     return 0;
 }
 
@@ -1841,7 +1902,7 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
 
     switch (vWinners.size()) {
         case 0:
-            WinnerString << "Everybody loses!";
+            WinnerString << "No Contest!";
             break;
         case 1:
             WinnerString << "Player " << vWinners.at(0) << " wins!";
@@ -1853,7 +1914,7 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
             WinnerString << "Players " << vWinners.at(0) << ", " << vWinners.at(1) << " & " << vWinners.at(2) << " tied!";
             break;
         case 4:
-            WinnerString << "Everybody tied!";
+            WinnerString << "Tie game!";
             break;
     }
 
@@ -1974,5 +2035,6 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
             }
         }
     }
+
     return 0;
 }
