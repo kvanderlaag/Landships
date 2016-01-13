@@ -28,6 +28,7 @@
 
 
 bool gRunning = true;
+int rndTiles = 0;
 std::string wallTileNames[MAX_TILESET + 1] = { WALL_TILES_DIRT, WALL_TILES_ICE, WALL_TILES_URBAN };
 Mix_Music* gameMusic[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Music* introMusic[MAX_TILESET + 1] = { NULL, NULL, NULL };
@@ -199,7 +200,7 @@ int main(int argc, char** argv) {
             //mapfilename = "default.d";
 
         std::uniform_int_distribution<int> distTiles(0,MAX_TILESET);
-        int rndTiles = distTiles(generator);
+        rndTiles = distTiles(generator);
         uint32_t backgroundColor = 0;
 
         Map m(mapfilename, wallTileNames[rndTiles], ren);
@@ -1387,12 +1388,18 @@ int Menu() {
 
     bool playersUpHeld[4] = { false, false, false, false };
     bool playersDownHeld[4] = {false, false, false, false };
+    const int cursorRepeat = 500;
+    int ticksSinceMove[4] = {0, 0, 0, 0};
     bool mapSelect = false;
 
     int mapCount = levelFiles.size();
     int mapSelected = 0;
 
+    uint32_t time = SDL_GetTicks();
+
     while (menuRunning) {
+        uint32_t frameTime = SDL_GetTicks() - time;
+        time = SDL_GetTicks();
         SDL_Event e;
         int index = -1;
         while (SDL_PollEvent(&e)) {
@@ -1479,8 +1486,26 @@ int Menu() {
 
         } // End of SDL_PollEvent(e)
 
+        for (int i = 0; i < 4; ++i) {
+            if (ticksSinceMove[i] > 0) {
+                ticksSinceMove[i] = std::max((uint32_t) 0, ticksSinceMove[i] - frameTime);
+            } else  {
+                if (playersUpHeld[i]) {
+                    if (mapSelected > 0) {
+                            mapSelected--;
+                            ticksSinceMove[i] = cursorRepeat;
+                    }
+                } else if (playersDownHeld[i]) {
+                    if (mapSelected < mapCount) {
+                            mapSelected++;
+                            ticksSinceMove[i] = cursorRepeat;
+                    }
+                }
+            }
+        }
+
         int tempPlayersIn = 0;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; ++i) {
             if (playersIn[i]) {
                 tempPlayersIn++;
             }

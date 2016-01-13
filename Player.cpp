@@ -187,13 +187,13 @@ void Player::Update(uint32_t ticks) {
     float scale = 1;
     switch (mMaxSpeed) {
         case 1:
-            scale = 0.75;
+            scale = MOVESCALE_BASE;
             break;
         case 2:
-            scale = 1;
+            scale = MOVESCALE_1;
             break;
         case 3:
-            scale = 1.2;
+            scale = MOVESCALE_2;
             break;
     }
 

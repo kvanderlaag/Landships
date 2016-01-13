@@ -5,6 +5,10 @@
 #include "Collider.hpp"
 #include "Player.hpp"
 
+extern Mix_Chunk* sfxPowerupBounce[MAX_TILESET + 1];
+extern Mix_Chunk* sfxPowerupBullet[MAX_TILESET + 1];
+extern Mix_Chunk* sfxPowerupSpeed[MAX_TILESET + 1];
+extern int rndTiles;
 
 class Powerup : public RenderableObject {
 public:
