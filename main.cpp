@@ -62,9 +62,12 @@ const int JOYFIRE_DEADZONE = 0;
 
 const std::string basePath = SDL_GetBasePath();
 void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int, RenderableObject*>& vRenderable, std::vector<Explosion*>& vExplosions);
+
+int Title();
 int Menu();
 Options* OptionsMenu();
 int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]);
+void Quit(int status);
 
 int main(int argc, char** argv) {
 
@@ -75,30 +78,24 @@ int main(int argc, char** argv) {
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |SDL_INIT_JOYSTICK) < 0) {
         std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
-        return 1;
+        Quit(1);
     }
 
     if (IMG_Init(IMG_INIT_PNG) < 0) {
         std::cout << "Error initializing SDL_IMG: " << SDL_GetError() << std::endl;
-        SDL_Quit();
-        return 2;
+        Quit(2);
     }
 
     if (TTF_Init() != 0) {
         std::cout << "Error initializing SDL_TTF: " << SDL_GetError() << std::endl;
-        IMG_Quit();
-        SDL_Quit();
-        return 3;
+        Quit(3);
     }
 
 
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
     {
         std::cout << "Error initializing SDL_Mixer: " << Mix_GetError() << std::endl;
-        IMG_Quit();
-        TTF_Quit();
-        SDL_Quit();
-        return 4;
+        Quit(4);
     }
 
     gameMusic[0] = Utility::LoadMusic(GAME_MUSIC1);
@@ -131,10 +128,7 @@ int main(int argc, char** argv) {
     if (gameMusic[0] == nullptr || sfxFire == nullptr || sfxBounce[0] == nullptr || sfxBounce[1] == nullptr
         || sfxBounce[2] == nullptr || sfxDie == nullptr ) {
         std::cout << "Could not load sound effects. Exiting." << std::endl;
-        IMG_Quit();
-        TTF_Quit();
-        Mix_Quit();
-        SDL_Quit();
+        Quit(5);
         return 5;
     }
 
@@ -151,7 +145,7 @@ int main(int argc, char** argv) {
             gController[i] = SDL_JoystickOpen(i);
             if (gController[i] == NULL) {
                 std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
-                exit(2);
+                Quit(2);
             }
         }
     }
@@ -194,22 +188,20 @@ int main(int argc, char** argv) {
     bool loopGame = true;
 
     while (loopGame) {
+
+        if (Title() == -1) {
+            Quit(0);
+        }
+
         Mix_FadeInMusic(menuMusic, -1, 1000);
+
         if (Menu() == -1) {
-            IMG_Quit();
-            TTF_Quit();
-            Mix_Quit();
-            SDL_Quit();
-            exit(0);
+            Quit(0);
         }
 
         Options* gameOptions = OptionsMenu();
         if (gameOptions == nullptr) {
-            IMG_Quit();
-            TTF_Quit();
-            Mix_Quit();
-            SDL_Quit();
-            exit(0);
+            Quit(0);
         }
         Mix_FadeOutMusic(500);
         SDL_Delay(500);
@@ -2056,5 +2048,109 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
         }
     }
 
+    return 0;
+}
+
+void Quit(int status) {
+    IMG_Quit();
+    TTF_Quit();
+    Mix_Quit();
+    SDL_Quit();
+    exit(status);
+
+}
+
+int Title() {
+
+    uint32_t rmask, gmask, bmask, amask;
+        #if SDL_BYTEORDER == SDL_BIG_ENDIAN
+            rmask = 0xff000000;
+            gmask = 0x00ff0000;
+            bmask = 0x0000ff00;
+            amask = 0x000000ff;
+        #else
+            amask = 0xff000000;
+            bmask = 0x00ff0000;
+            gmask = 0x0000ff00;
+            rmask = 0x000000ff;
+        #endif // SDL_BIG_ENDIAN
+
+    bool titleRunning = true;
+    SDL_Texture* titleTexture = Utility::LoadTexture(ren, TITLE_IMG);
+
+    int ticksElapsed = 0;
+
+    int time = SDL_GetTicks();
+
+    const int fadeInTicks = 2000;
+    bool fadeInDone = false;
+
+    while (titleRunning) {
+
+        uint32_t frameTime = SDL_GetTicks() - time;
+        time = SDL_GetTicks();
+
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                Quit(0);
+            } else if (e.type == SDL_JOYBUTTONDOWN && fadeInDone) {
+                if (e.jbutton.button == JBUTTON_START) {
+                    titleRunning = false;
+                }
+            } else if (e.type == SDL_KEYDOWN) {
+                if (e.key.keysym.sym == SDLK_RETURN && fadeInDone) {
+                    titleRunning = false;
+                }
+                if (e.key.keysym.sym == SDLK_ESCAPE) {
+                    Quit(0);
+                }
+            }
+        }
+
+        if (ticksElapsed < fadeInTicks) {
+            ticksElapsed += frameTime;
+            if (ticksElapsed >= fadeInTicks) {
+                fadeInDone = true;
+            }
+        }
+
+        int alpha = 0;
+        if (!fadeInDone) {
+            alpha = 255 - ((float) ticksElapsed / fadeInTicks * 255);
+        }
+        SDL_Surface* surf = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
+        SDL_FillRect(surf, NULL, SDL_MapRGBA(surf->format, 0x00, 0x00, 0x00, alpha));
+        SDL_Texture* fadeTex = SDL_CreateTextureFromSurface(ren, surf);
+        SDL_FreeSurface(surf);
+
+        SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
+        SDL_Texture* startTexture = Utility::RenderText("Press Start", GAME_FONT, white, 16, ren);
+        int startW, startH;
+        SDL_QueryTexture(startTexture, NULL, NULL, &startW, &startH);
+
+        SDL_Rect startRect;
+
+        startRect.x = (SCREEN_WIDTH / 2) - (startW / 2);
+        startRect.y = (SCREEN_HEIGHT / 2) + (SCREEN_HEIGHT / 4);
+        startRect.w = startW;
+        startRect.h = startH;
+
+        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+        SDL_RenderClear(ren);
+        SDL_RenderCopy(ren, titleTexture, NULL, NULL);
+        SDL_RenderCopy(ren, fadeTex, NULL, NULL);
+
+        if (fadeInDone) {
+            SDL_RenderCopy(ren, startTexture, NULL, &startRect);
+        }
+
+        SDL_RenderPresent(ren);
+        SDL_DestroyTexture(fadeTex);
+        SDL_DestroyTexture(startTexture);
+
+
+    }
+    SDL_DestroyTexture(titleTexture);
     return 0;
 }

@@ -12,6 +12,8 @@
 
 #define GAME_FONT "8bit.ttf"
 
+#define TITLE_IMG "title.png"
+
 #define WALL_TILES_DIRT "WallTiles.png"
 #define WALL_TILES_ICE "WallTiles2.png"
 #define WALL_TILES_URBAN "WallTiles3.png"
