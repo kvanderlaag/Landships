@@ -2094,9 +2094,11 @@ int Title() {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 Quit(0);
-            } else if (e.type == SDL_JOYBUTTONDOWN && fadeInDone) {
-                if (e.jbutton.button == JBUTTON_START) {
+            } else if (e.type == SDL_JOYBUTTONDOWN) {
+                if (e.jbutton.button == JBUTTON_START && fadeInDone) {
                     titleRunning = false;
+                } else if (e.jbutton.button == JBUTTON_BACK) {
+                    Quit(0);
                 }
             } else if (e.type == SDL_KEYDOWN) {
                 if (e.key.keysym.sym == SDLK_RETURN && fadeInDone) {
