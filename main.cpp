@@ -30,6 +30,7 @@
 bool gRunning = true;
 int rndTiles = 0;
 std::string wallTileNames[MAX_TILESET + 1] = { WALL_TILES_DIRT, WALL_TILES_ICE, WALL_TILES_URBAN };
+
 Mix_Music* gameMusic[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Music* introMusic[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Music* menuMusic = { NULL };
@@ -161,7 +162,7 @@ int main(int argc, char** argv) {
 
     win = SDL_CreateWindow("Tanks", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
-    //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_ShowCursor(0);
 
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
@@ -169,6 +170,26 @@ int main(int argc, char** argv) {
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
     SDL_RenderSetLogicalSize(ren, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    uint32_t rmask, gmask, bmask, amask;
+        #if SDL_BYTEORDER == SDL_BIG_ENDIAN
+            rmask = 0xff000000;
+            gmask = 0x00ff0000;
+            bmask = 0x0000ff00;
+            amask = 0x000000ff;
+        #else
+            amask = 0xff000000;
+            bmask = 0x00ff0000;
+            gmask = 0x0000ff00;
+            rmask = 0x000000ff;
+        #endif // SDL_BIG_ENDIAN
+
+    SDL_Surface* rSurface = SDL_CreateRGBSurface(0, 1, 1, 32, rmask, gmask, bmask, amask);
+        uint32_t backgroundColor[MAX_TILESET + 1] = { SDL_MapRGB(rSurface->format, 0x20, 0x20, 0x05),
+                                                SDL_MapRGB(rSurface->format, 0x00, 0x00, 0x40),
+                                                SDL_MapRGB(rSurface->format, 0x30, 0x30, 0x30)
+                                            };
+        SDL_FreeSurface(rSurface);
 
     bool loopGame = true;
 
@@ -201,7 +222,6 @@ int main(int argc, char** argv) {
 
         std::uniform_int_distribution<int> distTiles(0,MAX_TILESET);
         rndTiles = distTiles(generator);
-        uint32_t backgroundColor = 0;
 
         Map m(mapfilename, wallTileNames[rndTiles], ren);
         if (!m.LoadSuccess()) {
@@ -241,19 +261,6 @@ int main(int argc, char** argv) {
                 return 1;
             }
         }
-
-        uint32_t rmask, gmask, bmask, amask;
-        #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-            rmask = 0xff000000;
-            gmask = 0x00ff0000;
-            bmask = 0x0000ff00;
-            amask = 0x000000ff;
-        #else
-            amask = 0xff000000;
-            bmask = 0x00ff0000;
-            gmask = 0x0000ff00;
-            rmask = 0x000000ff;
-        #endif // SDL_BIG_ENDIAN
 
         std::vector<Player*> vPlayers, vPlayersDelete;
         std::vector<Collider*> vStationary, vStationaryDelete;
@@ -1009,20 +1016,8 @@ int main(int argc, char** argv) {
 
                 SDL_Surface* surf = SDL_CreateRGBSurface(0, 320, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
 
-                switch (rndTiles) {
-                    case 0:
-                        backgroundColor = SDL_MapRGB(surf->format, 0x20, 0x20, 0x05);
-                        break;
-                    case 1:
-                        backgroundColor = SDL_MapRGB(surf->format, 0x00, 0x00, 0x20);
-                        break;
-                    case 2:
-                        backgroundColor = SDL_MapRGB(surf->format, 0x20, 0x20, 0x20);
-                        break;
-                }
 
-
-                SDL_FillRect(surf, NULL, backgroundColor);
+                SDL_FillRect(surf, NULL, backgroundColor[rndTiles]);
                 SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surf);
                 SDL_FreeSurface(surf);
 
@@ -1279,7 +1274,7 @@ int main(int argc, char** argv) {
         }
 
         if (loopGame) {
-            Mix_FadeOutMusic(1);
+            Mix_FadeOutMusic(200);
             if (WinScreen(winningPlayer, players) == -1) {
                 loopGame = false;
             }
@@ -1733,7 +1728,7 @@ Options* OptionsMenu() {
 
     int gameType = SCORE_MATCH;
 
-    int score = std::max(MIN_SCORE + 10, MAX_SCORE);
+    int score = std::min(10, MAX_SCORE);
     int time = std::min(120, MAX_TIME);
     int stock = std::min(10, MAX_STOCK);
     //int score = MIN_SCORE + ((MAX_SCORE - MIN_SCORE) / 2);
