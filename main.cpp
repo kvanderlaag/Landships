@@ -272,12 +272,12 @@ int main(int argc, char** argv) {
                     } else {
                         int highScore = INT_MIN;
                         for (int i = 0; i < 4; ++i) {
-                            if (players[i].GetScore() > highScore) {
+                            if (players[i].GetScore() >= highScore && playersIn[i]) {
                                 highScore = players[i].GetScore();
                             }
                         }
                         for (int i = 0; i < 4; ++i) {
-                            if (players[i].GetScore() == highScore) {
+                            if (players[i].GetScore() == highScore && playersIn[i]) {
                                 winningPlayer[i] = true;
                             }
                         }
@@ -344,6 +344,8 @@ int main(int argc, char** argv) {
                 } else if (e.type == SDL_JOYBUTTONDOWN) {
                     if (e.jbutton.button == JBUTTON_FIRE && !players[index].FireHeld()) {
                         players[index].FireIsHeld(true);
+                    } else if (e.jbutton.button == JBUTTON_BACK) {
+                        running = false;
                     }
                     #ifdef _POWERUP_DEBUG
                     else if (e.jbutton.button == JBUTTON_A) {
@@ -1346,15 +1348,19 @@ int Menu() {
             }
             if (e.type == SDL_JOYBUTTONDOWN) {
                 switch (e.jbutton.button) {
-                    case JBUTTON_START:
+                    case JBUTTON_A:
                         if (playersIn[index] == false)
                             playersIn[index] = true;
                         break;
-                    case JBUTTON_BACK:
+                    case JBUTTON_B:
                         if (playersIn[index] == true)
                             playersIn[index] = false;
                         break;
-                    case JBUTTON_A:
+                    case JBUTTON_BACK:
+                        menuRunning = false;
+                        return -1;
+                        break;
+                    case JBUTTON_START:
                         if (playersInCount > 1) {
                             mapSelect = true;
                         }
@@ -1438,7 +1444,7 @@ int Menu() {
             SDL_Texture* p1Button = NULL;
 
             if (playersIn[0] == false) {
-                p1Button = Utility::RenderText("Press Start", GAME_FONT, white, 10, ren);
+                p1Button = Utility::RenderText("Press A", GAME_FONT, white, 10, ren);
             } else {
                 p1Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
             }
@@ -1706,6 +1712,9 @@ Options* OptionsMenu() {
                 } // switch e.key.keysym.sym
             } else if (e.type == SDL_JOYBUTTONDOWN) {
                 switch (e.jbutton.button) {
+                    case JBUTTON_BACK:
+                        return nullptr;
+                        break;
                     case JBUTTON_START:
                     case JBUTTON_A:
                         optionsMenuRunning = false;
@@ -1827,7 +1836,7 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
 
     for (int i = 0; i < 4; ++i) {
         if (winningPlayer[i])
-            vWinners.push_back(i);
+            vWinners.push_back(i + 1);
     }
 
     switch (vWinners.size()) {

@@ -30,6 +30,7 @@
 #define JBUTTON_BACK 5
 #define JBUTTON_FIRE 9
 #define JBUTTON_A 10
+#define JBUTTON_B 11
 #define JAXIS_MOVE   0x01
 #define JAXIS_ROTATE 0x00
 #define JAXIS_TURRET 0x02
