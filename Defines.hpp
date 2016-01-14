@@ -49,6 +49,7 @@
 
 #define RENDER_INTERVAL 16
 
+#ifndef _PS4_CONTROLLER
 
 #define JBUTTON_DPADUP 0
 #define JBUTTON_DPADDOWN 1
@@ -67,6 +68,28 @@
 #define JAXIS_MOVEX 0x00
 #define JAXIS_MOVEY 0x01
 #define JAXIS_FIRE 0x05
+
+#else
+
+#define JBUTTON_DPADUP 13
+#define JBUTTON_DPADDOWN 11
+#define JBUTTON_DPADLEFT 12
+#define JBUTTON_DPADRIGHT 3
+#define JBUTTON_START 9
+#define JBUTTON_BACK 8
+#define JBUTTON_FIRE 5
+#define JBUTTON_A 1
+#define JBUTTON_B 2
+#define JAXIS_MOVE   0x01
+#define JAXIS_ROTATE 0x00
+#define JAXIS_TURRET 0x03
+#define JAXIS_TURRETX 0x02
+#define JAXIS_TURRETY 0x05
+#define JAXIS_MOVEX 0x00
+#define JAXIS_MOVEY 0x01
+#define JAXIS_FIRE 0x04
+
+#endif // _PS4_CONTROLLER
 
 #define SCORE_MATCH 1
 #define STOCK_MATCH 2

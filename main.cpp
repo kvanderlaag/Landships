@@ -1221,7 +1221,7 @@ int main(int argc, char** argv) {
                         srcRect.h = plHeight;
 
                         dstRect.x = 320 + 2;
-                        dstRect.y = verticalOffset + (i * 60 + 2);
+                        dstRect.y = verticalOffset + (i * rHeight + 2);
                         dstRect.w = plWidth;
                         dstRect.h = plHeight;
 
@@ -1233,7 +1233,7 @@ int main(int argc, char** argv) {
                         srcRect.h = scoreHeight;
 
                         dstRect.x = 320 + 2;
-                        dstRect.y = verticalOffset + (i * 60 + plHeight + 4);
+                        dstRect.y = verticalOffset + (i * rHeight + plHeight + 4);
                         dstRect.w = scoreWidth;
                         dstRect.h = scoreHeight;
 
@@ -1245,7 +1245,7 @@ int main(int argc, char** argv) {
                         srcRect.h = powHeight;
 
                         dstRect.x = 320 + 2;
-                        dstRect.y = verticalOffset + (i * 60 + plHeight + scoreHeight + 6);
+                        dstRect.y = verticalOffset + (i * rHeight + plHeight + scoreHeight + 6);
                         dstRect.w = powWidth;
                         dstRect.h = powHeight;
 
@@ -1324,6 +1324,8 @@ int Menu() {
     dirent* de;
     DIR* dp;
 
+    int numJoysticks = 0;
+
     std::string basePath = SDL_GetBasePath();
     dp = opendir(basePath.c_str());
     if (dp) {
@@ -1386,6 +1388,22 @@ int Menu() {
     uint32_t time = SDL_GetTicks();
 
     while (menuRunning) {
+
+        if (SDL_NumJoysticks() > 0 && SDL_NumJoysticks() != numJoysticks) {
+            numJoysticks = SDL_NumJoysticks();
+            for (int i = 0; i < 4; ++i) {
+                playersIn[i] = false;
+            }
+            maxPlayers = std::min(SDL_NumJoysticks(), 4);
+            for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
+                gController[i] = SDL_JoystickOpen(i);
+                if (gController[i] == NULL) {
+                    std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
+                    Quit(2);
+                }
+            }
+        }
+
         uint32_t frameTime = SDL_GetTicks() - time;
         time = SDL_GetTicks();
         SDL_Event e;
