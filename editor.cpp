@@ -10,7 +10,7 @@
 #include <sstream>
 #include <fstream>
 
-#define SCREEN_WIDTH 320
+#define SCREEN_WIDTH 428
 #define SCREEN_HEIGHT 240
 
 #define GAME_FONT "8bit.ttf"
@@ -200,14 +200,14 @@ int main(int argc, char** argv)
         }
 
         SDL_Rect* select = NULL;
-        if (mousex >= 0 && mousey >= 0) {
+        if (mousex >= 0 && mousey >= 0 && mousex < 320) {
             mousextile = mousex / 8;
             mouseytile = mousey / 8;
             select = (SDL_Rect*) malloc(sizeof(SDL_Rect));
-            select->h = 8;
-            select->w = 8;
-            select->y = mouseytile * 8;
-            select->x = mousextile * 8;
+            select->h = 8 + 2;
+            select->w = 8 + 2;
+            select->y = mouseytile * 8 - 1;
+            select->x = mousextile * 8 - 1;
 
         } else {
             mouseytile = mousextile = -1;
@@ -239,6 +239,26 @@ int main(int argc, char** argv)
         }
 
         if (select != NULL) {
+            SDL_Surface* blanktile = SDL_CreateRGBSurface(0, 8, 8, 32, rmask, gmask, bmask, amask);
+            SDL_FillRect(blanktile, NULL, SDL_MapRGB(blanktile->format, 0x20, 0x20, 0x05));
+            SDL_Texture* blanktex = SDL_CreateTextureFromSurface(ren, blanktile);
+
+
+            SDL_Rect srcRect, dstRect;
+            srcRect.x = 0;
+            srcRect.y = 0;
+            srcRect.w = 8;
+            srcRect.h = 8;
+
+            dstRect.x = mousextile * 8;
+            dstRect.y = mouseytile * 8;
+            dstRect.w = 8;
+            dstRect.h = 8;
+
+            SDL_RenderCopy(ren, blanktex, &srcRect, &dstRect);
+            SDL_FreeSurface(blanktile);
+            SDL_DestroyTexture(blanktex);
+
             if (tiletype != EMPTY) {
                 SDL_Rect srcRect, dstRect;
                 srcRect.x = (tiletype - 1) * 8;
@@ -253,30 +273,30 @@ int main(int argc, char** argv)
 
                 SDL_RenderCopy(ren, wallTex, &srcRect, &dstRect);
             } else {
-                SDL_Surface* blanktile = SDL_CreateRGBSurface(0, 8, 8, 32, rmask, gmask, bmask, amask);
-                SDL_FillRect(blanktile, NULL, SDL_MapRGB(blanktile->format, 0x20, 0x20, 0x05));
-                SDL_Texture* blanktex = SDL_CreateTextureFromSurface(ren, blanktile);
 
-
-                SDL_Rect srcRect, dstRect;
-                srcRect.x = 0;
-                srcRect.y = 0;
-                srcRect.w = 8;
-                srcRect.h = 8;
-
-                dstRect.x = mousextile * 8;
-                dstRect.y = mouseytile * 8;
-                dstRect.w = 8;
-                dstRect.h = 8;
-
-                SDL_RenderCopy(ren, blanktex, &srcRect, &dstRect);
-                SDL_FreeSurface(blanktile);
-                SDL_DestroyTexture(blanktex);
 
             }
             SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
             SDL_RenderDrawRect(ren, select);
             free(select);
+
+            std::stringstream positionString;
+            positionString << "(" << mousextile << ", " << mouseytile << ")";
+
+            SDL_Color white = { 0xFF, 0xFF, 0xFF, 0xFF };
+            SDL_Texture* positionTex = Utility::RenderText(positionString.str(), GAME_FONT, white, 14, ren);
+            int posW, posH;
+            SDL_QueryTexture(positionTex, NULL, NULL, &posW, &posH);
+
+            SDL_Rect posRect;
+            posRect.x = 320 + ((SCREEN_WIDTH - 320) / 2) - (posW / 2);
+            posRect.y = 20;
+            posRect.h = posH;
+            posRect.w = posW;
+
+            SDL_RenderCopy(ren, positionTex, NULL, &posRect);
+
+            SDL_DestroyTexture(positionTex);
         }
 
         SDL_RenderPresent(ren);
