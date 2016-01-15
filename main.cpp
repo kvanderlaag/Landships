@@ -2270,6 +2270,11 @@ int Title() {
 
     int numJoysticks = 0;
 
+    SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(ren);
+    SDL_RenderPresent(ren);
+    SDL_Delay(500);
+
     while (titleRunning) {
 
         if (SDL_NumJoysticks() > 0 && SDL_NumJoysticks() != numJoysticks) {
@@ -2326,7 +2331,7 @@ int Title() {
 
         int alpha = 0;
         if (!fadeInDone) {
-            alpha = 255 - ((float) ticksElapsed / fadeInTicks * 255);
+            alpha = 255 - ((float)ticksElapsed / (fadeInTicks) * 255);
         }
 
         if (SDL_TICKS_PASSED(time - renderTime, RENDER_INTERVAL) ) {
