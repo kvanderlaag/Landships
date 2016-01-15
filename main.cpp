@@ -1378,7 +1378,7 @@ int Menu() {
 
     bool playersUpHeld[4] = { false, false, false, false };
     bool playersDownHeld[4] = {false, false, false, false };
-    const int cursorRepeat = MENU_REPEAT_TICKS;
+    const int cursorRepeat = MENU_REPEAT_VERT_TICKS;
     int ticksSinceMove[4] = {0, 0, 0, 0};
     bool mapSelect = false;
 
@@ -1762,7 +1762,8 @@ Options* OptionsMenu() {
     //int time = MIN_TIME + ((MAX_TIME - MIN_TIME) / 2);
     //int stock = MIN_STOCK + ((MAX_STOCK - MIN_STOCK) / 2);
 
-    const int cursorRepeat = MENU_REPEAT_TICKS;
+    const int cursorRepeatV = MENU_REPEAT_VERT_TICKS;
+    const int cursorRepeatH = MENU_REPEAT_HORIZ_TICKS;
     int ticksSinceMove[4] = {0, 0, 0, 0};
     bool playersUpHeld[4] = { false, false, false, false };
     bool playersDownHeld[4] = {false, false, false, false };
@@ -1912,11 +1913,11 @@ Options* OptionsMenu() {
                 if (playersUpHeld[i]) {
                     if (gameType > SCORE_MATCH)
                             gameType--;
-                    ticksSinceMove[i] = cursorRepeat;
+                    ticksSinceMove[i] = cursorRepeatV;
                 } else if (playersDownHeld[i]) {
                     if (gameType < TIME_MATCH)
                             gameType++;
-                    ticksSinceMove[i] = cursorRepeat;
+                    ticksSinceMove[i] = cursorRepeatV;
                 } else if (playersLeftHeld[i]) {
                     switch (gameType) {
                         case SCORE_MATCH:
@@ -1932,7 +1933,7 @@ Options* OptionsMenu() {
                                 time--;
                             break;
                     } // switch gameType
-                    ticksSinceMove[i] = cursorRepeat;
+                    ticksSinceMove[i] = cursorRepeatH;
                 } else if (playersRightHeld[i]) {
                     switch (gameType) {
                             case SCORE_MATCH:
@@ -1948,7 +1949,7 @@ Options* OptionsMenu() {
                                     time++;
                                 break;
                         } // switch gameType
-                    ticksSinceMove[i] = cursorRepeat;
+                    ticksSinceMove[i] = cursorRepeatH;
                 }
             }
         }
