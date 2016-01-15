@@ -49,6 +49,8 @@
 
 #define RENDER_INTERVAL 16
 
+#define MENU_REPEAT_TICKS 100
+
 #ifndef _PS4_CONTROLLER
 
 #define JBUTTON_DPADUP 0

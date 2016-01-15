@@ -9,6 +9,7 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
+#include <random>
 
 #define EMPTY   0x00
 #define P1START 0x01
@@ -17,6 +18,8 @@
 #define P4START 0x04
 #define DSTRBLK 0x05
 #define BLOCK   0x06
+
+extern std::default_random_engine generator;
 
 class Map : public RenderableObject
 {

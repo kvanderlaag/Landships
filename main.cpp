@@ -1378,7 +1378,7 @@ int Menu() {
 
     bool playersUpHeld[4] = { false, false, false, false };
     bool playersDownHeld[4] = {false, false, false, false };
-    const int cursorRepeat = 500;
+    const int cursorRepeat = MENU_REPEAT_TICKS;
     int ticksSinceMove[4] = {0, 0, 0, 0};
     bool mapSelect = false;
 
@@ -1762,7 +1762,7 @@ Options* OptionsMenu() {
     //int time = MIN_TIME + ((MAX_TIME - MIN_TIME) / 2);
     //int stock = MIN_STOCK + ((MAX_STOCK - MIN_STOCK) / 2);
 
-    const int cursorRepeat = 500;
+    const int cursorRepeat = MENU_REPEAT_TICKS;
     int ticksSinceMove[4] = {0, 0, 0, 0};
     bool playersUpHeld[4] = { false, false, false, false };
     bool playersDownHeld[4] = {false, false, false, false };
