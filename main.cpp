@@ -316,6 +316,7 @@ int main(int argc, char** argv) {
                                 }
                             }
                             timeToExit = GAME_END_TICKS;
+                            Mix_FadeOutMusic(GAME_END_TICKS);
                         }
                         break;
                     case SCORE_MATCH:
@@ -327,6 +328,7 @@ int main(int argc, char** argv) {
                         for (int i = 0; i < 4; ++i) {
                             if (winningPlayer[i]) {
                                 timeToExit = GAME_END_TICKS;
+                                Mix_FadeOutMusic(GAME_END_TICKS);
                             }
                         }
                         break;
@@ -341,6 +343,7 @@ int main(int argc, char** argv) {
                         }
                         if (playersAlive < std::min(maxPlayers + 1, 2)) {
                             timeToExit = GAME_END_TICKS;
+                            Mix_FadeOutMusic(GAME_END_TICKS);
                         }
 
 
