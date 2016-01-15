@@ -63,6 +63,7 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
 
     std::uniform_int_distribution<int> rndTileDist(5, 16);
 
+
     for (int row = 0; row < 30; ++row) {
         for (int col = 0; col < 40; ++col) {
             char c;
@@ -97,11 +98,17 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
                 tiles[row][col] = EMPTY;
             } else {
                 if (row != 0 && row != 29 && col != 0 && col != 39)
-                    mvColliders.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this));
+                    //mvColliders.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this));
                 tiles[row][col] = c;
             }
         }
     }
+
+    std::vector<Collider> combined = CombineColliders(tiles);
+    for (Collider coll : combined) {
+            mvColliders.push_back(coll);
+    }
+
     inFile.close();
 }
 
@@ -167,4 +174,76 @@ const unsigned int Map::GetTileAt(const int row, const int col) const {
 
 const bool Map::LoadSuccess() const {
     return mLoadSuccess;
+}
+
+std::vector<Collider> Map::CombineColliders(unsigned char (&tiles)[30][40]) const {
+
+    std::vector<Collider> vColliders;
+
+    char tilesColliders[30][40];
+
+    for (int row = 0; row < 30; ++row) {
+        for (int col = 0; col < 40; ++col) {
+            if (row == 0 || row == 29 || col == 0 || col == 39) {
+                tilesColliders[row][col] = 1;
+            } else if (tiles[row][col] != EMPTY) {
+                tilesColliders[row][col] = -1;
+            } else {
+                tilesColliders[row][col] = 0;
+            }
+        }
+    }
+
+    int colliderGroup = 2;
+    for (int row = 1; row < 29; ++row) {
+        for (int col = 1; col < 39; ++col) {
+            if (tilesColliders[row][col] == -1) {
+                int tempX, tempY;
+                int tempH, tempW;
+
+                tempX = col;
+                tempY = row;
+
+                tilesColliders[tempY][tempX] = colliderGroup;
+                tempH = tempW = 1;
+
+                tempX++;
+
+                while (tilesColliders[row][tempX] == -1) {
+                    tilesColliders[row][tempX] = colliderGroup;
+                    tempW++;
+                    tempX++;
+                }
+
+                tempY = row + 1;
+
+                while (tilesColliders[tempY][col] == -1) {
+                    bool fullRow = true;
+                    for (tempX = col; tempX < col + tempW; tempX++) {
+                        if (tilesColliders[tempY][tempX] != -1) {
+                            fullRow = false;
+                            break;
+                        }
+                    }
+                    if (!fullRow) {
+                        break;
+                    } else {
+                        tempH++;
+                        for (tempX = col; tempX < col + tempW; tempX++) {
+                            tilesColliders[tempY][tempX] = colliderGroup;
+                        }
+                        tempY++;
+                        tempX = col;
+                    }
+                }
+
+                vColliders.push_back(Collider(8 * tempW, 8 * tempH, (col * 8) + ( tempW * 4), (row * 8) + (tempH * 4), 0, this));
+                colliderGroup++;
+
+            }
+        }
+    }
+    return vColliders;
+
+
 }

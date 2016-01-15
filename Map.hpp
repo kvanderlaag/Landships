@@ -32,6 +32,7 @@ class Map : public RenderableObject
         void Update(uint32_t ticks) {};
         const unsigned int GetTileAt(const int row, const int col) const;
         const bool LoadSuccess() const;
+        std::vector<Collider> CombineColliders(unsigned char (&tiles)[30][40]) const;
     protected:
     private:
         Vector2D StartPos[4];
