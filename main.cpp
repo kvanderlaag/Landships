@@ -1412,6 +1412,16 @@ int Menu() {
                 menuRunning = false;
                 return -1;
             }
+
+            if (e.type == SDL_JOYHATMOTION) {
+                std::cout << "Hat: " << (int) e.jhat.value << std::endl;
+            } else if (e.type == SDL_JOYBUTTONDOWN) {
+                std::cout << "Button: " << (int) e.jbutton.button << std::endl;
+            } else if (e.type == SDL_JOYAXISMOTION) {
+                if (std::abs(e.jaxis.value) > JOYMOVE_DEADZONE)
+                    std::cout << "Axis " << (int) e.jaxis.axis << ": " << (int) e.jaxis.value << std::endl;
+            }
+
             if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP || e.type == SDL_JOYAXISMOTION) {
                 for (int i = 0; i < maxPlayers; ++i) {
                     if (SDL_JoystickInstanceID(gController[i]) == e.jaxis.which) {
