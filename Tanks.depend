@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1452899969 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1452902263 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -911,7 +911,7 @@
 	"Collider.hpp"
 	"Player.hpp"
 
-1452900215 d:\users\kvand_000\documents\github\tanks\defines.hpp
+1452901410 d:\users\kvand_000\documents\github\tanks\defines.hpp
 
 1452581416 source:d:\users\kvand_000\documents\github\tanks\options.cpp
 	"Options.hpp"
