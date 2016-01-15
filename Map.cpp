@@ -61,7 +61,7 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
     mvColliders.push_back(Collider(8,           8 * 28,     4,      240 / 2,          0, this));
     mvColliders.push_back(Collider(8,           8 * 28,     8*40 - 4,   240 / 2,          0, this));
 
-    std::uniform_int_distribution<int> rndTileDist(10, 16);
+    std::uniform_int_distribution<int> rndTileDist(5, 16);
 
     for (int row = 0; row < 30; ++row) {
         for (int col = 0; col < 40; ++col) {
@@ -74,7 +74,7 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
 
             if (row == 0 || row == 29 || col == 0 || col == 39) {
               int tile = rndTileDist(generator);
-              if (tile == 10) {
+              if (tile < 11) {
                 tile = BLOCK;
               }
               tiles[row][col] = tile;
