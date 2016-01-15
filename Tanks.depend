@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1452883793 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1452896264 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -903,10 +903,10 @@
 	"RenderableObject.hpp"
 	"Collider.hpp"
 
-1452712722 source:d:\users\kvand_000\documents\github\tanks\powerup.cpp
+1452894655 source:d:\users\kvand_000\documents\github\tanks\powerup.cpp
 	"Powerup.hpp"
 
-1452712736 d:\users\kvand_000\documents\github\tanks\powerup.hpp
+1452894655 d:\users\kvand_000\documents\github\tanks\powerup.hpp
 	"RenderableObject.hpp"
 	"Collider.hpp"
 	"Player.hpp"

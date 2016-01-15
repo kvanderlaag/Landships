@@ -59,19 +59,19 @@ void Powerup::Update(uint32_t ticks) {
 void Powerup::Apply(Player& p) {
     switch (mType) {
         case powerupBullets:
-            Utility::PlaySound(sfxPowerupBullet[rndTiles]);
+            Utility::PlaySound(sfxPowerupBullet[gRndTiles]);
             if (p.GetMaxBullets() < maxBullets) {
                 p.IncreaseMaxBullets();
             }
             break;
         case powerupBounce:
-            Utility::PlaySound(sfxPowerupBounce[rndTiles]);
+            Utility::PlaySound(sfxPowerupBounce[gRndTiles]);
             if (p.GetMaxBounce() < maxBounces) {
                 p.IncreaseMaxBounce();
             }
             break;
         case powerupSpeed:
-            Utility::PlaySound(sfxPowerupSpeed[rndTiles]);
+            Utility::PlaySound(sfxPowerupSpeed[gRndTiles]);
             if (p.GetMaxSpeed() < maxSpeed) {
                 p.IncreaseMaxSpeed();
             }

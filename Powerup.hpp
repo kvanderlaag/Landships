@@ -8,7 +8,7 @@
 extern Mix_Chunk* sfxPowerupBounce[MAX_TILESET + 1];
 extern Mix_Chunk* sfxPowerupBullet[MAX_TILESET + 1];
 extern Mix_Chunk* sfxPowerupSpeed[MAX_TILESET + 1];
-extern int rndTiles;
+extern int gRndTiles;
 
 class Powerup : public RenderableObject {
 public:

@@ -28,10 +28,10 @@
 
 
 bool gRunning = true;
-int rndTiles = 0;
-std::string wallTileNames[MAX_TILESET + 1] = { WALL_TILES_DIRT, WALL_TILES_ICE, WALL_TILES_URBAN };
+int gRndTiles = 0;
+std::string gWallTileNames[MAX_TILESET + 1] = { WALL_TILES_DIRT, WALL_TILES_ICE, WALL_TILES_URBAN };
 
-Mix_Music* gameMusic[MAX_TILESET + 1] = { NULL, NULL, NULL };
+Mix_Music* gGameMusic[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Music* introMusic[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Music* menuMusic = { NULL };
 Mix_Chunk* sfxFire = NULL;
@@ -100,9 +100,9 @@ int main(int argc, char** argv) {
         Quit(4);
     }
 
-    gameMusic[0] = Utility::LoadMusic(GAME_MUSIC1);
-    gameMusic[1] = Utility::LoadMusic(GAME_MUSIC2);
-    gameMusic[2] = Utility::LoadMusic(GAME_MUSIC3);
+    gGameMusic[0] = Utility::LoadMusic(GAME_MUSIC1);
+    gGameMusic[1] = Utility::LoadMusic(GAME_MUSIC2);
+    gGameMusic[2] = Utility::LoadMusic(GAME_MUSIC3);
 
     introMusic[0] = Utility::LoadMusic(INTRO_MUSIC1);
     introMusic[1] = Utility::LoadMusic(INTRO_MUSIC2);
@@ -127,7 +127,7 @@ int main(int argc, char** argv) {
     sfxPowerupSpeed[1] = Utility::LoadSound(SFX_POWERUP_SPEED2);
     sfxPowerupSpeed[2] = Utility::LoadSound(SFX_POWERUP_SPEED3);
 
-    if (gameMusic[0] == nullptr || sfxFire == nullptr || sfxBounce[0] == nullptr || sfxBounce[1] == nullptr
+    if (gGameMusic[0] == nullptr || sfxFire == nullptr || sfxBounce[0] == nullptr || sfxBounce[1] == nullptr
         || sfxBounce[2] == nullptr || sfxDie == nullptr ) {
         std::cout << "Could not load sound effects. Exiting." << std::endl;
         Quit(5);
@@ -204,9 +204,9 @@ int main(int argc, char** argv) {
             //mapfilename = "default.d";
 
         std::uniform_int_distribution<int> distTiles(0,MAX_TILESET);
-        rndTiles = distTiles(generator);
+        gRndTiles = distTiles(generator);
 
-        Map m(mapfilename, wallTileNames[rndTiles], ren);
+        Map m(mapfilename, gWallTileNames[gRndTiles], ren);
         if (!m.LoadSuccess()) {
             std::cout << "Level file " << mapfilename << " not a valid map.";
             exit(10);
@@ -277,9 +277,9 @@ int main(int argc, char** argv) {
         vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &m));
         RenderableObject::next++;
 
-        //Mix_PlayMusic(introMusic[rndTiles], 0);
+        //Mix_PlayMusic(introMusic[gRndTiles], 0);
         //SDL_Delay(700);
-        Utility::PlayMusic(gameMusic[rndTiles]);
+        Utility::PlayMusic(gGameMusic[gRndTiles]);
 
         bool running = true;
         int timeToExit = 0;
@@ -1013,7 +1013,7 @@ int main(int argc, char** argv) {
                 SDL_Surface* surf = SDL_CreateRGBSurface(0, 320, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
 
 
-                SDL_FillRect(surf, NULL, backgroundColor[rndTiles]);
+                SDL_FillRect(surf, NULL, backgroundColor[gRndTiles]);
                 SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surf);
                 SDL_FreeSurface(surf);
 
@@ -1301,7 +1301,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < MAX_TILESET + 1; ++i)
         Mix_FreeChunk(sfxPowerupSpeed[i]);
     for (int i = 0; i < MAX_TILESET + 1; ++i)
-        Mix_FreeMusic(gameMusic[i]);
+        Mix_FreeMusic(gGameMusic[i]);
     for (int i = 0; i < MAX_TILESET + 1; ++i)
         Mix_FreeMusic(introMusic[i]);
 
@@ -1472,6 +1472,10 @@ int Menu() {
                 }
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
+                    case SDLK_LALT:
+                    case SDLK_RALT:
+                        altHeld = true;
+                        break;
                     case SDLK_ESCAPE:
                     case SDLK_END:
                         menuRunning = false;
@@ -1481,8 +1485,17 @@ int Menu() {
                         playersIn[0] = true;
                         break;
                     case SDLK_RETURN:
-                        if (playersInCount > 0)
+                        if (altHeld) {
+                            if (fullscreen) {
+                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
+                                fullscreen = false;
+                            } else {
+                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                                fullscreen = true;
+                            }
+                        } else if (playersInCount > 0) {
                             mapSelect = true;
+                        }
                         break;
                     case SDLK_UP:
                         playersUpHeld[0] = true;
@@ -1501,6 +1514,9 @@ int Menu() {
                     case SDLK_DOWN:
                         playersDownHeld[0] = false;
                         break;
+                    case SDLK_LALT:
+                    case SDLK_RALT:
+                        altHeld = false;
                 }
             }
 
@@ -1795,11 +1811,27 @@ Options* OptionsMenu() {
               return nullptr;
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
+                    case SDLK_LALT:
+                    case SDLK_RALT:
+                        altHeld = true;
+                        break;
                     case SDLK_END:
                     case SDLK_ESCAPE:
                         return nullptr;
                         break;
                     case SDLK_RETURN:
+                        if (altHeld) {
+                            if (fullscreen) {
+                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
+                                fullscreen = false;
+                            } else {
+                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                                fullscreen = true;
+                            }
+                        } else {
+                            optionsMenuRunning = false;
+                        }
+                        break;
                     case SDLK_SPACE:
                         optionsMenuRunning = false;
                         break;
@@ -1833,6 +1865,10 @@ Options* OptionsMenu() {
                         break;
                     case SDLK_RIGHT:
                         playersRightHeld[0] = false;
+                        break;
+                    case SDLK_LALT:
+                    case SDLK_RALT:
+                        altHeld = false;
                         break;
                 } // switch e.key.keysym.sym
             } else if (e.type == SDL_JOYAXISMOTION) {
@@ -2077,13 +2113,6 @@ Options* OptionsMenu() {
 int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
     bool WinScreenRunning = true;
 
-    SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
-    SDL_RenderClear(ren);
-
-    std::stringstream WinnerString;
-    std::string scoreString = "Score";
-    std::stringstream p1scoreString, p2scoreString, p3scoreString, p4scoreString;
-
     std::vector<int> vWinners;
 
     for (int i = 0; i < 4; ++i) {
@@ -2091,7 +2120,61 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
             vWinners.push_back(i + 1);
     }
 
-    switch (vWinners.size()) {
+    while (WinScreenRunning) {
+        SDL_Event e;
+
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                return -1;
+            } else if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_RETURN:
+                        if (altHeld) {
+                            if (fullscreen) {
+                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
+                                fullscreen = false;
+                            } else {
+                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                                fullscreen = true;
+                            }
+                        } else {
+                            WinScreenRunning = false;
+                        }
+                        break;
+                    case SDLK_SPACE:
+                    case SDLK_ESCAPE:
+                    case SDLK_END:
+                    case SDLK_PAUSE:
+                        WinScreenRunning = false;
+                    break;
+                    case SDLK_LALT:
+                    case SDLK_RALT:
+                        altHeld = true;
+                        break;
+
+                }
+            } else if (e.type == SDL_KEYUP) {
+                switch (e.key.keysym.sym) {
+                        case SDLK_LALT:
+                        case SDLK_RALT:
+                            altHeld = false;
+                }
+            } else if (e.type == SDL_JOYBUTTONDOWN) {
+                switch (e.jbutton.button) {
+                    case JBUTTON_A:
+                    case JBUTTON_START:
+                    case JBUTTON_BACK:
+                        WinScreenRunning = false;
+                    break;
+                }
+            }
+        }
+
+        std::stringstream WinnerString;
+        std::string scoreString = "Score";
+        std::stringstream p1scoreString, p2scoreString, p3scoreString, p4scoreString;
+
+        switch (vWinners.size()) {
         case 0:
             WinnerString << "No Contest!";
             break;
@@ -2107,124 +2190,100 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
         case 4:
             WinnerString << "Tie game!";
             break;
-    }
-
-    p1scoreString << "Player 1: " << players[0].GetScore();
-    p2scoreString << "Player 2: " << players[1].GetScore();
-    p3scoreString << "Player 3: " << players[2].GetScore();
-    p4scoreString << "Player 4: " << players[3].GetScore();
-
-    int winnersW, winnersH;
-    int scoreW, scoreH;
-    int p1W, p1H;
-    int p2W, p2H;
-    int p3W, p3H;
-    int p4W, p4H;
-
-    SDL_Color c = { 0xFF, 0xFF, 0xFF, 0xFF };
-
-    SDL_Texture* winnersTex = Utility::RenderText(WinnerString.str(), GAME_FONT, c, 18, ren);
-    SDL_Texture* scoreTex = Utility::RenderText(scoreString, GAME_FONT, c, 16, ren);
-    SDL_Texture* p1Tex = Utility::RenderText(p1scoreString.str(), GAME_FONT, c, 14, ren);
-    SDL_Texture* p2Tex = Utility::RenderText(p2scoreString.str(), GAME_FONT, c, 14, ren);
-    SDL_Texture* p3Tex = Utility::RenderText(p3scoreString.str(), GAME_FONT, c, 14, ren);
-    SDL_Texture* p4Tex = Utility::RenderText(p4scoreString.str(), GAME_FONT, c, 14, ren);
-
-    SDL_QueryTexture(winnersTex, NULL, NULL, &winnersW, &winnersH);
-    SDL_QueryTexture(scoreTex, NULL, NULL, &scoreW, &scoreH);
-    SDL_QueryTexture(p1Tex, NULL, NULL, &p1W, &p1H);
-    SDL_QueryTexture(p2Tex, NULL, NULL, &p2W, &p2H);
-    SDL_QueryTexture(p3Tex, NULL, NULL, &p3W, &p3H);
-    SDL_QueryTexture(p4Tex, NULL, NULL, &p4W, &p4H);
-
-    SDL_Rect winnersRect, scoreRect, p1Rect, p2Rect, p3Rect, p4Rect;
-
-    winnersRect.x = (SCREEN_WIDTH / 2) - (winnersW / 2);
-    winnersRect.y = (SCREEN_HEIGHT / 2) - (winnersH / 2);
-    winnersRect.h = winnersH;
-    winnersRect.w = winnersW;
-
-    scoreRect.x = (SCREEN_WIDTH / 2) - (scoreW / 2);
-    scoreRect.y = (SCREEN_HEIGHT / 2) + (winnersH / 2) + 4;
-    scoreRect.w = scoreW;
-    scoreRect.h = scoreH;
-
-    int verticalOffset = (SCREEN_HEIGHT / 2) + (winnersH / 2) + 4 + scoreH + 2;
-
-    if (playersIn[0]) {
-        p1Rect.x = (SCREEN_WIDTH / 2) - (p1W / 2);
-        p1Rect.y = verticalOffset;
-        p1Rect.h = p1H;
-        p1Rect.w = p1W;
-        verticalOffset += p1H + 2;
-        SDL_RenderCopy(ren, p1Tex, NULL, &p1Rect);
-    }
-
-    if (playersIn[1]) {
-        p2Rect.x = (SCREEN_WIDTH / 2) - (p2W / 2);
-        p2Rect.y = verticalOffset;
-        p2Rect.h = p2H;
-        p2Rect.w = p2W;
-        verticalOffset += p2H + 2;
-        SDL_RenderCopy(ren, p2Tex, NULL, &p2Rect);
-    }
-
-    if (playersIn[2]) {
-        p3Rect.x = (SCREEN_WIDTH / 2) - (p3W / 2);
-        p3Rect.y = verticalOffset;
-        p3Rect.h = p3H;
-        p3Rect.w = p3W;
-        verticalOffset += p3H + 2;
-        SDL_RenderCopy(ren, p3Tex, NULL, &p3Rect);
-    }
-
-    if (playersIn[3]) {
-        p4Rect.x = (SCREEN_WIDTH / 2) - (p4W / 2);
-        p4Rect.y = verticalOffset;
-        p4Rect.h = p4H;
-        p4Rect.w = p4W;
-        verticalOffset += p4H + 2;
-        SDL_RenderCopy(ren, p4Tex, NULL, &p4Rect);
-    }
-
-    SDL_RenderCopy(ren, winnersTex, NULL, &winnersRect);
-    SDL_RenderCopy(ren, scoreTex, NULL, &scoreRect);
-
-    SDL_RenderPresent(ren);
-
-    SDL_DestroyTexture(winnersTex);
-    SDL_DestroyTexture(scoreTex);
-    SDL_DestroyTexture(p1Tex);
-    SDL_DestroyTexture(p2Tex);
-    SDL_DestroyTexture(p3Tex);
-    SDL_DestroyTexture(p4Tex);
-
-    while (WinScreenRunning) {
-        SDL_Event e;
-
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                return -1;
-            } else if (e.type == SDL_KEYDOWN) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_RETURN:
-                    case SDLK_SPACE:
-                    case SDLK_ESCAPE:
-                    case SDLK_END:
-                    case SDLK_PAUSE:
-                        WinScreenRunning = false;
-                    break;
-                }
-            } else if (e.type == SDL_JOYBUTTONDOWN) {
-                switch (e.jbutton.button) {
-                    case JBUTTON_A:
-                    case JBUTTON_START:
-                    case JBUTTON_BACK:
-                        WinScreenRunning = false;
-                    break;
-                }
-            }
         }
+
+        p1scoreString << "Player 1: " << players[0].GetScore();
+        p2scoreString << "Player 2: " << players[1].GetScore();
+        p3scoreString << "Player 3: " << players[2].GetScore();
+        p4scoreString << "Player 4: " << players[3].GetScore();
+
+        int winnersW, winnersH;
+        int scoreW, scoreH;
+        int p1W, p1H;
+        int p2W, p2H;
+        int p3W, p3H;
+        int p4W, p4H;
+
+        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+        SDL_RenderClear(ren);
+
+        SDL_Color c = { 0xFF, 0xFF, 0xFF, 0xFF };
+
+        SDL_Texture* winnersTex = Utility::RenderText(WinnerString.str(), GAME_FONT, c, 18, ren);
+        SDL_Texture* scoreTex = Utility::RenderText(scoreString, GAME_FONT, c, 16, ren);
+        SDL_Texture* p1Tex = Utility::RenderText(p1scoreString.str(), GAME_FONT, c, 14, ren);
+        SDL_Texture* p2Tex = Utility::RenderText(p2scoreString.str(), GAME_FONT, c, 14, ren);
+        SDL_Texture* p3Tex = Utility::RenderText(p3scoreString.str(), GAME_FONT, c, 14, ren);
+        SDL_Texture* p4Tex = Utility::RenderText(p4scoreString.str(), GAME_FONT, c, 14, ren);
+
+        SDL_QueryTexture(winnersTex, NULL, NULL, &winnersW, &winnersH);
+        SDL_QueryTexture(scoreTex, NULL, NULL, &scoreW, &scoreH);
+        SDL_QueryTexture(p1Tex, NULL, NULL, &p1W, &p1H);
+        SDL_QueryTexture(p2Tex, NULL, NULL, &p2W, &p2H);
+        SDL_QueryTexture(p3Tex, NULL, NULL, &p3W, &p3H);
+        SDL_QueryTexture(p4Tex, NULL, NULL, &p4W, &p4H);
+
+        SDL_Rect winnersRect, scoreRect, p1Rect, p2Rect, p3Rect, p4Rect;
+
+        winnersRect.x = (SCREEN_WIDTH / 2) - (winnersW / 2);
+        winnersRect.y = (SCREEN_HEIGHT / 2) - (winnersH / 2);
+        winnersRect.h = winnersH;
+        winnersRect.w = winnersW;
+
+        scoreRect.x = (SCREEN_WIDTH / 2) - (scoreW / 2);
+        scoreRect.y = (SCREEN_HEIGHT / 2) + (winnersH / 2) + 4;
+        scoreRect.w = scoreW;
+        scoreRect.h = scoreH;
+
+        int verticalOffset = (SCREEN_HEIGHT / 2) + (winnersH / 2) + 4 + scoreH + 2;
+
+        if (playersIn[0]) {
+            p1Rect.x = (SCREEN_WIDTH / 2) - (p1W / 2);
+            p1Rect.y = verticalOffset;
+            p1Rect.h = p1H;
+            p1Rect.w = p1W;
+            verticalOffset += p1H + 2;
+            SDL_RenderCopy(ren, p1Tex, NULL, &p1Rect);
+        }
+
+        if (playersIn[1]) {
+            p2Rect.x = (SCREEN_WIDTH / 2) - (p2W / 2);
+            p2Rect.y = verticalOffset;
+            p2Rect.h = p2H;
+            p2Rect.w = p2W;
+            verticalOffset += p2H + 2;
+            SDL_RenderCopy(ren, p2Tex, NULL, &p2Rect);
+        }
+
+        if (playersIn[2]) {
+            p3Rect.x = (SCREEN_WIDTH / 2) - (p3W / 2);
+            p3Rect.y = verticalOffset;
+            p3Rect.h = p3H;
+            p3Rect.w = p3W;
+            verticalOffset += p3H + 2;
+            SDL_RenderCopy(ren, p3Tex, NULL, &p3Rect);
+        }
+
+        if (playersIn[3]) {
+            p4Rect.x = (SCREEN_WIDTH / 2) - (p4W / 2);
+            p4Rect.y = verticalOffset;
+            p4Rect.h = p4H;
+            p4Rect.w = p4W;
+            verticalOffset += p4H + 2;
+            SDL_RenderCopy(ren, p4Tex, NULL, &p4Rect);
+        }
+
+        SDL_RenderCopy(ren, winnersTex, NULL, &winnersRect);
+        SDL_RenderCopy(ren, scoreTex, NULL, &scoreRect);
+
+        SDL_RenderPresent(ren);
+
+        SDL_DestroyTexture(winnersTex);
+        SDL_DestroyTexture(scoreTex);
+        SDL_DestroyTexture(p1Tex);
+        SDL_DestroyTexture(p2Tex);
+        SDL_DestroyTexture(p3Tex);
+        SDL_DestroyTexture(p4Tex);
     }
 
     return 0;
@@ -2298,11 +2357,28 @@ int Title() {
                     Quit(0);
                 }
             } else if (e.type == SDL_KEYDOWN) {
-                if (e.key.keysym.sym == SDLK_RETURN && fadeInDone) {
-                    titleRunning = false;
-                }
-                if (e.key.keysym.sym == SDLK_ESCAPE) {
+                if (e.key.keysym.sym == SDLK_RETURN) {
+                        if (altHeld) {
+                            if (fullscreen) {
+                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
+                                fullscreen = false;
+                            } else {
+                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                                fullscreen = true;
+                            }
+                        } else if (fadeInDone) {
+                            titleRunning = false;
+                        }
+                } else if (e.key.keysym.sym == SDLK_ESCAPE) {
                     Quit(0);
+                } else if (e.key.keysym.sym == SDLK_LALT || e.key.keysym.sym == SDLK_RALT) {
+                    altHeld = true;
+                }
+            } else if (e.type == SDL_KEYUP) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_LALT:
+                    case SDLK_RALT:
+                        altHeld = false;
                 }
             }
         }
