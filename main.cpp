@@ -1441,16 +1441,23 @@ int Menu() {
                         }
                         break;
                     case JBUTTON_DPADUP:
-                        if (mapSelected > 0)
-                            mapSelected--;
+                        playersUpHeld[index] = true;
+                        playersDownHeld[index] = false;
                         break;
                     case JBUTTON_DPADDOWN:
-                        if (mapSelected < mapCount)
-                            mapSelected++;
+                        playersDownHeld[index] = true;
+                        playersUpHeld[index] = false;
                         break;
                 }
-            } else if (e.type == SDL_JOYBUTTONUP) {
-
+            } else if (e.type == SDL_JOYBUTTONUP) { // if e.type == SDL_JOYBUTTONDOWN
+                switch (e.jbutton.button) {
+                    case JBUTTON_DPADUP:
+                        playersUpHeld[index] = false;
+                        break;
+                    case JBUTTON_DPADDOWN:
+                        playersDownHeld[index] = false;
+                        break;
+                } // switch e.jbutton.button
             } else if (e.type == SDL_JOYAXISMOTION) {
                 if (e.jaxis.axis == JAXIS_MOVEY) {
                     if (e.jaxis.value > JOYMOVE_DEADZONE) {
@@ -1479,12 +1486,21 @@ int Menu() {
                             mapSelect = true;
                         break;
                     case SDLK_UP:
-                        if (mapSelected > 0)
-                            mapSelected--;
+                        playersUpHeld[0] = true;
+                        playersDownHeld[0] = false;
                         break;
                     case SDLK_DOWN:
-                        if (mapSelected < mapCount)
-                            mapSelected++;
+                        playersDownHeld[0] = true;
+                        playersUpHeld[0] = false;
+                        break;
+                }
+            } else if (e.type == SDL_KEYUP) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_UP:
+                        playersUpHeld[0] = false;
+                        break;
+                    case SDLK_DOWN:
+                        playersDownHeld[0] = false;
                         break;
                 }
             }
@@ -1502,7 +1518,7 @@ int Menu() {
                             ticksSinceMove[i] = cursorRepeat;
                     }
                 } else if (playersDownHeld[i]) {
-                    if (mapSelected < mapCount) {
+                    if (mapSelected < mapCount - 1) {
                             mapSelected++;
                             ticksSinceMove[i] = cursorRepeat;
                     }
@@ -1746,9 +1762,35 @@ Options* OptionsMenu() {
     //int time = MIN_TIME + ((MAX_TIME - MIN_TIME) / 2);
     //int stock = MIN_STOCK + ((MAX_STOCK - MIN_STOCK) / 2);
 
+    const int cursorRepeat = 500;
+    int ticksSinceMove[4] = {0, 0, 0, 0};
+    bool playersUpHeld[4] = { false, false, false, false };
+    bool playersDownHeld[4] = {false, false, false, false };
+    bool playersLeftHeld[4] = { false, false, false, false };
+    bool playersRightHeld[4] = {false, false, false, false };
+
+    uint32_t nowTime, renderTime;
+
+    renderTime = nowTime = SDL_GetTicks();
+
     while (optionsMenuRunning) {
+
+        uint32_t frameTime = SDL_GetTicks() - nowTime;
+        nowTime = SDL_GetTicks();
+
+
+        int index = -1;
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP || e.type == SDL_JOYAXISMOTION) {
+                for (int i = 0; i < maxPlayers; ++i) {
+                    if (SDL_JoystickInstanceID(gController[i]) == e.jaxis.which) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+
             if (e.type == SDL_QUIT) {
               return nullptr;
             } else if (e.type == SDL_KEYDOWN) {
@@ -1762,46 +1804,61 @@ Options* OptionsMenu() {
                         optionsMenuRunning = false;
                         break;
                     case SDLK_RIGHT:
-                        switch (gameType) {
-                            case SCORE_MATCH:
-                                if (score < MAX_SCORE)
-                                    score++;
-                                break;
-                            case STOCK_MATCH:
-                                if (stock < MAX_STOCK)
-                                    stock++;
-                                break;
-                            case TIME_MATCH:
-                                if (time < MAX_TIME)
-                                    time++;
-                                break;
-                        } // switch gameType
+                        playersRightHeld[0] = true;
+                        playersLeftHeld[0] = false;
                         break;
                     case SDLK_LEFT:
-                        switch (gameType) {
-                            case SCORE_MATCH:
-                                if (score > MIN_SCORE)
-                                    score--;
-                                break;
-                            case STOCK_MATCH:
-                                if (stock > MIN_STOCK)
-                                    stock--;
-                                break;
-                            case TIME_MATCH:
-                                if (time > MIN_TIME)
-                                    time--;
-                                break;
-                        } // switch gameType
-                        break;
-                    case SDLK_DOWN:
-                        if (gameType > SCORE_MATCH)
-                            gameType--;
+                        playersLeftHeld[0] = true;
+                        playersRightHeld[0] = false;
                         break;
                     case SDLK_UP:
-                        if (gameType < TIME_MATCH)
-                            gameType++;
+                        playersUpHeld[0] = true;
+                        playersDownHeld[0] = false;
+                        break;
+                    case SDLK_DOWN:
+                        playersUpHeld[0] = false;
+                        playersDownHeld[0] = true;
                         break;
                 } // switch e.key.keysym.sym
+            } else if (e.type == SDL_KEYUP) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_UP:
+                        playersUpHeld[0] = false;
+                        break;
+                    case SDLK_DOWN:
+                        playersDownHeld[0] = false;
+                        break;
+                    case SDLK_LEFT:
+                        playersLeftHeld[0] = false;
+                        break;
+                    case SDLK_RIGHT:
+                        playersRightHeld[0] = false;
+                        break;
+                } // switch e.key.keysym.sym
+            } else if (e.type == SDL_JOYAXISMOTION) {
+                if (e.jaxis.axis == JAXIS_MOVEY) {
+                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
+                        playersDownHeld[index] = true;
+                        playersUpHeld[index] = false;
+                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
+                        playersUpHeld[index] = true;
+                        playersDownHeld[index] = false;
+                    } else {
+                        playersDownHeld[index] = false;
+                        playersUpHeld[index] = false;
+                    }
+                } else if (e.jaxis.axis == JAXIS_MOVEX) {
+                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
+                        playersRightHeld[index] = true;
+                        playersLeftHeld[index] = false;
+                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
+                        playersLeftHeld[index] = true;
+                        playersRightHeld[index] = false;
+                    } else {
+                        playersLeftHeld[index] = false;
+                        playersRightHeld[index] = false;
+                    }
+                }
             } else if (e.type == SDL_JOYBUTTONDOWN) {
                 switch (e.jbutton.button) {
                     case JBUTTON_BACK:
@@ -1811,32 +1868,73 @@ Options* OptionsMenu() {
                     case JBUTTON_A:
                         optionsMenuRunning = false;
                         break;
-                    case JBUTTON_DPADDOWN:
-                        if (gameType > SCORE_MATCH)
-                            gameType--;
-                        break;
                     case JBUTTON_DPADUP:
-                        if (gameType < TIME_MATCH)
-                            gameType++;
+                        playersUpHeld[index] = true;
+                        playersDownHeld[index] = false;
+                        break;
+                    case JBUTTON_DPADDOWN:
+                        playersUpHeld[index] = false;
+                        playersDownHeld[index] = true;
                         break;
                     case JBUTTON_DPADLEFT:
-                        switch (gameType) {
-                            case SCORE_MATCH:
-                                if (score > MIN_SCORE)
-                                    score--;
-                                break;
-                            case STOCK_MATCH:
-                                if (stock > MIN_STOCK)
-                                    stock--;
-                                break;
-                            case TIME_MATCH:
-                                if (time > MIN_TIME)
-                                    time--;
-                                break;
-                        } // switch gameType
+                        playersLeftHeld[index] = true;
+                        playersRightHeld[index] = false;
                         break;
                     case JBUTTON_DPADRIGHT:
-                        switch (gameType) {
+                        playersLeftHeld[index] = false;
+                        playersRightHeld[index] = true;
+
+                        break;
+                } // switch e.jbutton.button
+            } else if (e.type == SDL_JOYBUTTONUP) { // if e.type == SDL_JOYBUTTONDOWN
+                switch (e.jbutton.button) {
+                    case JBUTTON_DPADUP:
+                        playersUpHeld[index] = false;
+                        break;
+                    case JBUTTON_DPADDOWN:
+                        playersDownHeld[index] = false;
+                        break;
+                    case JBUTTON_DPADLEFT:
+                        playersLeftHeld[index] = false;
+                        break;
+                    case JBUTTON_DPADRIGHT:
+                        playersRightHeld[index] = false;
+                        break;
+                } // switch e.jbutton.button
+            } // if e.type == SDL_JOYBUTTONUP
+        } // While SDL_PollEvent()
+
+
+        for (int i = 0; i < 4; ++i) {
+            if (ticksSinceMove[i] > 0) {
+                ticksSinceMove[i] = std::max((uint32_t) 0, ticksSinceMove[i] - frameTime);
+            } else  {
+                if (playersUpHeld[i]) {
+                    if (gameType > SCORE_MATCH)
+                            gameType--;
+                    ticksSinceMove[i] = cursorRepeat;
+                } else if (playersDownHeld[i]) {
+                    if (gameType < TIME_MATCH)
+                            gameType++;
+                    ticksSinceMove[i] = cursorRepeat;
+                } else if (playersLeftHeld[i]) {
+                    switch (gameType) {
+                        case SCORE_MATCH:
+                            if (score > MIN_SCORE)
+                                score--;
+                            break;
+                        case STOCK_MATCH:
+                            if (stock > MIN_STOCK)
+                                stock--;
+                            break;
+                        case TIME_MATCH:
+                            if (time > MIN_TIME)
+                                time--;
+                            break;
+                    } // switch gameType
+                    ticksSinceMove[i] = cursorRepeat;
+                } else if (playersRightHeld[i]) {
+                    switch (gameType) {
                             case SCORE_MATCH:
                                 if (score < MAX_SCORE)
                                     score++;
@@ -1850,65 +1948,127 @@ Options* OptionsMenu() {
                                     time++;
                                 break;
                         } // switch gameType
-                        break;
-                } // switch e.jbutton.button
-            } // if e.type == SDL_JOYBUTTONDOWN
-        } // While SDL_PollEvent()
+                    ticksSinceMove[i] = cursorRepeat;
+                }
+            }
+        }
 
-        SDL_Texture* gameTypeTexture = nullptr;
-        int gameTypeWidth, gameTypeHeight;
+        if (SDL_TICKS_PASSED(nowTime - renderTime, RENDER_INTERVAL) ) {
+            SDL_Texture* gameTypeTexture = nullptr;
+            int gameTypeWidth, gameTypeHeight;
 
-        SDL_Texture* gameValueTexture = nullptr;
-        int gameValueWidth, gameValueHeight;
+            SDL_Texture* gameValueTexture = nullptr;
+            int gameValueWidth, gameValueHeight;
 
-        std::string gameTypeString = "Game Type: ";
-        std::stringstream gameValueString;
+            SDL_Texture* arrowTexture = Utility::LoadTexture(ren, "Arrows.png");
+            int arrowWidth, arrowHeight;
+            SDL_QueryTexture(arrowTexture, NULL, NULL, &arrowWidth, &arrowHeight);
 
-        switch (gameType) {
-            case SCORE_MATCH:
-                gameTypeString += "Score";
-                gameValueString << "Score: " << score;
-                break;
-            case STOCK_MATCH:
-                gameTypeString += "Stock";
-                gameValueString << "Stock: " << stock;
-                break;
-            case TIME_MATCH:
-                gameTypeString += "Time";
-                gameValueString << "Time: " << time;
-                break;
-        } // switch gameType
+            std::string gameTypeString = "Game Type: ";
+            std::stringstream gameValueString;
 
-        SDL_Color white = { 0xFF, 0xFF, 0xFF, 0xFF };
+            switch (gameType) {
+                case SCORE_MATCH:
+                    gameTypeString += "Score";
+                    gameValueString << "Score: " << score;
+                    break;
+                case STOCK_MATCH:
+                    gameTypeString += "Stock";
+                    gameValueString << "Stock: " << stock;
+                    break;
+                case TIME_MATCH:
+                    gameTypeString += "Time";
+                    gameValueString << "Time: " << time;
+                    break;
+            } // switch gameType
 
-        gameTypeTexture = Utility::RenderText(gameTypeString, GAME_FONT, white, 12, ren);
-        gameValueTexture = Utility::RenderText(gameValueString.str(), GAME_FONT, white, 12, ren);
+            SDL_Color white = { 0xFF, 0xFF, 0xFF, 0xFF };
 
-        SDL_QueryTexture(gameTypeTexture, NULL, NULL, &gameTypeWidth, &gameTypeHeight);
-        SDL_QueryTexture(gameValueTexture, NULL, NULL, &gameValueWidth, &gameValueHeight);
+            gameTypeTexture = Utility::RenderText(gameTypeString, GAME_FONT, white, 12, ren);
+            gameValueTexture = Utility::RenderText(gameValueString.str(), GAME_FONT, white, 12, ren);
 
-        SDL_Rect gameTypeRect, gameValueRect;
+            SDL_QueryTexture(gameTypeTexture, NULL, NULL, &gameTypeWidth, &gameTypeHeight);
+            SDL_QueryTexture(gameValueTexture, NULL, NULL, &gameValueWidth, &gameValueHeight);
 
-        gameTypeRect.x = (320 / 2) - (gameTypeWidth / 2);
-        gameTypeRect.y = (240 / 2) - (gameTypeHeight / 2) - 2;
-        gameTypeRect.w = gameTypeWidth;
-        gameTypeRect.h = gameTypeHeight;
+            SDL_Rect gameTypeRect, gameValueRect;
 
-        gameValueRect.x = (320 / 2) - (gameValueWidth / 2);
-        gameValueRect.y = (240 / 2) + (gameValueHeight / 2) + 2;
-        gameValueRect.w = gameValueWidth;
-        gameValueRect.h = gameValueHeight;
+            SDL_Rect lArrowSrcRect, rArrowSrcRect;
+            SDL_Rect uArrowSrcRect, dArrowSrcRect;
 
-        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
-        SDL_RenderClear(ren);
+            lArrowSrcRect.x = 0;
+            lArrowSrcRect.y = 0;
+            lArrowSrcRect.h = arrowHeight;
+            lArrowSrcRect.w = arrowWidth / 4;
 
-        SDL_RenderCopy(ren, gameTypeTexture, NULL, &gameTypeRect);
-        SDL_RenderCopy(ren, gameValueTexture, NULL, &gameValueRect);
+            rArrowSrcRect.x = 8;
+            rArrowSrcRect.y = 0;
+            rArrowSrcRect.h = arrowHeight;
+            rArrowSrcRect.w = arrowWidth / 4;
 
-        SDL_DestroyTexture(gameTypeTexture);
-        SDL_DestroyTexture(gameValueTexture);
+            uArrowSrcRect.x = 16;
+            uArrowSrcRect.y = 0;
+            uArrowSrcRect.h = arrowHeight;
+            uArrowSrcRect.w = arrowWidth / 4;
 
-        SDL_RenderPresent(ren);
+            dArrowSrcRect.x = 24;
+            dArrowSrcRect.y = 0;
+            dArrowSrcRect.h = arrowHeight;
+            dArrowSrcRect.w = arrowWidth / 4;
+
+
+            SDL_Rect lArrowDestRect, rArrowDestRect;
+            SDL_Rect uArrowDestRect, dArrowDestRect;
+
+
+
+            gameTypeRect.x = (320 / 2) - (gameTypeWidth / 2);
+            gameTypeRect.y = (240 / 2) - (gameTypeHeight / 2) - 2;
+            gameTypeRect.w = gameTypeWidth;
+            gameTypeRect.h = gameTypeHeight;
+
+            gameValueRect.x = (320 / 2) - (gameValueWidth / 2);
+            gameValueRect.y = (240 / 2) + (gameValueHeight / 2) + 2;
+            gameValueRect.w = gameValueWidth;
+            gameValueRect.h = gameValueHeight;
+
+            uArrowDestRect.x = (320 / 2) - (arrowWidth / 4 / 2);
+            uArrowDestRect.y = (240 / 2) - (gameTypeHeight / 2) - 2 - (arrowHeight);
+            uArrowDestRect.h = arrowHeight;
+            uArrowDestRect.w = arrowWidth / 4;
+
+            dArrowDestRect.x = (320 / 2) - (arrowWidth / 4 / 2);
+            dArrowDestRect.y = (240 / 2) + (gameTypeHeight / 2 ) + (gameValueHeight) + 1;
+            dArrowDestRect.h = arrowHeight;
+            dArrowDestRect.w = arrowWidth / 4;
+
+            lArrowDestRect.x = gameValueRect.x - 2 - (arrowWidth / 4);
+            lArrowDestRect.y = gameValueRect.y + 2;
+            lArrowDestRect.h  = arrowHeight;
+            lArrowDestRect.w = arrowWidth / 4;
+
+            rArrowDestRect.x = gameValueRect.x + gameValueWidth + 2;
+            rArrowDestRect.y = gameValueRect.y + 2;
+            rArrowDestRect.h  = arrowHeight;
+            rArrowDestRect.w = arrowWidth / 4;
+
+            SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+            SDL_RenderClear(ren);
+
+
+
+            SDL_RenderCopy(ren, gameTypeTexture, NULL, &gameTypeRect);
+            SDL_RenderCopy(ren, gameValueTexture, NULL, &gameValueRect);
+            SDL_RenderCopy(ren, arrowTexture, &uArrowSrcRect, &uArrowDestRect);
+            SDL_RenderCopy(ren, arrowTexture, &dArrowSrcRect, &dArrowDestRect);
+            SDL_RenderCopy(ren, arrowTexture, &lArrowSrcRect, &lArrowDestRect);
+            SDL_RenderCopy(ren, arrowTexture, &rArrowSrcRect, &rArrowDestRect);
+
+            SDL_DestroyTexture(gameTypeTexture);
+            SDL_DestroyTexture(gameValueTexture);
+            SDL_DestroyTexture(arrowTexture);
+
+            SDL_RenderPresent(ren);
+        }
     } // while optionsMenuRunning
 
     return new Options(gameType, score, stock, time);
@@ -2100,11 +2260,31 @@ int Title() {
     int ticksElapsed = 0;
 
     int time = SDL_GetTicks();
+    int renderTime = SDL_GetTicks();
 
     const int fadeInTicks = 2000;
+    const int flashTicks = 500;
     bool fadeInDone = false;
+    bool flash = true;
+
+    int numJoysticks = 0;
 
     while (titleRunning) {
+
+        if (SDL_NumJoysticks() > 0 && SDL_NumJoysticks() != numJoysticks) {
+            numJoysticks = SDL_NumJoysticks();
+            for (int i = 0; i < 4; ++i) {
+                playersIn[i] = false;
+            }
+            maxPlayers = std::min(SDL_NumJoysticks(), 4);
+            for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
+                gController[i] = SDL_JoystickOpen(i);
+                if (gController[i] == NULL) {
+                    std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
+                    Quit(2);
+                }
+            }
+        }
 
         uint32_t frameTime = SDL_GetTicks() - time;
         time = SDL_GetTicks();
@@ -2129,10 +2309,17 @@ int Title() {
             }
         }
 
-        if (ticksElapsed < fadeInTicks) {
+        if (!fadeInDone) {
             ticksElapsed += frameTime;
             if (ticksElapsed >= fadeInTicks) {
                 fadeInDone = true;
+                ticksElapsed = 0;
+            }
+        } else {
+            ticksElapsed += frameTime;
+            if (ticksElapsed > flashTicks) {
+                ticksElapsed = 0;
+                flash = !flash;
             }
         }
 
@@ -2140,36 +2327,42 @@ int Title() {
         if (!fadeInDone) {
             alpha = 255 - ((float) ticksElapsed / fadeInTicks * 255);
         }
-        SDL_Surface* surf = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
-        SDL_FillRect(surf, NULL, SDL_MapRGBA(surf->format, 0x00, 0x00, 0x00, alpha));
-        SDL_Texture* fadeTex = SDL_CreateTextureFromSurface(ren, surf);
-        SDL_FreeSurface(surf);
 
-        SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
-        SDL_Texture* startTexture = Utility::RenderText("Press Start", GAME_FONT, white, 16, ren);
-        int startW, startH;
-        SDL_QueryTexture(startTexture, NULL, NULL, &startW, &startH);
+        if (SDL_TICKS_PASSED(time - renderTime, RENDER_INTERVAL) ) {
 
-        SDL_Rect startRect;
+            renderTime = SDL_GetTicks();
 
-        startRect.x = (SCREEN_WIDTH / 2) - (startW / 2);
-        startRect.y = (SCREEN_HEIGHT / 2) + (SCREEN_HEIGHT / 4);
-        startRect.w = startW;
-        startRect.h = startH;
 
-        SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
-        SDL_RenderClear(ren);
-        SDL_RenderCopy(ren, titleTexture, NULL, NULL);
-        SDL_RenderCopy(ren, fadeTex, NULL, NULL);
+            SDL_Surface* surf = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
+            SDL_FillRect(surf, NULL, SDL_MapRGBA(surf->format, 0x00, 0x00, 0x00, alpha));
+            SDL_Texture* fadeTex = SDL_CreateTextureFromSurface(ren, surf);
+            SDL_FreeSurface(surf);
 
-        if (fadeInDone) {
-            SDL_RenderCopy(ren, startTexture, NULL, &startRect);
+            SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
+            SDL_Texture* startTexture = Utility::RenderText("Press Start", GAME_FONT, white, 16, ren);
+            int startW, startH;
+            SDL_QueryTexture(startTexture, NULL, NULL, &startW, &startH);
+
+            SDL_Rect startRect;
+
+            startRect.x = (SCREEN_WIDTH / 2) - (startW / 2);
+            startRect.y = (SCREEN_HEIGHT / 2) + (SCREEN_HEIGHT / 4);
+            startRect.w = startW;
+            startRect.h = startH;
+
+            SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+            SDL_RenderClear(ren);
+            SDL_RenderCopy(ren, titleTexture, NULL, NULL);
+            SDL_RenderCopy(ren, fadeTex, NULL, NULL);
+
+            if (fadeInDone & flash) {
+                SDL_RenderCopy(ren, startTexture, NULL, &startRect);
+            }
+
+            SDL_RenderPresent(ren);
+            SDL_DestroyTexture(fadeTex);
+            SDL_DestroyTexture(startTexture);
         }
-
-        SDL_RenderPresent(ren);
-        SDL_DestroyTexture(fadeTex);
-        SDL_DestroyTexture(startTexture);
-
 
     }
     SDL_DestroyTexture(titleTexture);
