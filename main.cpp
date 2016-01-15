@@ -764,7 +764,8 @@ int main(int argc, char** argv) {
                     }
                 }
                 for (Player* p_other : vPlayers) {
-                    p->CheckCollision(p_other->GetCollider(), frame_time);
+                    if (!p_other->IsDead())
+                        p->CheckCollision(p_other->GetCollider(), frame_time);
 
                 }
                 for (Container* c : vContainers) {
