@@ -9,6 +9,7 @@
 #include <iostream>
 #include <numeric>
 #include <cmath>
+#include <cstring>
 
 #include "Vector2D.hpp"
 #include "Rectangle.hpp"
@@ -28,6 +29,8 @@ public:
     static void PlayMusic(Mix_Music* m);
     static void PlaySound(Mix_Chunk* m);
     static void PlaySound(Mix_Chunk* m, const int volume);
+    static void FireRumble(SDL_Haptic* h);
+    static void DieRumble(SDL_Haptic* h);
 private:
 
 };

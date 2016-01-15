@@ -20,6 +20,8 @@
 
 #define MAX_TILESET 2
 
+#define GAME_END_TICKS 2000
+
 #define GAME_MUSIC1 "music1.ogg"
 #define GAME_MUSIC2 "music1.ogg"
 #define GAME_MUSIC3 "music1.ogg"

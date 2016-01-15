@@ -55,6 +55,7 @@ bool fullscreen = true;
 SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
 SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
+SDL_Haptic* gHaptic[4] = { NULL, NULL, NULL, NULL };
 
 const int JOYTURRET_DEADZONE = 12000;
 const int JOYMOVE_DEADZONE = 12000;
@@ -68,6 +69,7 @@ int Menu();
 Options* OptionsMenu();
 int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]);
 void Quit(int status);
+void CheckJoysticks();
 
 int main(int argc, char** argv) {
 
@@ -76,7 +78,7 @@ int main(int argc, char** argv) {
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |SDL_INIT_JOYSTICK) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC ) < 0) {
         std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
         Quit(1);
     }
@@ -136,19 +138,7 @@ int main(int argc, char** argv) {
 
 
     // Initialize joysticks
-    //const int JOYSTICK_DEADZONE = 10000;
-
-
-    if (SDL_NumJoysticks() > 0) {
-        maxPlayers = std::min(SDL_NumJoysticks(), 4);
-        for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
-            gController[i] = SDL_JoystickOpen(i);
-            if (gController[i] == NULL) {
-                std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
-                Quit(2);
-            }
-        }
-    }
+    CheckJoysticks();
 
     int playerx, playery;
     playerx = (SCREEN_WIDTH / 2);
@@ -292,6 +282,7 @@ int main(int argc, char** argv) {
         Utility::PlayMusic(gameMusic[rndTiles]);
 
         bool running = true;
+        int timeToExit = 0;
 
         std::uniform_int_distribution<int> containerSpawnDist(5000, 30000);
         int32_t containerSpawnTicks = containerSpawnDist(generator);
@@ -303,52 +294,58 @@ int main(int argc, char** argv) {
             uint32_t frame_time = std::min(new_time - old_time, (uint32_t) 30);
             old_time = new_time;
 
-            switch (gameOptions->GetMatchType()) {
-                case TIME_MATCH:
-                    if (gameTime > frame_time) {
-                        gameTime -= frame_time;
-                    } else {
-                        int highScore = INT_MIN;
-                        for (int i = 0; i < 4; ++i) {
-                            if (players[i].GetScore() >= highScore && playersIn[i]) {
-                                highScore = players[i].GetScore();
+            if (timeToExit > 0) {
+                timeToExit -= frame_time;
+                if (timeToExit <= 0)
+                    running = false;
+            } else {
+                switch (gameOptions->GetMatchType()) {
+                    case TIME_MATCH:
+                        if (gameTime > frame_time) {
+                            gameTime -= frame_time;
+                        } else {
+                            int highScore = INT_MIN;
+                            for (int i = 0; i < 4; ++i) {
+                                if (players[i].GetScore() >= highScore && playersIn[i]) {
+                                    highScore = players[i].GetScore();
+                                }
                             }
+                            for (int i = 0; i < 4; ++i) {
+                                if (players[i].GetScore() == highScore && playersIn[i]) {
+                                    winningPlayer[i] = true;
+                                }
+                            }
+                            timeToExit = GAME_END_TICKS;
                         }
+                        break;
+                    case SCORE_MATCH:
                         for (int i = 0; i < 4; ++i) {
-                            if (players[i].GetScore() == highScore && playersIn[i]) {
+                            if (players[i].GetScore() >= gameOptions->GetScore() ) {
                                 winningPlayer[i] = true;
                             }
                         }
-                        running = false;
-                    }
-                    break;
-                case SCORE_MATCH:
-                    for (int i = 0; i < 4; ++i) {
-                        if (players[i].GetScore() >= gameOptions->GetScore() ) {
-                            winningPlayer[i] = true;
+                        for (int i = 0; i < 4; ++i) {
+                            if (winningPlayer[i]) {
+                                timeToExit = GAME_END_TICKS;
+                            }
                         }
-                    }
-                    for (int i = 0; i < 4; ++i) {
-                        if (winningPlayer[i]) {
-                            running = false;
+                        break;
+                    case STOCK_MATCH:
+                        int playersAlive = 0;
+                        for (int i = 0; i < 4; ++i) {
+                            if (players[i].IsDead()) {
+                                winningPlayer[i] = false;
+                            } else if (playersIn[i]) {
+                                playersAlive++;
+                            }
                         }
-                    }
-                    break;
-                case STOCK_MATCH:
-                    int playersAlive = 0;
-                    for (int i = 0; i < 4; ++i) {
-                        if (players[i].IsDead()) {
-                            winningPlayer[i] = false;
-                        } else if (playersIn[i]) {
-                            playersAlive++;
+                        if (playersAlive < std::min(maxPlayers + 1, 2)) {
+                            timeToExit = GAME_END_TICKS;
                         }
-                    }
-                    if (playersAlive < std::min(maxPlayers + 1, 2)) {
-                        running = false;
-                    }
 
 
-                    break;
+                        break;
+                }
             }
 
             if (running == false) {
@@ -632,6 +629,7 @@ int main(int argc, char** argv) {
                 if (players[i].FireHeld() && players[i].FireReady() && players[i].FireReleased()) {
                     Bullet* b = players[i].Fire();
                         if (b != nullptr) {
+                            Utility::FireRumble(gHaptic[i]);
                             vBullets.insert(std::pair<int, Bullet*>(Bullet::next, b));
                             vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, b));
                             RenderableObject::next++;
@@ -858,6 +856,7 @@ int main(int argc, char** argv) {
                                 NewExplosion(pl->GetX(), pl->GetY(), ren, vRenderable, vExplosions);
 
                                 Utility::PlaySound(sfxDie);
+                                Utility::DieRumble(gHaptic[pl->GetID()]);
                                 if (gameOptions->GetMatchType() == STOCK_MATCH && pl->GetLives() == 1) {
                                     pl->Die();
                                 } else {
@@ -1279,6 +1278,9 @@ int main(int argc, char** argv) {
     for (int i = 0; i < maxPlayers; ++i) {
         SDL_JoystickClose(gController[i]);
         gController[i] = NULL;
+        SDL_HapticClose(gHaptic[i]);
+        gHaptic[i] = NULL;
+
     }
 
     SDL_DestroyWindow(win);
@@ -1394,14 +1396,7 @@ int Menu() {
             for (int i = 0; i < 4; ++i) {
                 playersIn[i] = false;
             }
-            maxPlayers = std::min(SDL_NumJoysticks(), 4);
-            for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
-                gController[i] = SDL_JoystickOpen(i);
-                if (gController[i] == NULL) {
-                    std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
-                    Quit(2);
-                }
-            }
+            CheckJoysticks();
         }
 
         uint32_t frameTime = SDL_GetTicks() - time;
@@ -2282,14 +2277,7 @@ int Title() {
             for (int i = 0; i < 4; ++i) {
                 playersIn[i] = false;
             }
-            maxPlayers = std::min(SDL_NumJoysticks(), 4);
-            for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
-                gController[i] = SDL_JoystickOpen(i);
-                if (gController[i] == NULL) {
-                    std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
-                    Quit(2);
-                }
-            }
+            CheckJoysticks();
         }
 
         uint32_t frameTime = SDL_GetTicks() - time;
@@ -2373,4 +2361,23 @@ int Title() {
     }
     SDL_DestroyTexture(titleTexture);
     return 0;
+}
+
+void CheckJoysticks() {
+    if (SDL_NumJoysticks() > 0) {
+            maxPlayers = std::min(SDL_NumJoysticks(), 4);
+            for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
+                gController[i] = SDL_JoystickOpen(i);
+                //std::cout << "Haptic devices: " << SDL_NumHaptics() << std::endl;
+                gHaptic[i] = SDL_HapticOpen(i);
+                if (gHaptic[i] == NULL) {
+                    //std::cout << "Joystick " << i << " is not haptic." << std::endl;
+                }
+
+                if (gController[i] == NULL) {
+                    std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
+                    Quit(2);
+                }
+            }
+        }
 }
