@@ -1430,6 +1430,10 @@ int Menu() {
 
     uint32_t time = SDL_GetTicks();
 
+    int topLevel = 0;
+    int maxLevelsDisplayed = 10;
+    int bottomLevel = 17;
+
     while (menuRunning) {
 
         if (SDL_NumJoysticks() > 0 && SDL_NumJoysticks() != numJoysticks) {
@@ -1617,11 +1621,20 @@ int Menu() {
                 if (playersUpHeld[i]) {
                     if (mapSelected > 0) {
                             mapSelected--;
+                            if (mapSelected < topLevel) {
+                                topLevel--;
+                                bottomLevel--;
+                            }
+
                             ticksSinceMove[i] = cursorRepeat;
                     }
                 } else if (playersDownHeld[i]) {
                     if (mapSelected < mapCount - 1) {
                             mapSelected++;
+                            if (mapSelected > bottomLevel) {
+                                bottomLevel++;
+                                topLevel++;
+                            }
                             ticksSinceMove[i] = cursorRepeat;
                     }
                 }
@@ -1817,12 +1830,16 @@ int Menu() {
         {
             SDL_Color grey = { 0x60, 0x60, 0x60, 0xFF };
             int i = 0;
+            int j = 0;
             for (std::string filename : levelFiles) {
+                if (j < topLevel || j > bottomLevel) {
+                    j++;
+                    continue;
+                }
 
+                SDL_Texture* fileTex = NULL;
 
-                SDL_Texture* fileTex;
-
-                if (mapSelected == i) {
+                if (mapSelected == j) {
                     fileTex = Utility::RenderText(filename, GAME_FONT, white, 10, ren);
                 } else {
                     fileTex = Utility::RenderText(filename, GAME_FONT, grey, 10, ren);
@@ -1830,15 +1847,17 @@ int Menu() {
 
                 int fileHeight, fileWidth;
                 SDL_QueryTexture(fileTex, NULL, NULL, &fileWidth, &fileHeight);
+
                 SDL_Rect fileRect;
                 fileRect.x = 320 + 2;
                 fileRect.y = i * fileHeight + i * 2;
                 fileRect.w = fileWidth;
                 fileRect.h = fileHeight;
 
-                if (i * fileHeight + i * 2 < 240 - fileHeight - 2)
-                    SDL_RenderCopy(ren, fileTex, NULL, &fileRect);
+                //if (i * fileHeight + i * 2 < 240 - fileHeight - 2)
+                SDL_RenderCopy(ren, fileTex, NULL, &fileRect);
                 i++;
+                j++;
                 SDL_DestroyTexture(fileTex);
             }
         }
