@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC ) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |SDL_INIT_JOYSTICK ) < 0) {
         std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
         Quit(1);
     }
@@ -126,11 +126,23 @@ int main(int argc, char** argv) {
     sfxPowerupSpeed[1] = Utility::LoadSound(SFX_POWERUP_SPEED2);
     sfxPowerupSpeed[2] = Utility::LoadSound(SFX_POWERUP_SPEED3);
 
-    if (gGameMusic[0] == nullptr || sfxFire == nullptr || sfxBounce[0] == nullptr || sfxBounce[1] == nullptr
-        || sfxBounce[2] == nullptr || sfxDie == nullptr ) {
-        std::cout << "Could not load sound effects. Exiting." << std::endl;
+    if (gGameMusic[0] == nullptr || gGameMusic[1] == nullptr || gGameMusic[2] == nullptr) {
+        std::cout << "Could not load sound music. Exiting." << std::endl;
         Quit(5);
-        return 5;
+    }
+
+    if (sfxFire == nullptr || sfxBounce[0] == nullptr || sfxBounce[1] == nullptr
+        || sfxBounce[2] == nullptr || sfxDie == nullptr ) {
+            std::cout << "Could not load sound effects. Exiting." << std::endl;
+        Quit(6);
+    }
+
+    if (sfxPowerupSpeed[0] == nullptr || sfxPowerupSpeed[1] == nullptr || sfxPowerupSpeed[2] == nullptr ||
+        sfxPowerupBullet[0] == nullptr || sfxPowerupBullet[1] == nullptr || sfxPowerupBullet[2] == nullptr ||
+        sfxPowerupBounce[0] == nullptr || sfxPowerupBounce[1] == nullptr || sfxPowerupBounce[2] == nullptr )
+        {
+        std::cout << "Could not load powerup sound effects. Exiting." << std::endl;
+        Quit(7);
     }
 
 
@@ -144,15 +156,32 @@ int main(int argc, char** argv) {
     playery = (SCREEN_HEIGHT / 2);
 
     win = SDL_CreateWindow("Tanks", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_SHOWN);
+    if (win == NULL) {
+        std::cout << "Error creating window. SDL_Error: " << SDL_GetError() << std::endl;
+        Quit(8);
+    }
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
-    SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    if (SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
+        std::cout << "Error setting fullscreen video mode. SDL_Error: " << SDL_GetError() << std::endl;
+    }
     SDL_ShowCursor(0);
 
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+    if (ren == NULL) {
+        std::cout << "Error creating accelerated renderer. Falling back to software. SDL_Error: " << SDL_GetError() << std::endl;
+        ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_SOFTWARE);
+        if (ren == NULL) {
+            std::cout << "Error creating software renderer. Exiting. SDL_Error: " << SDL_GetError() << std::endl;
+            Quit(9);
+        }
+    }
 
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
-    SDL_RenderSetLogicalSize(ren, SCREEN_WIDTH, SCREEN_HEIGHT);
+    if (SDL_RenderSetLogicalSize(ren, SCREEN_WIDTH, SCREEN_HEIGHT) < 0) {
+        std::cout << "Error setting logical size of renderer. SDL_Error: " << SDL_GetError() << std::endl;
+        Quit(10);
+    }
 
     uint32_t rmask, gmask, bmask, amask;
         #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -168,11 +197,11 @@ int main(int argc, char** argv) {
         #endif // SDL_BIG_ENDIAN
 
     SDL_Surface* rSurface = SDL_CreateRGBSurface(0, 1, 1, 32, rmask, gmask, bmask, amask);
-        uint32_t backgroundColor[MAX_TILESET + 1] = { SDL_MapRGB(rSurface->format, 0x20, 0x20, 0x05),
-                                                SDL_MapRGB(rSurface->format, 0x00, 0x00, 0x40),
-                                                SDL_MapRGB(rSurface->format, 0x30, 0x30, 0x30)
-                                            };
-        SDL_FreeSurface(rSurface);
+    uint32_t backgroundColor[MAX_TILESET + 1] = { SDL_MapRGB(rSurface->format, 0x20, 0x20, 0x05),
+                                            SDL_MapRGB(rSurface->format, 0x00, 0x00, 0x40),
+                                            SDL_MapRGB(rSurface->format, 0x30, 0x30, 0x30)
+                                        };
+    SDL_FreeSurface(rSurface);
 
     bool loopGame = true;
 
