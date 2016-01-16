@@ -613,7 +613,7 @@ int main(int argc, char** argv) {
                         }
                         if (!overlap) {
                             Container* c = new Container(cX * 8, cY * 8, ren);
-                            std::cout << "Creating new container at (" << cX << ", " << cY << ")" << std::endl;
+                            //std::cout << "Creating new container at (" << cX << ", " << cY << ")" << std::endl;
                             vContainers.push_back(c);
                             vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, c));
                             RenderableObject::next++;
