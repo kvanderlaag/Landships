@@ -1,11 +1,16 @@
 #include "Options.hpp"
 
-Options::Options(int type, const int score, const int stock, const int time) :
+Options::Options(int type, const int score, const int stock, const int time, const bool goBack) :
     mMatchType(type),
     mStock(stock),
     mScore(score),
-    mTime(time)
+    mTime(time),
+    mBack(goBack)
 {
+
+}
+
+Options::~Options() {
 
 }
 
@@ -23,4 +28,8 @@ const int Options::GetScore() const {
 
 const int Options::GetTime() const {
     return mTime;
+}
+
+const bool Options::Back() const {
+    return mBack;
 }

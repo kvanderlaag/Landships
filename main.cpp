@@ -92,10 +92,12 @@ void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int,
 int Title();
 int Menu();
 int ControllerSelect();
+int DisplayControls();
 Options* OptionsMenu();
 int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]);
 void Quit(int status);
 void CheckJoysticks();
+
 
 int main(int argc, char** argv) {
 
@@ -240,11 +242,15 @@ int main(int argc, char** argv) {
         Quit(0);
     }
 
+    if (DisplayControls() == -1) {
+        Quit(0);
+    }
+
     while (loopGame) {
 
-
-        Mix_FadeInMusic(menuMusic, -1, 1000);
-
+        if (!Mix_PlayingMusic()) {
+            Mix_FadeInMusic(menuMusic, -1, 1000);
+        }
         if (Menu() == -1) {
             Quit(0);
         }
@@ -252,6 +258,9 @@ int main(int argc, char** argv) {
         Options* gameOptions = OptionsMenu();
         if (gameOptions == nullptr) {
             Quit(0);
+        } else if (gameOptions->Back() == true) {
+            delete gameOptions;
+            continue;
         }
         Mix_FadeOutMusic(500);
         SDL_Delay(500);
@@ -1326,6 +1335,8 @@ int main(int argc, char** argv) {
 
         }
 
+        delete gameOptions;
+
         if (loopGame) {
             Mix_FadeOutMusic(200);
             if (WinScreen(winningPlayer, players) == -1) {
@@ -2007,8 +2018,8 @@ Options* OptionsMenu() {
                     }
                 }
             } else if (e.type == SDL_JOYBUTTONDOWN) {
-                if (e.jbutton.button == JBUTTON_BACK) {
-                        return nullptr;
+                if (e.jbutton.button == JBUTTON_BACK || e.jbutton.button == JBUTTON_B) {
+                        return new Options(gameType, score, stock, time, true);
                 } else if (e.jbutton.button == JBUTTON_START || e.jbutton.button == JBUTTON_A) {
                         optionsMenuRunning = false;
                         break;
@@ -2242,7 +2253,7 @@ Options* OptionsMenu() {
         }
     } // while optionsMenuRunning
 
-    return new Options(gameType, score, stock, time);
+    return new Options(gameType, score, stock, time, false);
 }
 
 int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
@@ -2913,6 +2924,239 @@ int ControllerSelect() {
         JAXIS_FIRE            = 0x04;
 
     }
+
+    return 0;
+}
+
+
+int DisplayControls() {
+    bool controlsDisplayRunning = true;
+
+    const int cursorRepeatV = MENU_REPEAT_VERT_TICKS;
+    const int cursorRepeatH = MENU_REPEAT_HORIZ_TICKS;
+    int ticksSinceMove[4] = {0, 0, 0, 0};
+    bool playersUpHeld[4] = { false, false, false, false };
+    bool playersDownHeld[4] = {false, false, false, false };
+    bool playersLeftHeld[4] = { false, false, false, false };
+    bool playersRightHeld[4] = {false, false, false, false };
+
+
+    SDL_Texture* controlsTex = NULL;
+
+    if (controllerType == XBOX_360_CONTROLLER) {
+        controlsTex = Utility::LoadTexture(ren, XBOX_CONTROLS_IMG);
+
+    } else if (controllerType == PS4_CONTROLLER) {
+        controlsTex = Utility::LoadTexture(ren, PS4_CONTROLS_IMG);
+    }
+
+    uint32_t nowTime, renderTime;
+
+    renderTime = nowTime = SDL_GetTicks();
+
+    while (controlsDisplayRunning) {
+
+        uint32_t frameTime = SDL_GetTicks() - nowTime;
+        nowTime = SDL_GetTicks();
+
+        CheckJoysticks();
+
+
+        int index = -1;
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP || e.type == SDL_JOYAXISMOTION || e.type == SDL_JOYHATMOTION) {
+                for (int i = 0; i < maxPlayers; ++i) {
+                    if (SDL_JoystickInstanceID(gController[i]) == e.jdevice.which) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+
+            if (e.type == SDL_QUIT) {
+              return -1;
+            } else if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_LALT:
+                    case SDLK_RALT:
+                        altHeld = true;
+                        break;
+                    case SDLK_END:
+                    case SDLK_ESCAPE:
+                        return -1;
+                        break;
+                    case SDLK_RETURN:
+                        if (altHeld) {
+                            if (fullscreen) {
+                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
+                                fullscreen = false;
+                            } else {
+                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                                fullscreen = true;
+                            }
+                        } else {
+                            controlsDisplayRunning = false;
+                        }
+                        break;
+                    case SDLK_SPACE:
+                        controlsDisplayRunning = false;
+                        break;
+                    case SDLK_RIGHT:
+                        playersRightHeld[0] = true;
+                        playersLeftHeld[0] = false;
+                        break;
+                    case SDLK_LEFT:
+                        playersLeftHeld[0] = true;
+                        playersRightHeld[0] = false;
+                        break;
+                    case SDLK_UP:
+                        playersUpHeld[0] = true;
+                        playersDownHeld[0] = false;
+                        break;
+                    case SDLK_DOWN:
+                        playersUpHeld[0] = false;
+                        playersDownHeld[0] = true;
+                        break;
+                } // switch e.key.keysym.sym
+            } else if (e.type == SDL_KEYUP) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_UP:
+                        playersUpHeld[0] = false;
+                        break;
+                    case SDLK_DOWN:
+                        playersDownHeld[0] = false;
+                        break;
+                    case SDLK_LEFT:
+                        playersLeftHeld[0] = false;
+                        break;
+                    case SDLK_RIGHT:
+                        playersRightHeld[0] = false;
+                        break;
+                    case SDLK_LALT:
+                    case SDLK_RALT:
+                        altHeld = false;
+                        break;
+                } // switch e.key.keysym.sym
+            } else if (e.type == SDL_JOYAXISMOTION) {
+                if (e.jaxis.axis == JAXIS_MOVEY) {
+                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
+                        playersDownHeld[index] = true;
+                        playersUpHeld[index] = false;
+                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
+                        playersUpHeld[index] = true;
+                        playersDownHeld[index] = false;
+                    } else {
+                        playersDownHeld[index] = false;
+                        playersUpHeld[index] = false;
+                    }
+                } else if (e.jaxis.axis == JAXIS_MOVEX) {
+                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
+                        playersRightHeld[index] = true;
+                        playersLeftHeld[index] = false;
+                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
+                        playersLeftHeld[index] = true;
+                        playersRightHeld[index] = false;
+                    } else {
+                        playersLeftHeld[index] = false;
+                        playersRightHeld[index] = false;
+                    }
+                }
+            } else if (e.type == SDL_JOYBUTTONDOWN && e.jbutton.button == JBUTTON_START) {
+                controlsDisplayRunning = false;
+                break;
+            } else if (e.type == SDL_JOYBUTTONUP) { // if e.type == SDL_JOYBUTTONDOWN
+                switch (e.jbutton.button) {
+                } // switch e.jbutton.button
+            } else if (e.type == SDL_JOYHATMOTION) {
+                switch (e.jhat.value) {
+                    case JBUTTON_DPADCENTER:
+                        playersUpHeld[index] = false;
+                        playersDownHeld[index] = false;
+                        playersLeftHeld[index] = false;
+                        playersRightHeld[index] = false;
+                        break;
+                    case JBUTTON_DPADUP:
+                        playersUpHeld[index] = true;
+                        playersDownHeld[index] = false;
+                        playersLeftHeld[index] = false;
+                        playersRightHeld[index] = false;
+                        break;
+                    case JBUTTON_DPADUPRIGHT:
+                        playersUpHeld[index] = true;
+                        playersDownHeld[index] = false;
+                        playersLeftHeld[index] = false;
+                        playersRightHeld[index] = true;
+                        break;
+                    case JBUTTON_DPADRIGHT:
+                        playersUpHeld[index] = false;
+                        playersDownHeld[index] = false;
+                        playersLeftHeld[index] = false;
+                        playersRightHeld[index] = true;
+                        break;
+                    case JBUTTON_DPADDOWNRIGHT:
+                        playersUpHeld[index] = false;
+                        playersDownHeld[index] = true;
+                        playersLeftHeld[index] = false;
+                        playersRightHeld[index] = true;
+                        break;
+                    case JBUTTON_DPADDOWN:
+                        playersUpHeld[index] = false;
+                        playersDownHeld[index] = true;
+                        playersLeftHeld[index] = false;
+                        playersRightHeld[index] = false;
+                        break;
+                    case JBUTTON_DPADDOWNLEFT:
+                        playersUpHeld[index] = false;
+                        playersDownHeld[index] = true;
+                        playersLeftHeld[index] = true;
+                        playersRightHeld[index] = false;
+                        break;
+                    case JBUTTON_DPADLEFT:
+                        playersUpHeld[index] = false;
+                        playersDownHeld[index] = false;
+                        playersLeftHeld[index] = true;
+                        playersRightHeld[index] = false;
+                        break;
+                    case JBUTTON_DPADUPLEFT:
+                        playersUpHeld[index] = true;
+                        playersDownHeld[index] = false;
+                        playersLeftHeld[index] = true;
+                        playersRightHeld[index] = false;
+                        break;
+                }
+            }
+        } // While SDL_PollEvent()
+
+
+        for (int i = 0; i < 4; ++i) {
+            if (ticksSinceMove[i] > 0) {
+                ticksSinceMove[i] = std::max((uint32_t) 0, ticksSinceMove[i] - frameTime);
+            } else  {
+                if (playersUpHeld[i]) {
+                    ticksSinceMove[i] = cursorRepeatV;
+                } else if (playersDownHeld[i]) {
+                    ticksSinceMove[i] = cursorRepeatV;
+                } else if (playersLeftHeld[i]) {
+                    ticksSinceMove[i] = cursorRepeatH;
+                } else if (playersRightHeld[i]) {
+                    ticksSinceMove[i] = cursorRepeatH;
+                }
+            }
+        }
+
+        if (SDL_TICKS_PASSED(nowTime - renderTime, RENDER_INTERVAL) ) {
+
+            SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
+            SDL_RenderClear(ren);
+
+            SDL_RenderCopy(ren, controlsTex, NULL, NULL);
+
+            SDL_RenderPresent(ren);
+        }
+    }
+
+    SDL_DestroyTexture(controlsTex);
 
     return 0;
 }
