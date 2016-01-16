@@ -54,6 +54,7 @@ int JAXIS_FIRE            = 0x05;
 
 
 bool gRunning = true;
+bool software = false;
 int gRndTiles = 0;
 std::string gWallTileNames[MAX_TILESET + 1] = { WALL_TILES_DIRT, WALL_TILES_ICE, WALL_TILES_URBAN };
 
@@ -195,18 +196,32 @@ int main(int argc, char** argv) {
     }
     SDL_ShowCursor(0);
 
-    ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-    if (ren == NULL) {
-        std::cout << "Error creating accelerated renderer. Falling back to software. SDL_Error: " << SDL_GetError() << std::endl;
-        ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_SOFTWARE);
-        if (ren == NULL) {
-            std::cout << "Error creating software renderer. Exiting. SDL_Error: " << SDL_GetError() << std::endl;
-            Quit(9);
+    if (argc > 1) {
+        if (strcmp(argv[1], "-software") == 0) {
+            ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_SOFTWARE);
+            software = true;
+            if (ren == NULL) {
+                std::cout << "Error creating software renderer. Exiting. SDL_Error: " << SDL_GetError() << std::endl;
+                Quit(9);
+            }
         }
+    } else {
+        ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+        if (ren == NULL) {
+            std::cout << "Error creating accelerated renderer. Falling back to software. SDL_Error: " << SDL_GetError() << std::endl;
+            ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_SOFTWARE);
+            software = true;
+            if (ren == NULL) {
+                std::cout << "Error creating software renderer. Exiting. SDL_Error: " << SDL_GetError() << std::endl;
+                Quit(9);
+            }
+       }
     }
 
 
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
+    if (!software)
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
+
     if (SDL_RenderSetLogicalSize(ren, SCREEN_WIDTH, SCREEN_HEIGHT) < 0) {
         std::cout << "Error setting logical size of renderer. SDL_Error: " << SDL_GetError() << std::endl;
         Quit(10);
@@ -266,10 +281,12 @@ int main(int argc, char** argv) {
         SDL_Delay(500);
         uint32_t gameTime = gameOptions->GetTime() * 1000;
 
+        #ifdef _LEVEL_DEBUG
         if (argc > 1)
             mapfilename = argv[1];
-        //else
-            //mapfilename = "default.d";
+        else
+            mapfilename = "default.d";
+        #endif
 
         std::uniform_int_distribution<int> distTiles(0,MAX_TILESET);
         gRndTiles = distTiles(generator);
