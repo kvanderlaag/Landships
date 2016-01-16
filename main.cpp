@@ -1431,7 +1431,6 @@ int Menu() {
     uint32_t time = SDL_GetTicks();
 
     int topLevel = 0;
-    int maxLevelsDisplayed = 10;
     int bottomLevel = 17;
 
     while (menuRunning) {
@@ -1836,6 +1835,12 @@ int Menu() {
                     j++;
                     continue;
                 }
+
+                filename.resize(filename.size() - 2);
+                if (filename.size() > 8) {
+                    filename.resize(8);
+                }
+
 
                 SDL_Texture* fileTex = NULL;
 
