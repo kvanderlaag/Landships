@@ -1471,7 +1471,6 @@ int Menu() {
             if (e.type == SDL_QUIT) {
                 menuRunning = false;
                 quit = true;
-                break;
             }
             /*
             if (e.type == SDL_JOYHATMOTION) {
@@ -1504,7 +1503,6 @@ int Menu() {
                 } else if (e.jbutton.button == JBUTTON_BACK) {
                     menuRunning = false;
                     quit = true;
-                    break;
                 } else if (e.jbutton.button == JBUTTON_START) {
                     if (playersInCount > 1) {
                         mapSelect = true;
@@ -1591,7 +1589,7 @@ int Menu() {
                     case SDLK_ESCAPE:
                     case SDLK_END:
                         menuRunning = false;
-                        return -1;
+                        quit = true;
                         break;
                     case SDLK_SPACE:
                         playersIn[0] = true;
