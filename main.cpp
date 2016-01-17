@@ -102,10 +102,12 @@ Options* OptionsMenu();
 int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]);
 void Quit(int status);
 void CheckJoysticks();
+void FinalQuit();
 
 
 int main(int argc, char** argv) {
 
+    atexit(FinalQuit);
     freopen("error.log", "w", stdout);
 
     uint32_t ticks = SDL_GetTicks();
@@ -3175,7 +3177,7 @@ int DisplayControls() {
     return 0;
 }
 
-void atexit() {
+void FinalQuit() {
     SDL_Quit();
     std::cout << "SDL_Quit() successful" << std::endl;
 }
