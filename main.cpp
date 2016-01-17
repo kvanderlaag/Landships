@@ -84,7 +84,7 @@ bool fullscreen = true;
 SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
 SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
-SDL_Haptic* gHaptic[4] = { NULL, NULL, NULL, NULL };
+//SDL_Haptic* gHaptic[4] = { NULL, NULL, NULL, NULL };
 PlayerInput* gInput[4] = {nullptr, nullptr, nullptr, nullptr};
 
 const int JOYTURRET_DEADZONE = 12000;
@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |SDL_INIT_JOYSTICK) < 0) {
         std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
         Quit(1);
     }
@@ -732,7 +732,7 @@ int main(int argc, char** argv) {
                 if (players[i].FireHeld() && players[i].FireReady() && players[i].FireReleased()) {
                     Bullet* b = players[i].Fire();
                         if (b != nullptr) {
-                            Utility::FireRumble(gHaptic[i]);
+                            //Utility::FireRumble(gHaptic[i]);
                             vBullets.insert(std::pair<int, Bullet*>(Bullet::next, b));
                             vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, b));
                             RenderableObject::next++;
@@ -960,7 +960,7 @@ int main(int argc, char** argv) {
                                 NewExplosion(pl->GetX(), pl->GetY(), ren, vRenderable, vExplosions);
 
                                 Utility::PlaySound(sfxDie);
-                                Utility::DieRumble(gHaptic[pl->GetID()]);
+                                //Utility::DieRumble(gHaptic[pl->GetID()]);
                                 if (gameOptions->GetMatchType() == STOCK_MATCH && pl->GetLives() == 1) {
                                     pl->Die();
                                 } else {
@@ -2453,9 +2453,9 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
 void Quit(int status) {
     for (int i = 0; i < maxPlayers; ++i) {
         SDL_JoystickClose(gController[i]);
-        SDL_HapticClose(gHaptic[i]);
+        //SDL_HapticClose(gHaptic[i]);
         gController[i] = NULL;
-        gHaptic[i] = NULL;
+        //gHaptic[i] = NULL;
     }
 
     SDL_DestroyRenderer(ren);
@@ -2642,12 +2642,15 @@ void CheckJoysticks() {
             maxPlayers = std::min(SDL_NumJoysticks(), 4);
             for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
                 //std::cout << "Joystick " << i << ": " << SDL_JoystickNameForIndex(i) << std::endl;
-                gController[i] = SDL_JoystickOpen(i);
+                if (gController[i] != SDL_JoystickOpen(i)) {
+                    free(gController[i]);
+                    gController[i] = SDL_JoystickOpen(i);
+
+                }
                 if (gController[i] == NULL) {
                     std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
                     Quit(2);
                 }
-                gHaptic[i] = SDL_HapticOpen(i);
             }
         }
 }
