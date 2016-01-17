@@ -2441,12 +2441,12 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
 }
 
 void Quit(int status) {
-    for (int i = 0; i < maxPlayers; ++i) {
-        SDL_JoystickClose(gController[i]);
-        SDL_HapticClose(gHaptic[i]);
-        gController[i] = NULL;
-        gHaptic[i] = NULL;
-    }
+    //for (int i = 0; i < maxPlayers; ++i) {
+    //    SDL_JoystickClose(gController[i]);
+    //    SDL_HapticClose(gHaptic[i]);
+    //    gController[i] = NULL;
+    //    gHaptic[i] = NULL;
+    //}
 
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
@@ -2468,13 +2468,13 @@ void Quit(int status) {
         Mix_FreeMusic(introMusic[i]);
 
     Mix_Quit();
-    std::cout << "Mix_Quit() successful" << std::endl;
+    //std::cout << "Mix_Quit() successful" << std::endl;
     TTF_Quit();
-    std::cout << "TTF_Quit() successful" << std::endl;
+    //std::cout << "TTF_Quit() successful" << std::endl;
     IMG_Quit();
-    std::cout << "IMG_Quit() successful" << std::endl;
+    //std::cout << "IMG_Quit() successful" << std::endl;
     SDL_Quit();
-    std::cout << "SDL_Quit() successful" << std::endl;
+    //std::cout << "SDL_Quit() successful" << std::endl;
     exit(status);
 
 }
