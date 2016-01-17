@@ -2628,7 +2628,7 @@ int Title() {
 }
 
 void CheckJoysticks() {
-    std::cout << "Haptic devices: " << SDL_NumHaptics() << std::endl;
+    //std::cout << "Haptic devices: " << SDL_NumHaptics() << std::endl;
     if (SDL_NumJoysticks() > 0) {
             maxPlayers = std::min(SDL_NumJoysticks(), 4);
             for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
@@ -2637,7 +2637,7 @@ void CheckJoysticks() {
                     std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
                     Quit(2);
                 }
-                gHaptic[i] = SDL_HapticOpenFromJoystick(gController[i]);
+                gHaptic[i] = SDL_HapticOpen(i);
             }
         }
 }
