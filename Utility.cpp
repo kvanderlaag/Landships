@@ -113,24 +113,7 @@ void Utility::PlaySound(Mix_Chunk* s, const int volume) {
 }
 
 void Utility::FireRumble(SDL_Haptic* h) {
-    SDL_HapticEffect effect;
-
-    memset( &effect, 0, sizeof(SDL_HapticEffect) ); // 0 is safe default
-    effect.type = SDL_HAPTIC_SINE;
-    effect.periodic.direction.type = SDL_HAPTIC_POLAR; // Polar coordinates
-    effect.periodic.direction.dir[0] = 18000; // Force comes from south
-    effect.periodic.period = 1000; // 1000 ms
-    effect.periodic.magnitude = 20000; // 20000/32767 strength
-    effect.periodic.length = 5000; // 5 seconds long
-    effect.periodic.attack_length = 1000; // Takes 1 second to get max strength
-    effect.periodic.fade_length = 1000; // Takes 1 second to fade away
-
-    int effect_id = SDL_HapticNewEffect( h, &effect );
-
- // Test the effect
-    SDL_HapticRunEffect( h, effect_id, 1 );
-
-    SDL_HapticDestroyEffect(h, effect_id);
+    SDL_HapticRumblePlay( h, 0.5, 200 );
 
 }
 
