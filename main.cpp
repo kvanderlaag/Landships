@@ -2455,7 +2455,9 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
 void Quit(int status) {
     for (int i = 0; i < maxPlayers; ++i) {
         SDL_JoystickClose(gController[i]);
+        SDL_HapticClose(gHaptic[i]);
         gController[i] = NULL;
+        gHaptic[i] = NULL;
     }
 
     SDL_DestroyWindow(win);
