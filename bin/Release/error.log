@@ -1,0 +1,4 @@
+Mix_Quit() successful
+TTF_Quit() successful
+IMG_Quit() successful
+SDL_Quit() successful

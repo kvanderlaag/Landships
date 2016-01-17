@@ -2446,8 +2446,9 @@ void Quit(int status) {
         gHaptic[i] = NULL;
     }
 
-    SDL_DestroyWindow(win);
     SDL_DestroyRenderer(ren);
+    SDL_DestroyWindow(win);
+
 
     Mix_FreeChunk(sfxFire);
     Mix_FreeChunk(sfxDie);
