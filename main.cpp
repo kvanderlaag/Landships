@@ -271,7 +271,6 @@ int main(int argc, char** argv) {
     }
 
     while (loopGame) {
-        Quit(0);
         if (!Mix_PlayingMusic()) {
             Mix_FadeInMusic(menuMusic, -1, 1000);
         }
@@ -279,6 +278,7 @@ int main(int argc, char** argv) {
             loopGame = false;
             break;
         }
+        Quit(0);
 
         Options* gameOptions = OptionsMenu();
         if (gameOptions == nullptr) {
