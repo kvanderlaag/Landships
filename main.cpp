@@ -266,9 +266,9 @@ int main(int argc, char** argv) {
         Quit(0);
     }
 
-    if (DisplayControls() == -1) {
-        Quit(0);
-    }
+    //if (DisplayControls() == -1) {
+    //    Quit(0);
+    //}
 
     while (loopGame) {
 
