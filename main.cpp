@@ -2443,15 +2443,15 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
 }
 
 void Quit(int status) {
-    //for (int i = 0; i < maxPlayers; ++i) {
-    //    SDL_JoystickClose(gController[i]);
-    //    SDL_HapticClose(gHaptic[i]);
-    //    gController[i] = NULL;
-    //    gHaptic[i] = NULL;
-    //}
+    for (int i = 0; i < maxPlayers; ++i) {
+        SDL_JoystickClose(gController[i]);
+        SDL_HapticClose(gHaptic[i]);
+        gController[i] = NULL;
+        gHaptic[i] = NULL;
+    }
 
-    //SDL_DestroyRenderer(ren);
-    //SDL_DestroyWindow(win);
+    SDL_DestroyRenderer(ren);
+    SDL_DestroyWindow(win);
 
 
     Mix_FreeChunk(sfxFire);
@@ -2999,7 +2999,8 @@ int DisplayControls() {
             }
 
             if (e.type == SDL_QUIT) {
-              return -1;
+                SDL_DestroyTexture(controlsTex);
+                return -1;
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
                     case SDLK_LALT:
@@ -3008,6 +3009,7 @@ int DisplayControls() {
                         break;
                     case SDLK_END:
                     case SDLK_ESCAPE:
+                        SDL_DestroyTexture(controlsTex);
                         return -1;
                         break;
                     case SDLK_RETURN:
