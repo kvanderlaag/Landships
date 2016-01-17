@@ -64,6 +64,8 @@
 		<Unit filename="Options.hpp" />
 		<Unit filename="Player.cpp" />
 		<Unit filename="Player.hpp" />
+		<Unit filename="PlayerInput.cpp" />
+		<Unit filename="PlayerInput.hpp" />
 		<Unit filename="Point.cpp" />
 		<Unit filename="Point.hpp" />
 		<Unit filename="Powerup.cpp" />

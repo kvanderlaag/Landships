@@ -14,8 +14,8 @@
 
 #define TITLE_IMG "title.png"
 
-#define XBOX_CONTROLS_IMG "XboxControls.png"
-#define PS4_CONTROLS_IMG "XboxControls.png"
+#define XBOX_CONTROLS_IMG "360Controls.png"
+#define PS4_CONTROLS_IMG "PS4Controls.png"
 
 #define WALL_TILES_DIRT "WallTiles.png"
 #define WALL_TILES_ICE "WallTiles2.png"

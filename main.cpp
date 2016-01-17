@@ -26,6 +26,7 @@
 #include "Powerup.hpp"
 #include "Defines.hpp"
 #include "Options.hpp"
+#include "PlayerInput.hpp"
 
 const int JBUTTON_DPADUP        = 1;
 const int JBUTTON_DPADUPRIGHT   = 3;
@@ -84,6 +85,7 @@ SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
 SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 SDL_Haptic* gHaptic[4] = { NULL, NULL, NULL, NULL };
+PlayerInput* gInput[4] = {nullptr, nullptr, nullptr, nullptr};
 
 const int JOYTURRET_DEADZONE = 12000;
 const int JOYMOVE_DEADZONE = 12000;
@@ -113,6 +115,11 @@ int main(int argc, char** argv) {
         std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
         Quit(1);
     }
+
+    //gInput[0] = new PlayerInput(0);
+    //gInput[1] = new PlayerInput(1);
+    //gInput[2] = new PlayerInput(2);
+    //gInput[3] = new PlayerInput(3);
 
     if (IMG_Init(IMG_INIT_PNG) < 0) {
         std::cout << "Error initializing SDL_IMG: " << SDL_GetError() << std::endl;
@@ -375,6 +382,16 @@ int main(int argc, char** argv) {
         int32_t containerSpawnTicks = containerSpawnDist(generator);
         const int maxContainers = 5;
         int containers = 0;
+
+        /* Background texture */
+
+        SDL_Surface* surf = SDL_CreateRGBSurface(0, 320, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
+        SDL_FillRect(surf, NULL, backgroundColor[gRndTiles]);
+        SDL_Texture* bgTex = SDL_CreateTextureFromSurface(ren, surf);
+        SDL_FreeSurface(surf);
+
+        /* End of background texture */
+
 
         while (running == true) {
             uint32_t new_time = SDL_GetTicks();
@@ -1095,15 +1112,6 @@ int main(int argc, char** argv) {
             /* Render Loop */
             if (SDL_TICKS_PASSED(new_time - ticks, RENDER_INTERVAL)) {
 
-                /* Background texture */
-
-                SDL_Surface* surf = SDL_CreateRGBSurface(0, 320, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
-
-
-                SDL_FillRect(surf, NULL, backgroundColor[gRndTiles]);
-                SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surf);
-                SDL_FreeSurface(surf);
-
 
 
                 /* Clear render target */
@@ -1116,11 +1124,7 @@ int main(int argc, char** argv) {
                 bgDestRect.y = 0;
                 bgDestRect.w = 320;
                 bgDestRect.h = 240;
-                SDL_RenderCopy(ren, tex, NULL, &bgDestRect);
-
-
-                /* Delete background texture since it's recreated every frame */
-                SDL_DestroyTexture(tex);
+                SDL_RenderCopy(ren, bgTex, NULL, &bgDestRect);
 
                 /* Render all renderable objects */
                 for (std::pair<int, RenderableObject*> r : vRenderable) {
@@ -1239,23 +1243,7 @@ int main(int argc, char** argv) {
                         SDL_RenderDrawRect(ren, &frameRect);
                         SDL_RenderCopy(ren, gtypeTexture, NULL, &typeRect);
                         SDL_RenderCopy(ren, gvalueTexture, NULL, &valueRect);
-                        //SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
-                        //SDL_Surface* scoreboardSurface = SDL_CreateRGBSurface(0, 106, 240, 32, rmask, gmask, bmask, amask);
-                        //SDL_FillRect(scoreboardSurface, NULL, SDL_MapRGB(scoreboardSurface->format, 0x00, 0x00, 0x00));
-                        //SDL_Texture* scoreboardTexture = SDL_CreateTextureFromSurface(ren, scoreboardSurface);
-                        //SDL_FreeSurface(scoreboardSurface);
 
-                        //int scoreboardW, scoreboardH;
-                        //SDL_QueryTexture(scoreboardTexture, NULL, NULL, &scoreboardW, &scoreboardH);
-
-                        //SDL_Rect dstRect;
-                        //dstRect.x = 320;
-                        //dstRect.y = 0;
-                        //dstRect.w = scoreboardW;
-                        //dstRect.h = scoreboardH;
-
-                        //SDL_RenderCopy(ren, scoreboardTexture, NULL, &dstRect);
-                        //SDL_DestroyTexture(scoreboardTexture);
                         SDL_DestroyTexture(gtypeTexture);
                         SDL_DestroyTexture(gvalueTexture);
                     }
@@ -1355,6 +1343,9 @@ int main(int argc, char** argv) {
 
 
         }
+
+        /* Delete background texture since it's recreated every frame */
+        SDL_DestroyTexture(bgTex);
 
         delete gameOptions;
 
@@ -2634,6 +2625,7 @@ void CheckJoysticks() {
     if (SDL_NumJoysticks() > 0) {
             maxPlayers = std::min(SDL_NumJoysticks(), 4);
             for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
+                //std::cout << "Joystick " << i << ": " << SDL_JoystickNameForIndex(i) << std::endl;
                 gController[i] = SDL_JoystickOpen(i);
                 if (gController[i] == NULL) {
                     std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
