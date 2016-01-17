@@ -2471,8 +2471,6 @@ void Quit(int status) {
     std::cout << "TTF_Quit() successful" << std::endl;
     IMG_Quit();
     std::cout << "IMG_Quit() successful" << std::endl;
-    SDL_Quit();
-    std::cout << "SDL_Quit() successful" << std::endl;
     exit(status);
 
 }
@@ -3175,4 +3173,9 @@ int DisplayControls() {
     SDL_DestroyTexture(controlsTex);
 
     return 0;
+}
+
+void atexit() {
+    SDL_Quit();
+    std::cout << "SDL_Quit() successful" << std::endl;
 }
