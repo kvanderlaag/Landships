@@ -330,12 +330,7 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 4; i++) {
             if (players[i].GetTexture() == nullptr) {
                 std::cout << "Error loading player sprite: " << SDL_GetError() << std::endl;
-                SDL_DestroyWindow(win);
-                SDL_DestroyRenderer(ren);
-                IMG_Quit();
-                TTF_Quit();
-                SDL_Quit();
-                return 1;
+                Quit(1);
             }
         }
 
@@ -2469,9 +2464,9 @@ void Quit(int status) {
     for (int i = 0; i < MAX_TILESET + 1; ++i)
         Mix_FreeMusic(introMusic[i]);
 
-    IMG_Quit();
-    TTF_Quit();
     Mix_Quit();
+    TTF_Quit();
+    IMG_Quit();
     SDL_Quit();
     exit(status);
 
