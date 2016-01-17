@@ -1423,12 +1423,17 @@ int Menu() {
                         continue;
 
                     levelFiles.push_back(filename);
+
+                    inFile.close();
                 }
 
             }
 
         }
     }
+
+    free(dp);
+    free(de);
 
     /*
     for (std::string file : levelFiles) {
