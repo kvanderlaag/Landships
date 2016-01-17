@@ -278,7 +278,6 @@ int main(int argc, char** argv) {
             loopGame = false;
             break;
         }
-        Quit(0);
 
         Options* gameOptions = OptionsMenu();
         if (gameOptions == nullptr) {
@@ -1452,7 +1451,7 @@ int Menu() {
 
     int topLevel = 0;
     int bottomLevel = 17;
-
+    bool quit = false;
     while (menuRunning) {
 
         if (SDL_NumJoysticks() > 0 && SDL_NumJoysticks() != numJoysticks) {
@@ -1467,10 +1466,12 @@ int Menu() {
         time = SDL_GetTicks();
         SDL_Event e;
         int index = -1;
+
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 menuRunning = false;
-                return -1;
+                quit = true;
+                break;
             }
             /*
             if (e.type == SDL_JOYHATMOTION) {
@@ -1502,7 +1503,8 @@ int Menu() {
                             playersIn[index] = false;
                 } else if (e.jbutton.button == JBUTTON_BACK) {
                     menuRunning = false;
-                    return -1;
+                    quit = true;
+                    break;
                 } else if (e.jbutton.button == JBUTTON_START) {
                     if (playersInCount > 1) {
                         mapSelect = true;
@@ -1894,7 +1896,10 @@ int Menu() {
 
         SDL_RenderPresent(ren);
     }
-    return 0;
+    if (quit)
+        return -1;
+    else
+        return 0;
 }
 
 
