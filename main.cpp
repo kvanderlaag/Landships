@@ -266,12 +266,12 @@ int main(int argc, char** argv) {
         Quit(0);
     }
 
-    //if (DisplayControls() == -1) {
-    //    Quit(0);
-    //}
+    if (DisplayControls() == -1) {
+        Quit(0);
+    }
 
     while (loopGame) {
-
+        Quit(0);
         if (!Mix_PlayingMusic()) {
             Mix_FadeInMusic(menuMusic, -1, 1000);
         }
