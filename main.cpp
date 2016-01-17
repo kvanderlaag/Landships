@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_haptic.h>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -107,7 +108,7 @@ int main(int argc, char** argv) {
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |SDL_INIT_JOYSTICK ) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) < 0) {
         std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
         Quit(1);
     }
@@ -2624,6 +2625,7 @@ int Title() {
 }
 
 void CheckJoysticks() {
+    std::cout << "Haptic devices: " << SDL_NumHaptics() << std::endl;
     if (SDL_NumJoysticks() > 0) {
             maxPlayers = std::min(SDL_NumJoysticks(), 4);
             for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
