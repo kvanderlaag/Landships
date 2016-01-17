@@ -1822,12 +1822,14 @@ int Menu() {
             p4DestRect.w = p4TextWidth;
             p4DestRect.h = p4TextHeight;
             SDL_RenderCopy(ren, p4Text, NULL, &p4DestRect);
+            SDL_DestroyTexture(p4Text);
 
             p4DestRect.x = 3 * 320 / 4 - (p4ButtonWidth / 2);
             p4DestRect.y = 3 * 240 / 4 + 2;
             p4DestRect.w = p4ButtonWidth;
             p4DestRect.h = p4ButtonHeight;
             SDL_RenderCopy(ren, p4Button, NULL, &p4DestRect);
+            SDL_DestroyTexture(p4Button);
 
             frameRect.x = 320 / 2;
             frameRect.y = 240 / 2;
@@ -1835,8 +1837,8 @@ int Menu() {
             frameRect.w = 320 / 2;
             SDL_RenderDrawRect(ren, &frameRect);
 
-            SDL_DestroyTexture(p4Text);
-            SDL_DestroyTexture(p4Button);
+
+
         }
 
 
@@ -2448,8 +2450,8 @@ void Quit(int status) {
     //    gHaptic[i] = NULL;
     //}
 
-    SDL_DestroyRenderer(ren);
-    SDL_DestroyWindow(win);
+    //SDL_DestroyRenderer(ren);
+    //SDL_DestroyWindow(win);
 
 
     Mix_FreeChunk(sfxFire);
