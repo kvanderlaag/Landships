@@ -102,12 +102,10 @@ Options* OptionsMenu();
 int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]);
 void Quit(int status);
 void CheckJoysticks();
-void FinalQuit();
 
 
 int main(int argc, char** argv) {
 
-    atexit(FinalQuit);
     freopen("error.log", "w", stdout);
 
     uint32_t ticks = SDL_GetTicks();
@@ -278,12 +276,14 @@ int main(int argc, char** argv) {
             Mix_FadeInMusic(menuMusic, -1, 1000);
         }
         if (Menu() == -1) {
-            Quit(0);
+            loopGame = false;
+            break;
         }
 
         Options* gameOptions = OptionsMenu();
         if (gameOptions == nullptr) {
-            Quit(0);
+            loopGame = false;
+            break;
         } else if (gameOptions->Back() == true) {
             delete gameOptions;
             continue;
@@ -2473,6 +2473,8 @@ void Quit(int status) {
     std::cout << "TTF_Quit() successful" << std::endl;
     IMG_Quit();
     std::cout << "IMG_Quit() successful" << std::endl;
+    SDL_Quit();
+    std::cout << "SDL_Quit() successful" << std::endl;
     exit(status);
 
 }
@@ -2528,7 +2530,9 @@ int Title() {
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
-                Quit(0);
+                titleRunning = false;
+                SDL_DestroyTexture(titleTexture);
+                return -1;
             } else if (e.type == SDL_JOYBUTTONDOWN) {
                 if (fadeInDone) {
                     titleRunning = false;
@@ -2547,7 +2551,9 @@ int Title() {
                             titleRunning = false;
                         }
                 } else if (e.key.keysym.sym == SDLK_ESCAPE) {
-                    Quit(0);
+                    titleRunning = false;
+                    SDL_DestroyTexture(titleTexture);
+                    return -1;
                 } else if (e.key.keysym.sym == SDLK_LALT || e.key.keysym.sym == SDLK_RALT) {
                     altHeld = true;
                 }
@@ -3175,9 +3181,4 @@ int DisplayControls() {
     SDL_DestroyTexture(controlsTex);
 
     return 0;
-}
-
-void FinalQuit() {
-    SDL_Quit();
-    std::cout << "SDL_Quit() successful" << std::endl;
 }
