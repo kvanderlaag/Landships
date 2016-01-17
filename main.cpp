@@ -2465,9 +2465,13 @@ void Quit(int status) {
         Mix_FreeMusic(introMusic[i]);
 
     Mix_Quit();
+    std::cout << "Mix_Quit() successful" << std::endl;
     TTF_Quit();
+    std::cout << "TTF_Quit() successful" << std::endl;
     IMG_Quit();
+    std::cout << "IMG_Quit() successful" << std::endl;
     SDL_Quit();
+    std::cout << "SDL_Quit() successful" << std::endl;
     exit(status);
 
 }
