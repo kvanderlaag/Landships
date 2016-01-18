@@ -11,7 +11,7 @@ Music & Sound: Noah Rabinovitch
 
 ## Readme
 ### Setup:
-Extract the contents of Tanks.zip to a folder on your local Windows system.
+Extract the contents of [Tanks.zip](https://github.com/kvanderlaag/Tanks/blob/master/Tanks.zip?raw=true) to a folder on your local Windows system.
 
 ### Running:
 Launch Tanks.exe
