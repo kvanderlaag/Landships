@@ -1,6 +1,14 @@
 # The Landships Committee
 A game of tank combat for 2-4 players.
 
+
+Programming: Keegan van der Laag
+
+Art: Noah Rabinovitch & Chris McEwen
+
+Music & Sound: Noah Rabinovitch
+
+
 ## Readme
 ### Setup:
 Extract the contents of Tanks.zip to a folder on your local Windows system.
