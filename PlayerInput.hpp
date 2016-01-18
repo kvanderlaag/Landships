@@ -13,13 +13,17 @@
 class PlayerInput {
 public:
 
-    PlayerInput(const int id);
+    PlayerInput(const int pID, const int jIndex);
     ~PlayerInput();
     void CheckInput();
 
     const int ID() const;
 
     const std::string& JoystickName() const;
+
+    SDL_Joystick* Joystick();
+
+    const int ControllerType() const;
 
     const bool UpHeld() const;
     const bool DownHeld() const;
@@ -29,6 +33,9 @@ public:
     const bool FireHeld() const;
     const bool SelectHeld() const;
     const bool CancelHeld() const;
+
+    const bool StartHeld() const;
+    const bool BackHeld() const;
 
     const int LeftStickX() const;
     const int LeftStickY() const;

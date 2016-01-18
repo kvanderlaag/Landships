@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1453068827 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1453149663 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -393,6 +393,7 @@
 	"Defines.hpp"
 	"Options.hpp"
 	"PlayerInput.hpp"
+	"InputManager.hpp"
 
 1452720570 d:\users\kvand_000\documents\github\tanks\player.hpp
 	"GameObject.hpp"
@@ -913,21 +914,28 @@
 	"Collider.hpp"
 	"Player.hpp"
 
-1452992674 d:\users\kvand_000\documents\github\tanks\defines.hpp
+1453148822 d:\users\kvand_000\documents\github\tanks\defines.hpp
 
 1452985850 source:d:\users\kvand_000\documents\github\tanks\options.cpp
 	"Options.hpp"
 
 1452985817 d:\users\kvand_000\documents\github\tanks\options.hpp
 
-1453060333 source:d:\users\kvand_000\documents\github\tanks\playerinput.cpp
+1453145217 source:d:\users\kvand_000\documents\github\tanks\playerinput.cpp
 	"PlayerInput.hpp"
 
-1453059625 d:\users\kvand_000\documents\github\tanks\playerinput.hpp
+1453144906 d:\users\kvand_000\documents\github\tanks\playerinput.hpp
 	<string>
 	<SDL2/SDL_joystick.h>
 	<SDL2/SDL_haptic.h>
 	<iostream>
 	"Defines.hpp"
 	"Vector2D.hpp"
+
+1453150017 source:d:\users\kvand_000\documents\github\tanks\inputmanager.cpp
+	"InputManager.hpp"
+
+1453149360 d:\users\kvand_000\documents\github\tanks\inputmanager.hpp
+	<SDL2/SDL.h>
+	"PlayerInput.hpp"
 

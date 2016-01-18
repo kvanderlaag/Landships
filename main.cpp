@@ -27,6 +27,7 @@
 #include "Defines.hpp"
 #include "Options.hpp"
 #include "PlayerInput.hpp"
+#include "InputManager.hpp"
 
 const int JBUTTON_DPADUP        = 1;
 const int JBUTTON_DPADUPRIGHT   = 3;
@@ -75,17 +76,17 @@ std::default_random_engine generator(time(0));
 
 bool playersIn[4] = { false, false, false, false };
 int playersInCount = 0;
-int maxPlayers = 0;
+//int maxPlayers = 0;
 std::string mapfilename;
 
 bool altHeld = false;
-bool fullscreen = true;
+bool gFullscreen = true;
 
 SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
 SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 //SDL_Haptic* gHaptic[4] = { NULL, NULL, NULL, NULL };
-PlayerInput* gInput[4] = {nullptr, nullptr, nullptr, nullptr};
+InputManager* gInput = nullptr;
 
 const int JOYTURRET_DEADZONE = 12000;
 const int JOYMOVE_DEADZONE = 12000;
@@ -96,12 +97,12 @@ void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int,
 
 int Title();
 int Menu();
-int ControllerSelect();
+//int ControllerSelect();
 int DisplayControls();
 Options* OptionsMenu();
 int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]);
 void Quit(int status);
-void CheckJoysticks();
+//void CheckJoysticks();
 
 
 int main(int argc, char** argv) {
@@ -115,11 +116,6 @@ int main(int argc, char** argv) {
         std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
         Quit(1);
     }
-
-    //gInput[0] = new PlayerInput(0);
-    //gInput[1] = new PlayerInput(1);
-    //gInput[2] = new PlayerInput(2);
-    //gInput[3] = new PlayerInput(3);
 
     if (IMG_Init(IMG_INIT_PNG) < 0) {
         std::cout << "Error initializing SDL_IMG: " << SDL_GetError() << std::endl;
@@ -188,7 +184,8 @@ int main(int argc, char** argv) {
 
 
     // Initialize joysticks
-    CheckJoysticks();
+    gInput = new InputManager();
+    //CheckJoysticks();
 
     int playerx, playery;
     playerx = (SCREEN_WIDTH / 2);
@@ -262,10 +259,6 @@ int main(int argc, char** argv) {
             Quit(0);
     }
 
-    if (ControllerSelect() == -1) {
-        Quit(0);
-    }
-
     if (DisplayControls() == -1) {
         Quit(0);
     }
@@ -311,7 +304,6 @@ int main(int argc, char** argv) {
                                 Player("Tank2.png", 2, gameOptions->GetStock(), ren),
                                 Player("Tank3.png", 3, gameOptions->GetStock(),ren),
                                 Player("Tank4.png", 4, gameOptions->GetStock(),ren) };
-        //Player& p = players[0];
 
         for (int i = 0; i < 4; ++i) {
             if (!playersIn[i]) {
@@ -345,7 +337,10 @@ int main(int argc, char** argv) {
 
         bool winningPlayer[4] = {false, false, false, false};
 
-        for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
+        for (int i = 0; i < 4; ++i) {
+            if (gInput->Player(i) == nullptr) {
+                continue;
+            }
             if (playersIn[i]) {
                 if (gameOptions->GetMatchType() == STOCK_MATCH) {
                     winningPlayer[i] = true;
@@ -367,8 +362,6 @@ int main(int argc, char** argv) {
         vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &m));
         RenderableObject::next++;
 
-        //Mix_PlayMusic(introMusic[gRndTiles], 0);
-        //SDL_Delay(700);
         Utility::PlayMusic(gGameMusic[gRndTiles]);
 
         bool running = true;
@@ -441,7 +434,7 @@ int main(int argc, char** argv) {
                                 playersAlive++;
                             }
                         }
-                        if (playersAlive < std::min(maxPlayers + 1, 2)) {
+                        if (playersAlive < 2) {
                             timeToExit = GAME_END_TICKS;
                             Mix_FadeOutMusic(GAME_END_TICKS);
                         }
@@ -455,6 +448,8 @@ int main(int argc, char** argv) {
                 break;
             }
 
+            /* Event Polling - old code */
+            /*
             SDL_Event e;
             while (SDL_PollEvent(&e)) {
 
@@ -512,64 +507,19 @@ int main(int argc, char** argv) {
                             players[index].FireIsReleased(true);
                         }
 
-                    //std::cout << "Joystick " << e.jaxis.which << " - Axis " << e.jaxis.axis << ": " << e.jaxis.value << std::endl;
                     } else if (e.jaxis.axis == JAXIS_MOVEX || e.jaxis.axis == JAXIS_MOVEY) {
                         int32_t joyX, joyY;
                         joyX = SDL_JoystickGetAxis(gController[index], JAXIS_MOVEX);
                         joyY = SDL_JoystickGetAxis(gController[index], JAXIS_MOVEY);
                         if (std::sqrt(joyX * joyX + joyY * joyY) > JOYMOVE_DEADZONE) {
                             players[index].SetJoyMove(true);
-                        //if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
                         } else {
                             players[index].SetJoyMove(false);
                             players[index].SetRotationVel(0);
                             players[index].SetForwardVel(0);
 
                         }
-                    //if (e.jaxis.axis == JAXIS_ROTATE) {
-                        // X-axis
-                        /*
-                        if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
-                            players[e.jaxis.which].SetJoyRotate(true);
-
-                            float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
-                            //std::cout << "Rotating " << scale << std::endl;
-                            players[e.jaxis.which].SetRotationVel(MAX_ROTATE * scale);
-                        } else {
-                                players[e.jaxis.which].SetJoyRotate(false);
-                                players[e.jaxis.which].SetRotationVel(0);
-                        }
-                        */
-                    //} else if (e.jaxis.axis == JAXIS_MOVE) {
-                        // Y-axis
-                        /*
-                        if (e.jaxis.value < -JOYSTICK_DEADZONE * 1.5 || e.jaxis.value > JOYSTICK_DEADZONE * 1.5) {
-                            players[e.jaxis.which].SetJoyMove(true);
-
-                            float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
-                            //std::cout << "Moving " << scale << std::endl;
-                            players[e.jaxis.which].SetForwardVel(MAX_MOVE * -scale);
-                        } else {
-                            players[e.jaxis.which].SetJoyMove(false);
-                            players[e.jaxis.which].SetForwardVel(0);
-
-                        }
-                        */
                     } else if (e.jaxis.axis == JAXIS_TURRETX || e.jaxis.axis == JAXIS_TURRETY) {
-                        // Right X-axis
-                        /*
-                        if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
-                            players[e.jaxis.which].SetJoyTurret(true);
-
-                            float scale = (e.jaxis.value > 0) - (e.jaxis.value < 0);
-                            std::cout << "Rotating Turret " << scale << std::endl;
-                            players[e.jaxis.which].SetTurretRotationVel(MAX_ROTATE * scale);
-                        } else {
-                            players[e.jaxis.which].SetJoyTurret(false);
-                            players[e.jaxis.which].SetTurretRotationVel(0);
-
-                        }
-                        */
                         int32_t joyX, joyY;
                         joyX = SDL_JoystickGetAxis(gController[index], JAXIS_TURRETX);
                         joyY = SDL_JoystickGetAxis(gController[index], JAXIS_TURRETY);
@@ -606,10 +556,10 @@ int main(int argc, char** argv) {
                         if (altHeld) {
                             if (fullscreen) {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                fullscreen = false;
+                                gFullscreen = false;
                             } else {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                fullscreen = true;
+                                gFullscreen = true;
                             }
                         }
                         break;
@@ -689,6 +639,29 @@ int main(int argc, char** argv) {
 
                 }
             }
+            */
+            /* End of old event polling code */
+
+            //std::cout << "Checking input." << std::endl;
+            gInput->CheckInput();
+            //std::cout << "Checked input." << std::endl;
+
+            if (gInput->QuitFlag()) {
+                Quit(0);
+            }
+            if (gInput->EscapeHeld()) {
+                running = false;
+                break;
+            }
+            for (int i = 0; i < 4; ++i) {
+                if (gInput->Player(i)) {
+                    if (gInput->Player(i)->BackHeld()) {
+                        running = false;
+                    }
+                }
+            }
+
+
 
             containerSpawnTicks -= frame_time;
             if (containerSpawnTicks <= 0) {
@@ -725,9 +698,20 @@ int main(int argc, char** argv) {
                 }
             }
 
+
+            /* Check for players holding fire button */
             for (int i = 0; i < 4; i++) {
                 if (players[i].IsDead() ) {
                     continue;
+                }
+                if (gInput->Player(i) != nullptr) {
+                    if (gInput->Player(i)->FireHeld()) {
+                        players[i].FireIsHeld(true);
+                        //players[i].FireIsReleased(false);
+                    } else {
+                        players[i].FireIsHeld(false);
+                        players[i].FireIsReleased(true);
+                    }
                 }
                 if (players[i].FireHeld() && players[i].FireReady() && players[i].FireReleased()) {
                     Bullet* b = players[i].Fire();
@@ -740,16 +724,26 @@ int main(int argc, char** argv) {
                 }
             }
 
+            /* Check for players moving the right stick */
             for (int i = 0; i < 4; i++) {
                 if (players[i].IsDead() ) {
                     continue;
                 }
+                if (gInput->Player(i) != nullptr) {
+                    if (gInput->Player(i)->RightStickVector().GetX() != 0 ||
+                        gInput->Player(i)->RightStickVector().GetY() != 0) {
+                        players[i].SetJoyTurret(true);
+                    } else {
+                        players[i].SetJoyTurret(false);
+                        players[i].SetTurretRotationVel(0);
+                    }
+                }
                 if (players[i].JoyTurret()) {
-                    int32_t joyX, joyY;
-                    joyX = SDL_JoystickGetAxis(gController[i], JAXIS_TURRETX);
-                    joyY = SDL_JoystickGetAxis(gController[i], JAXIS_TURRETY);
-                    Vector2D joyVec(-joyX, -joyY);
-                    joyVec = joyVec.Normalized();
+                    //int32_t joyX, joyY;
+                    //joyX = SDL_JoystickGetAxis(gController[i], JAXIS_TURRETX);
+                    //joyY = SDL_JoystickGetAxis(gController[i], JAXIS_TURRETY);
+                    Vector2D joyVec(gInput->Player(i)->RightStickVector().Normalized());
+                    //joyVec = joyVec.Normalized();
 
 
                     float ptAngle = players[i].GetTurretAngle() - 90;
@@ -795,17 +789,29 @@ int main(int argc, char** argv) {
                 }
             }
 
+            /* Check for players moving the left stick */
             for (int i = 0; i < 4; i++) {
                 if (players[i].IsDead() ) {
                     continue;
                 }
+                if (gInput->Player(i) != nullptr) {
+                    if (gInput->Player(i)->LeftStickVector().GetMagnitude() != 0) {
+                        players[i].SetJoyMove(true);
+                    } else {
+                        players[i].SetJoyMove(false);
+                        players[i].SetRotationVel(0);
+                        players[i].SetForwardVel(0);
+                    }
+                }
+
                 if (players[i].JoyMove()) {
                     players[i].IsMoving(true);
-                    int32_t joyX, joyY;
-                    joyX = SDL_JoystickGetAxis(gController[i], JAXIS_MOVEX);
-                    joyY = SDL_JoystickGetAxis(gController[i], JAXIS_MOVEY);
-                    Vector2D joyVec(-joyX, -joyY);
-                    joyVec = joyVec.Normalized();
+                    //int32_t joyX, joyY;
+                    //joyX = SDL_JoystickGetAxis(gController[i], JAXIS_MOVEX);
+                    //joyY = SDL_JoystickGetAxis(gController[i], JAXIS_MOVEY);
+                    //Vector2D joyVec(-joyX, -joyY);
+                    Vector2D joyVec(gInput->Player(i)->LeftStickVector().Normalized());
+                    //joyVec = joyVec.Normalized();
 
 
                     float pAngle = players[i].GetAngle() - 90;
@@ -1160,33 +1166,6 @@ int main(int argc, char** argv) {
                 /* End of FPS texture */
                 #endif // _FPS_DEBUG
 
-                #ifdef _ANGLE_DEBUG
-                /* Angle text */
-
-                std::stringstream strAngle;
-                strAngle << "Ticks: " << frame_time;
-                //SDL_Color c = {255, 255, 255, 255};
-                SDL_Texture* angle_tex = Utility::RenderText(strAngle.str(), basePath + GAME_FONT, c, 10, ren);
-
-                int angle_w, angle_h;
-                SDL_QueryTexture(angle_tex, NULL, NULL, &angle_w, &angle_h);
-
-                //SDL_Rect srcRect, dstRect;
-                srcRect.x = 0;
-                srcRect.y = 0;
-                srcRect.h = angle_h;
-                srcRect.w = angle_w;
-
-                dstRect.x = 8;
-                dstRect.y = 16;
-                dstRect.h = angle_h;
-                dstRect.w = angle_w;
-
-                SDL_RenderCopy(ren, angle_tex, &srcRect, &dstRect);
-
-                /* End of angle text */
-                #endif // _ANGLE_DEBUG
-
                 /* HUD */
                 int verticalOffset = 0;
                 {
@@ -1244,7 +1223,7 @@ int main(int argc, char** argv) {
                         SDL_DestroyTexture(gvalueTexture);
                     }
                     SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
-                    for (int i = 0; i < std::max(maxPlayers, 1); ++i) {
+                    for (int i = 0; i < 4; ++i) {
                         if (!playersIn[i])
                             continue;
                         int rWidth, rHeight;
@@ -1340,7 +1319,7 @@ int main(int argc, char** argv) {
 
         }
 
-        /* Delete background texture since it's recreated every frame */
+        /* Delete background texture */
         SDL_DestroyTexture(bgTex);
 
         delete gameOptions;
@@ -1374,17 +1353,10 @@ int Menu() {
     bool menuRunning = true;
     std::vector<std::string> levelFiles;
 
-    std::string readyButtonString;
-    if (controllerType == XBOX_360_CONTROLLER) {
-        readyButtonString = "Press A";
-    } else if (controllerType == PS4_CONTROLLER) {
-        readyButtonString = "Press X";
-    }
-
     dirent* de;
     DIR* dp;
 
-    int numJoysticks = 0;
+    //int numJoysticks = 0;
 
     std::string basePath = SDL_GetBasePath();
     dp = opendir(basePath.c_str());
@@ -1435,18 +1407,12 @@ int Menu() {
     free(dp);
     free(de);
 
-    /*
-    for (std::string file : levelFiles) {
-        std::cout << file << std::endl;
-    }
-    */
-
-    bool playersUpHeld[4] = { false, false, false, false };
-    bool playersDownHeld[4] = {false, false, false, false };
-    bool playersLeftHeld[4] = {false, false, false, false };
-    bool playersRightHeld[4] = {false, false, false, false };
+    //bool playersUpHeld[4] = { false, false, false, false };
+    //bool playersDownHeld[4] = {false, false, false, false };
+    //bool playersLeftHeld[4] = {false, false, false, false };
+    //bool playersRightHeld[4] = {false, false, false, false };
     const int cursorRepeat = MENU_REPEAT_VERT_TICKS;
-    int ticksSinceMove[4] = {0, 0, 0, 0};
+    int ticksSinceMove[4] = {200, 200, 200, 200};
     bool mapSelect = false;
 
     int mapCount = levelFiles.size();
@@ -1454,11 +1420,14 @@ int Menu() {
 
     uint32_t time = SDL_GetTicks();
 
+    uint32_t ticksSinceStart = 1000;
+
     int topLevel = 0;
     int bottomLevel = 17;
     bool quit = false;
     while (menuRunning) {
 
+        /*
         if (SDL_NumJoysticks() > 0 && SDL_NumJoysticks() != numJoysticks) {
             numJoysticks = SDL_NumJoysticks();
             for (int i = 0; i < 4; ++i) {
@@ -1466,29 +1435,33 @@ int Menu() {
             }
             CheckJoysticks();
         }
+        */
+        for (int i = 0; i < 4; ++i) {
+            if (gInput->Player(i) == nullptr) {
+                playersIn[i] = false;
+            }
+        }
 
         uint32_t frameTime = SDL_GetTicks() - time;
         time = SDL_GetTicks();
-        SDL_Event e;
-        int index = -1;
 
+        if (ticksSinceStart > 0) {
+            if (frameTime > ticksSinceStart)
+                ticksSinceStart = 0;
+            else
+                ticksSinceStart -= frameTime;
+        }
+        //SDL_Event e;
+        //int index = -1;
+
+        /* Event polling - old code */
+
+        /*
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 menuRunning = false;
                 quit = true;
             }
-            /*
-            if (e.type == SDL_JOYHATMOTION) {
-                if (e.jhat.value == JBUTTON_DPADUP) {
-                    std::cout << "Up" << std::endl;
-                }
-            } else if (e.type == SDL_JOYBUTTONDOWN) {
-                std::cout << "Button: " << (int) e.jbutton.button << std::endl;
-            } else if (e.type == SDL_JOYAXISMOTION) {
-                if (std::abs(e.jaxis.value) > JOYMOVE_DEADZONE)
-                    std::cout << "Axis " << (int) e.jaxis.axis << ": " << (int) e.jaxis.value << std::endl;
-            }
-            */
 
             if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP || e.type == SDL_JOYAXISMOTION || e.type == SDL_JOYHATMOTION) {
                 for (int i = 0; i < maxPlayers; ++i) {
@@ -1601,12 +1574,12 @@ int Menu() {
                         break;
                     case SDLK_RETURN:
                         if (altHeld) {
-                            if (fullscreen) {
+                            if (gFullscreen) {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                fullscreen = false;
+                                gFullscreen = false;
                             } else {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                fullscreen = true;
+                                gFullscreen = true;
                             }
                         } else if (playersInCount > 0) {
                             mapSelect = true;
@@ -1637,12 +1610,44 @@ int Menu() {
 
 
         } // End of SDL_PollEvent(e)
+        */
+
+        gInput->CheckInput();
+
+        if (gInput->QuitFlag()) {
+            menuRunning = false;
+            quit = true;
+        }
+
+        if (gInput->EscapeHeld() && ticksSinceStart == 0) {
+            menuRunning = false;
+            quit = true;
+        }
+
+        if (gInput->EnterHeld() && ticksSinceStart == 0) {
+            mapSelect = true;
+        }
 
         for (int i = 0; i < 4; ++i) {
+            if (gInput->Player(i) == nullptr)
+                continue;
+
+            if (gInput->Player(i)->SelectHeld() ) {
+                playersIn[i] = true;
+            } else if (gInput->Player(i)->CancelHeld() ) {
+                playersIn[i] = false;
+            }
             if (ticksSinceMove[i] > 0) {
                 ticksSinceMove[i] = std::max((uint32_t) 0, ticksSinceMove[i] - frameTime);
             } else  {
-                if (playersUpHeld[i]) {
+                if (gInput->Player(i)->StartHeld() && ticksSinceStart == 0) {
+                    mapSelect = true;
+                }
+                if (gInput->Player(i)->BackHeld() && ticksSinceStart == 0) {
+                    menuRunning = false;
+                    quit = true;
+                }
+                if (gInput->Player(i)->UpHeld()) {
                     if (mapSelected > 0) {
                             mapSelected--;
                             if (mapSelected < topLevel) {
@@ -1652,7 +1657,7 @@ int Menu() {
 
                             ticksSinceMove[i] = cursorRepeat;
                     }
-                } else if (playersDownHeld[i]) {
+                } else if (gInput->Player(i)->DownHeld()) {
                     if (mapSelected < mapCount - 1) {
                             mapSelected++;
                             if (mapSelected > bottomLevel) {
@@ -1673,9 +1678,11 @@ int Menu() {
         }
         playersInCount = tempPlayersIn;
 
-        if (mapSelect) {
+        if (mapSelect && playersInCount > 1) {
             mapfilename = levelFiles[mapSelected];
             return 0;
+        } else {
+            mapSelect = false;
         }
 
         SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
@@ -1687,12 +1694,17 @@ int Menu() {
 
         SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 
-        if (maxPlayers >= 0) {
+        if (gInput->Player(0) != nullptr) {
             SDL_Texture* p1Text = Utility::RenderText("Player 1", GAME_FONT, white, 12, ren);
             SDL_Texture* p1Button = NULL;
 
             if (playersIn[0] == false) {
-                p1Button = Utility::RenderText(readyButtonString, GAME_FONT, white, 10, ren);
+                if (gInput->Player(0)->ControllerType() == PS4_CONTROLLER) {
+                    p1Button = Utility::RenderText("Press X", GAME_FONT, white, 10, ren);
+                } else {
+                    p1Button = Utility::RenderText("Press A", GAME_FONT, white, 10, ren);
+                }
+
             } else {
                 p1Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
             }
@@ -1727,13 +1739,17 @@ int Menu() {
             SDL_DestroyTexture(p1Button);
         }
 
-        if (maxPlayers > 1) {
+        if (gInput->Player(1) != nullptr) {
 
             SDL_Texture* p2Text = Utility::RenderText("Player 2", GAME_FONT, white, 12, ren);
             SDL_Texture* p2Button = NULL;
 
             if (playersIn[1] == false) {
-                p2Button = Utility::RenderText(readyButtonString, GAME_FONT, white, 10, ren);
+                if (gInput->Player(1)->ControllerType() == PS4_CONTROLLER) {
+                    p2Button = Utility::RenderText("Press X", GAME_FONT, white, 10, ren);
+                } else {
+                    p2Button = Utility::RenderText("Press A", GAME_FONT, white, 10, ren);
+                }
             } else {
                 p2Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
             }
@@ -1766,13 +1782,17 @@ int Menu() {
             SDL_DestroyTexture(p2Button);
         }
 
-        if (maxPlayers > 2) {
+        if (gInput->Player(2) != nullptr) {
 
             SDL_Texture* p3Text = Utility::RenderText("Player 3", GAME_FONT, white, 12, ren);
             SDL_Texture* p3Button = NULL;
 
             if (playersIn[2] == false) {
-                p3Button = Utility::RenderText(readyButtonString, GAME_FONT, white, 10, ren);
+                if (gInput->Player(2)->ControllerType() == PS4_CONTROLLER) {
+                    p3Button = Utility::RenderText("Press X", GAME_FONT, white, 10, ren);
+                } else {
+                    p3Button = Utility::RenderText("Press A", GAME_FONT, white, 10, ren);
+                }
             } else {
                 p3Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
             }
@@ -1805,13 +1825,17 @@ int Menu() {
             SDL_DestroyTexture(p3Button);
         }
 
-        if (maxPlayers > 3) {
+        if (gInput->Player(3) != nullptr) {
 
             SDL_Texture* p4Text = Utility::RenderText("Player 4", GAME_FONT, white, 12, ren);
             SDL_Texture* p4Button = NULL;
 
             if (playersIn[3] == false) {
-                p4Button = Utility::RenderText(readyButtonString, GAME_FONT, white, 10, ren);
+                if (gInput->Player(3)->ControllerType() == PS4_CONTROLLER) {
+                    p4Button = Utility::RenderText("Press X", GAME_FONT, white, 10, ren);
+                } else {
+                    p4Button = Utility::RenderText("Press A", GAME_FONT, white, 10, ren);
+                }
             } else {
                 p4Button = Utility::RenderText("Ready!", GAME_FONT, white, 10, ren);
             }
@@ -1920,13 +1944,14 @@ Options* OptionsMenu() {
 
     const int cursorRepeatV = MENU_REPEAT_VERT_TICKS;
     const int cursorRepeatH = MENU_REPEAT_HORIZ_TICKS;
-    int ticksSinceMove[4] = {0, 0, 0, 0};
-    bool playersUpHeld[4] = { false, false, false, false };
-    bool playersDownHeld[4] = {false, false, false, false };
-    bool playersLeftHeld[4] = { false, false, false, false };
-    bool playersRightHeld[4] = {false, false, false, false };
+    int ticksSinceMove[4] = {200, 200, 200, 200};
+    //bool playersUpHeld[4] = { false, false, false, false };
+    //bool playersDownHeld[4] = {false, false, false, false };
+    //bool playersLeftHeld[4] = { false, false, false, false };
+    //bool playersRightHeld[4] = {false, false, false, false };
 
     uint32_t nowTime, renderTime;
+    int ticksSinceStart = 1000;
 
     renderTime = nowTime = SDL_GetTicks();
 
@@ -1934,9 +1959,12 @@ Options* OptionsMenu() {
 
         uint32_t frameTime = SDL_GetTicks() - nowTime;
         nowTime = SDL_GetTicks();
+        ticksSinceStart = std::max(0, ticksSinceStart - (int) frameTime);
 
-
+        /*
         int index = -1;
+
+
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP || e.type == SDL_JOYAXISMOTION || e.type == SDL_JOYHATMOTION) {
@@ -1962,12 +1990,12 @@ Options* OptionsMenu() {
                         break;
                     case SDLK_RETURN:
                         if (altHeld) {
-                            if (fullscreen) {
+                            if (gFullscreen) {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                fullscreen = false;
+                                gFullscreen = false;
                             } else {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                fullscreen = true;
+                                gFullscreen = true;
                             }
                         } else {
                             optionsMenuRunning = false;
@@ -2104,21 +2132,50 @@ Options* OptionsMenu() {
                 }
             }
         } // While SDL_PollEvent()
+        */
 
+        gInput->CheckInput();
+
+        if (gInput->QuitFlag() ) {
+            return nullptr;
+        }
+
+        if (gInput->EscapeHeld() && ticksSinceStart == 0 ) {
+            return new Options(gameType, score, stock, time, true);
+        }
+
+        if (gInput->EnterHeld() && ticksSinceStart == 0) {
+            optionsMenuRunning = false;
+        }
 
         for (int i = 0; i < 4; ++i) {
+            if (gInput->Player(i) == nullptr)
+                continue;
+            if ((gInput->Player(i)->BackHeld() || gInput->Player(i)->CancelHeld()) && ticksSinceStart == 0) {
+                return new Options(gameType, score, stock, time, true);
+            }
+            if ((gInput->Player(i)->SelectHeld() || gInput->Player(i)->StartHeld()) && ticksSinceStart == 0) {
+                optionsMenuRunning = false;
+            }
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            if (gInput->Player(i) == nullptr) {
+                continue;
+            }
+
             if (ticksSinceMove[i] > 0) {
                 ticksSinceMove[i] = std::max((uint32_t) 0, ticksSinceMove[i] - frameTime);
             } else  {
-                if (playersUpHeld[i]) {
+                if (gInput->Player(i)->UpHeld()) {
                     if (gameType > SCORE_MATCH)
                             gameType--;
                     ticksSinceMove[i] = cursorRepeatV;
-                } else if (playersDownHeld[i]) {
+                } else if (gInput->Player(i)->DownHeld()) {
                     if (gameType < TIME_MATCH)
                             gameType++;
                     ticksSinceMove[i] = cursorRepeatV;
-                } else if (playersLeftHeld[i]) {
+                } else if (gInput->Player(i)->LeftHeld()) {
                     switch (gameType) {
                         case SCORE_MATCH:
                             if (score > MIN_SCORE)
@@ -2134,7 +2191,7 @@ Options* OptionsMenu() {
                             break;
                     } // switch gameType
                     ticksSinceMove[i] = cursorRepeatH;
-                } else if (playersRightHeld[i]) {
+                } else if (gInput->Player(i)->RightHeld()) {
                     switch (gameType) {
                             case SCORE_MATCH:
                                 if (score < MAX_SCORE)
@@ -2278,6 +2335,9 @@ Options* OptionsMenu() {
 int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
     bool WinScreenRunning = true;
 
+    int ticksSinceStart = 1000;
+    uint32_t nowTime = SDL_GetTicks();
+
     std::vector<int> vWinners;
 
     for (int i = 0; i < 4; ++i) {
@@ -2286,6 +2346,12 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
     }
 
     while (WinScreenRunning) {
+        int frameTime = SDL_GetTicks() - nowTime;
+        nowTime = SDL_GetTicks();
+
+        if (ticksSinceStart > 0)
+            ticksSinceStart = std::max(0, ticksSinceStart - frameTime);
+        /*
         SDL_Event e;
 
         while (SDL_PollEvent(&e)) {
@@ -2295,12 +2361,12 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
                 switch (e.key.keysym.sym) {
                     case SDLK_RETURN:
                         if (altHeld) {
-                            if (fullscreen) {
+                            if (gFullscreen) {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                fullscreen = false;
+                                gFullscreen = false;
                             } else {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                fullscreen = true;
+                                gFullscreen = true;
                             }
                         } else {
                             WinScreenRunning = false;
@@ -2328,6 +2394,25 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
                 if (e.jbutton.button == JBUTTON_A || e.jbutton.button == JBUTTON_START || e.jbutton.button == JBUTTON_BACK) {
                         WinScreenRunning = false;
                 }
+            }
+        }
+        */
+
+        gInput->CheckInput();
+
+        if (gInput->QuitFlag() ) {
+            return -1;
+        }
+
+        if (ticksSinceStart == 0) {
+            if (gInput->EscapeHeld() || gInput->EnterHeld()) {
+                WinScreenRunning = false;
+            }
+
+            for (int i = 0; i < 4; ++i) {
+                if (gInput->Player(i) != nullptr)
+                    if (gInput->Player(i)->StartHeld() || gInput->Player(i)->SelectHeld() || gInput->Player(i)->BackHeld())
+                        WinScreenRunning = false;
             }
         }
 
@@ -2451,12 +2536,16 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
 }
 
 void Quit(int status) {
-    for (int i = 0; i < maxPlayers; ++i) {
+    /*
+    for (int i = 0; i < 4; ++i) {
         SDL_JoystickClose(gController[i]);
         //SDL_HapticClose(gHaptic[i]);
         gController[i] = NULL;
         //gHaptic[i] = NULL;
     }
+    */
+
+    delete gInput;
 
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
@@ -2517,15 +2606,18 @@ int Title() {
     bool fadeInDone = false;
     bool flash = true;
 
-    int numJoysticks = 0;
+    //int numJoysticks = 0;
 
     SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(ren);
     SDL_RenderPresent(ren);
     SDL_Delay(500);
 
+    bool quit = false;
+
     while (titleRunning) {
 
+        /*
         if (SDL_NumJoysticks() > 0 && SDL_NumJoysticks() != numJoysticks) {
             numJoysticks = SDL_NumJoysticks();
             for (int i = 0; i < 4; ++i) {
@@ -2533,10 +2625,12 @@ int Title() {
             }
             CheckJoysticks();
         }
+        */
 
         uint32_t frameTime = SDL_GetTicks() - time;
         time = SDL_GetTicks();
 
+        /*
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
@@ -2550,12 +2644,12 @@ int Title() {
             } else if (e.type == SDL_KEYDOWN) {
                 if (e.key.keysym.sym == SDLK_RETURN) {
                         if (altHeld) {
-                            if (fullscreen) {
+                            if (gFullscreen) {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                fullscreen = false;
+                                gFullscreen = false;
                             } else {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                fullscreen = true;
+                                gFullscreen = true;
                             }
                         } else if (fadeInDone) {
                             titleRunning = false;
@@ -2572,6 +2666,34 @@ int Title() {
                     case SDLK_LALT:
                     case SDLK_RALT:
                         altHeld = false;
+                }
+            }
+        }
+        */
+
+        gInput->CheckInput();
+
+        if (gInput->QuitFlag() ) {
+            quit = true;
+            titleRunning = false;
+        }
+
+        if (fadeInDone) {
+            if (gInput->EscapeHeld() && fadeInDone) {
+                quit = true;
+                titleRunning = false;
+            }
+
+            if (gInput->EnterHeld() && fadeInDone) {
+                titleRunning = false;
+            }
+
+            for (int i = 0; i < 4; ++i) {
+                if (gInput->Player(i) == nullptr) {
+                    continue;
+                }
+                if (gInput->Player(i)->StartHeld()) {
+                    titleRunning = false;
                 }
             }
         }
@@ -2606,7 +2728,7 @@ int Title() {
             SDL_FreeSurface(surf);
 
             SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
-            SDL_Texture* startTexture = Utility::RenderText("Press Any Button", GAME_FONT, white, 16, ren);
+            SDL_Texture* startTexture = Utility::RenderText("Press Start / Options", GAME_FONT, white, 16, ren);
             int startW, startH;
             SDL_QueryTexture(startTexture, NULL, NULL, &startW, &startH);
 
@@ -2633,9 +2755,14 @@ int Title() {
 
     }
     SDL_DestroyTexture(titleTexture);
-    return 0;
+
+    if (quit)
+        return -1;
+    else
+        return 0;
 }
 
+/*
 void CheckJoysticks() {
     //std::cout << "Haptic devices: " << SDL_NumHaptics() << std::endl;
     if (SDL_NumJoysticks() > 0) {
@@ -2654,8 +2781,9 @@ void CheckJoysticks() {
             }
         }
 }
+*/
 
-
+/*
 int ControllerSelect() {
     bool controllerMenuRunning = true;
 
@@ -2751,12 +2879,12 @@ int ControllerSelect() {
                         break;
                     case SDLK_RETURN:
                         if (altHeld) {
-                            if (fullscreen) {
+                            if (gFullscreen) {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                fullscreen = false;
+                                gFullscreen = false;
                             } else {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                fullscreen = true;
+                                gFullscreen = true;
                             }
                         } else {
                             controllerMenuRunning = false;
@@ -2962,6 +3090,7 @@ int ControllerSelect() {
 
     return 0;
 }
+*/
 
 
 int DisplayControls() {
@@ -2970,30 +3099,37 @@ int DisplayControls() {
     const int cursorRepeatV = MENU_REPEAT_VERT_TICKS;
     const int cursorRepeatH = MENU_REPEAT_HORIZ_TICKS;
     int ticksSinceMove[4] = {0, 0, 0, 0};
-    bool playersUpHeld[4] = { false, false, false, false };
-    bool playersDownHeld[4] = {false, false, false, false };
-    bool playersLeftHeld[4] = { false, false, false, false };
-    bool playersRightHeld[4] = {false, false, false, false };
+    //bool playersUpHeld[4] = { false, false, false, false };
+    //bool playersDownHeld[4] = {false, false, false, false };
+    //bool playersLeftHeld[4] = { false, false, false, false };
+    //bool playersRightHeld[4] = {false, false, false, false };
 
 
     SDL_Texture* controlsTex = NULL;
 
-    if (controllerType == XBOX_360_CONTROLLER) {
-        controlsTex = Utility::LoadTexture(ren, XBOX_CONTROLS_IMG);
-
-    } else if (controllerType == PS4_CONTROLLER) {
-        controlsTex = Utility::LoadTexture(ren, PS4_CONTROLS_IMG);
-    }
+    controlsTex = Utility::LoadTexture(ren, CONTROLS_IMG);
 
     uint32_t nowTime, renderTime;
 
+    uint32_t ticksSinceStart = 1000;
+
     renderTime = nowTime = SDL_GetTicks();
+
+    bool quit = false;
 
     while (controlsDisplayRunning) {
 
         uint32_t frameTime = SDL_GetTicks() - nowTime;
         nowTime = SDL_GetTicks();
 
+        if (ticksSinceStart > 0) {
+            if (frameTime > ticksSinceStart)
+                ticksSinceStart = 0;
+            else
+                ticksSinceStart -= frameTime;
+        }
+
+        /*
         CheckJoysticks();
 
 
@@ -3025,12 +3161,12 @@ int DisplayControls() {
                         break;
                     case SDLK_RETURN:
                         if (altHeld) {
-                            if (fullscreen) {
+                            if (gFullscreen) {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                fullscreen = false;
+                                gFullscreen = false;
                             } else {
                                 SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                fullscreen = true;
+                                gFullscreen = true;
                             }
                         } else {
                             controlsDisplayRunning = false;
@@ -3164,19 +3300,44 @@ int DisplayControls() {
                 }
             }
         } // While SDL_PollEvent()
+        */
 
+        gInput->CheckInput();
+
+        if (gInput->QuitFlag()) {
+            quit = true;
+            controlsDisplayRunning = false;
+        }
+
+        if (gInput->EscapeHeld() && ticksSinceStart == 0) {
+            quit = true;
+            controlsDisplayRunning = false;
+        }
+
+        if (gInput->EnterHeld() && ticksSinceStart == 0) {
+            controlsDisplayRunning = false;
+        }
 
         for (int i = 0; i < 4; ++i) {
+            if (gInput->Player(i) == nullptr) {
+                continue;
+            }
+            if (gInput->Player(i)->StartHeld() && ticksSinceStart == 0)
+                controlsDisplayRunning = false;
+            if (gInput->Player(i)->BackHeld() && ticksSinceStart == 0) {
+                quit = true;
+                controlsDisplayRunning = false;
+            }
             if (ticksSinceMove[i] > 0) {
                 ticksSinceMove[i] = std::max((uint32_t) 0, ticksSinceMove[i] - frameTime);
             } else  {
-                if (playersUpHeld[i]) {
+                if (gInput->Player(i)->UpHeld()) {
                     ticksSinceMove[i] = cursorRepeatV;
-                } else if (playersDownHeld[i]) {
+                } else if (gInput->Player(i)->DownHeld()) {
                     ticksSinceMove[i] = cursorRepeatV;
-                } else if (playersLeftHeld[i]) {
+                } else if (gInput->Player(i)->LeftHeld()) {
                     ticksSinceMove[i] = cursorRepeatH;
-                } else if (playersRightHeld[i]) {
+                } else if (gInput->Player(i)->RightHeld()) {
                     ticksSinceMove[i] = cursorRepeatH;
                 }
             }
@@ -3195,5 +3356,8 @@ int DisplayControls() {
 
     SDL_DestroyTexture(controlsTex);
 
-    return 0;
+    if (quit)
+        return -1;
+    else
+        return 0;
 }

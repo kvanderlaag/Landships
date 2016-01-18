@@ -56,6 +56,8 @@
 		<Unit filename="GameObject.hpp" />
 		<Unit filename="GameState.cpp" />
 		<Unit filename="GameState.hpp" />
+		<Unit filename="InputManager.cpp" />
+		<Unit filename="InputManager.hpp" />
 		<Unit filename="Map.cpp" />
 		<Unit filename="Map.hpp" />
 		<Unit filename="Menu.cpp" />

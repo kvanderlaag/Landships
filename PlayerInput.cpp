@@ -1,9 +1,9 @@
 #include "PlayerInput.hpp"
 
-PlayerInput::PlayerInput(const int id) :
-    mPlayerID(id),
+PlayerInput::PlayerInput(const int pID, const int jIndex) :
+    mPlayerID(pID),
     mControllerType(XBOX_360_CONTROLLER),
-    mJoystick(SDL_JoystickOpen(id)),
+    mJoystick(SDL_JoystickOpen(jIndex)),
     mHaptic(SDL_HapticOpenFromJoystick(mJoystick)),
     mUpHeld(false),
     mDownHeld(false),
@@ -20,7 +20,11 @@ PlayerInput::PlayerInput(const int id) :
         if (mJoystickName == "Wireless Controller") {
             mControllerType = PS4_CONTROLLER;
         }
-        std::cout << "Joystick " << mPlayerID << ": " << mJoystickName << std::endl;
+        if (mControllerType == PS4_CONTROLLER) {
+            std::cout << "Joystick " << mPlayerID << ": " << mJoystickName << " (PS4)" << std::endl;
+        } else if (mControllerType == XBOX_360_CONTROLLER) {
+            std::cout << "Joystick " << mPlayerID << ": " << mJoystickName << " (Xbox)" << std::endl;
+        }
     }
 
     if (mControllerType == XBOX_360_CONTROLLER) {
@@ -51,8 +55,9 @@ PlayerInput::PlayerInput(const int id) :
 }
 
 PlayerInput::~PlayerInput() {
+    std::cout << "Closing Joystick " << mPlayerID << std::endl;
     SDL_JoystickClose(mJoystick);
-    SDL_HapticClose(mHaptic);
+    //SDL_HapticClose(mHaptic);
 }
 
 void PlayerInput::CheckInput() {
@@ -119,19 +124,21 @@ void PlayerInput::CheckInput() {
         mRightHeld = false;
     }
 
-    if (std::abs(lsX) < JOYLSTICK_DEADZONE) {
+    /*
+    if (lsX < JOYLSTICK_DEADZONE && lsX > -JOYLSTICK_DEADZONE) {
         lsX = 0;
     }
-    if (std::abs(lsY) < JOYLSTICK_DEADZONE) {
+    if (lsY < JOYLSTICK_DEADZONE && lsY > -JOYLSTICK_DEADZONE) {
         lsY = 0;
     }
-    if (std::abs(rsX) < JOYRSTICK_DEADZONE) {
+    if (rsX < JOYRSTICK_DEADZONE && rsX > -JOYRSTICK_DEADZONE) {
         rsX = 0;
     }
-    if (std::abs(rsY) < JOYRSTICK_DEADZONE) {
+    if (rsY < JOYRSTICK_DEADZONE && rsY > -JOYRSTICK_DEADZONE) {
         rsY = 0;
     }
-    if (std::abs(fireAxis) < JOYRTRIGGER_DEADZONE) {
+    */
+    if (fireAxis < JOYRTRIGGER_DEADZONE) {
         fireAxis = 0;
     }
 
@@ -140,19 +147,19 @@ void PlayerInput::CheckInput() {
     mRightStickX = rsX;
     mRightStickY = rsY;
 
-    if (lsX < 0) {
+    if (lsX < -JOYLSTICK_DEADZONE) {
         mLeftHeld = true;
         mRightHeld = false;
 
-    } else if (lsX > 0) {
+    } else if (lsX > JOYLSTICK_DEADZONE) {
         mRightHeld = true;
         mLeftHeld = false;
     }
-    if (lsY < 0) {
+    if (lsY < -JOYLSTICK_DEADZONE) {
         mUpHeld = true;
         mDownHeld = false;
 
-    } else if (lsY > 0) {
+    } else if (lsY > JOYLSTICK_DEADZONE) {
         mDownHeld = true;
         mUpHeld = false;
     }
@@ -187,8 +194,16 @@ const int PlayerInput::ID() const {
     return mPlayerID;
 }
 
+const int PlayerInput::ControllerType() const {
+    return mControllerType;
+}
+
 const std::string& PlayerInput::JoystickName() const {
     return mJoystickName;
+}
+
+SDL_Joystick* PlayerInput::Joystick() {
+    return mJoystick;
 }
 
 const bool PlayerInput::UpHeld() const {
@@ -219,6 +234,14 @@ const bool PlayerInput::CancelHeld() const {
     return mCancelHeld;
 }
 
+const bool PlayerInput::StartHeld() const {
+    return mStartHeld;
+}
+
+const bool PlayerInput::BackHeld() const {
+    return mBackHeld;
+}
+
 const int PlayerInput::LeftStickX() const {
     return mLeftStickX;
 }
@@ -236,11 +259,19 @@ const int PlayerInput::RightStickY() const {
 }
 
 const Vector2D PlayerInput::LeftStickVector() const {
-    return Vector2D(mLeftStickX, mLeftStickY);
+    if (std::sqrt(mLeftStickX * mLeftStickX + mLeftStickY * mLeftStickY) > JOYLSTICK_DEADZONE) {
+        return Vector2D(-mLeftStickX, -mLeftStickY);
+    } else {
+        return Vector2D(0, 0);
+    }
 }
 
 const Vector2D PlayerInput::RightStickVector() const {
-    return Vector2D(mLeftStickX, mLeftStickY);
+    if (std::sqrt(mRightStickX * mRightStickX + mRightStickY * mRightStickY) > JOYRSTICK_DEADZONE) {
+        return Vector2D(-mRightStickX, -mRightStickY);
+    } else {
+        return Vector2D(0, 0);
+    }
 }
 
 void PlayerInput::FireRumble() const {
