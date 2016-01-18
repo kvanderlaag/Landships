@@ -27,6 +27,7 @@ void InputManager::CheckInput() {
         } else if (e.type == SDL_KEYDOWN) {
             if (e.key.keysym.sym == SDLK_ESCAPE) {
                 mEscapeHeld = true;
+            } else if (e.key.keysym.sym == SDLK_RETURN) {
                 if (mAltHeld) {
                     if (gFullscreen) {
                         SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
@@ -35,9 +36,9 @@ void InputManager::CheckInput() {
                         SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
                         gFullscreen = true;
                     }
+                } else {
+                    mEnterHeld = true;
                 }
-            } else if (e.key.keysym.sym == SDLK_RETURN) {
-                mEnterHeld = true;
             } else if (e.key.keysym.sym == SDLK_SPACE) {
                 mSpaceHeld = true;
             } else if (e.key.keysym.sym == SDLK_LALT || e.key.keysym.sym == SDLK_RALT) {
