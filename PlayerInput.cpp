@@ -21,9 +21,9 @@ PlayerInput::PlayerInput(const int pID, const int jIndex) :
             mControllerType = PS4_CONTROLLER;
         }
         if (mControllerType == PS4_CONTROLLER) {
-            std::cout << "Joystick " << mPlayerID << ": " << mJoystickName << " (PS4)" << std::endl;
+            //std::cout << "Joystick " << mPlayerID << ": " << mJoystickName << " (PS4)" << std::endl;
         } else if (mControllerType == XBOX_360_CONTROLLER) {
-            std::cout << "Joystick " << mPlayerID << ": " << mJoystickName << " (Xbox)" << std::endl;
+            //std::cout << "Joystick " << mPlayerID << ": " << mJoystickName << " (Xbox)" << std::endl;
         }
     }
 
@@ -55,7 +55,7 @@ PlayerInput::PlayerInput(const int pID, const int jIndex) :
 }
 
 PlayerInput::~PlayerInput() {
-    std::cout << "Closing Joystick " << mPlayerID << std::endl;
+    //std::cout << "Closing Joystick " << mPlayerID << std::endl;
     SDL_JoystickClose(mJoystick);
     //SDL_HapticClose(mHaptic);
 }

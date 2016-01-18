@@ -48,6 +48,8 @@
 		<Unit filename="Container.cpp" />
 		<Unit filename="Container.hpp" />
 		<Unit filename="Defines.hpp" />
+		<Unit filename="DestructibleBlock.cpp" />
+		<Unit filename="DestructibleBlock.hpp" />
 		<Unit filename="Explosion.cpp" />
 		<Unit filename="Explosion.hpp" />
 		<Unit filename="Game.cpp" />

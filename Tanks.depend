@@ -423,10 +423,11 @@
 	"Utility.hpp"
 	<map>
 
-1452893763 d:\users\kvand_000\documents\github\tanks\map.hpp
+1453151365 d:\users\kvand_000\documents\github\tanks\map.hpp
 	"Tile.hpp"
 	"Collider.hpp"
 	"RenderableObject.hpp"
+	"DestructibleBlock.hpp"
 	"Vector2D.hpp"
 	<SDL2/SDL.h>
 	<fstream>
@@ -909,10 +910,11 @@
 1452896528 source:d:\users\kvand_000\documents\github\tanks\powerup.cpp
 	"Powerup.hpp"
 
-1452896528 d:\users\kvand_000\documents\github\tanks\powerup.hpp
+1453151226 d:\users\kvand_000\documents\github\tanks\powerup.hpp
 	"RenderableObject.hpp"
 	"Collider.hpp"
 	"Player.hpp"
+	"Defines.hpp"
 
 1453148822 d:\users\kvand_000\documents\github\tanks\defines.hpp
 
@@ -938,4 +940,14 @@
 1453149360 d:\users\kvand_000\documents\github\tanks\inputmanager.hpp
 	<SDL2/SDL.h>
 	"PlayerInput.hpp"
+
+1453151431 d:\users\kvand_000\documents\github\tanks\destructibleblock.hpp
+	<random>
+	"Collider.hpp"
+	"Powerup.hpp"
+	"RenderableObject.hpp"
+	"Defines.hpp"
+
+1453151185 source:d:\users\kvand_000\documents\github\tanks\destructibleblock.cpp
+	"DestructibleBlock.hpp"
 

@@ -4,11 +4,14 @@
 #include "RenderableObject.hpp"
 #include "Collider.hpp"
 #include "Player.hpp"
+#include "Defines.hpp"
 
 extern Mix_Chunk* sfxPowerupBounce[MAX_TILESET + 1];
 extern Mix_Chunk* sfxPowerupBullet[MAX_TILESET + 1];
 extern Mix_Chunk* sfxPowerupSpeed[MAX_TILESET + 1];
 extern int gRndTiles;
+
+class Player;
 
 class Powerup : public RenderableObject {
 public:

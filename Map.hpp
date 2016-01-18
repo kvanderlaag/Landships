@@ -4,6 +4,7 @@
 #include "Tile.hpp"
 #include "Collider.hpp"
 #include "RenderableObject.hpp"
+#include "DestructibleBlock.hpp"
 #include "Vector2D.hpp"
 #include <SDL2/SDL.h>
 #include <fstream>
@@ -21,6 +22,8 @@
 
 extern std::default_random_engine generator;
 
+class DestructibleBlock;
+
 class Map : public RenderableObject
 {
     public:
@@ -28,6 +31,7 @@ class Map : public RenderableObject
         virtual ~Map();
         void Render();
         std::vector<Collider>& GetColliders();
+        std::vector<DestructibleBlock>& GetDestructibleBlocks();
         const Vector2D& GetStartPos(const int pn) const;
         void Update(uint32_t ticks) {};
         const unsigned int GetTileAt(const int row, const int col) const;
@@ -38,6 +42,7 @@ class Map : public RenderableObject
         Vector2D StartPos[4];
         unsigned char tiles[30][40];
         std::vector<Collider> mvColliders;
+        std::vector<DestructibleBlock> mvDestructibleBlocks;
         bool mLoadSuccess;
 };
 
