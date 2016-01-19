@@ -11,7 +11,13 @@ DestructibleBlock::DestructibleBlock(const float x, const float y, SDL_Renderer*
     mAnimTicks(0),
     mBounce(bounce)
 {
-    std::uniform_int_distribution<int> powerupDist(0, 6);
+    std::uniform_int_distribution<int> powerupDist;
+
+    if (bounce)
+        powerupDist = std::uniform_int_distribution<int>(0, 4);
+    else
+        powerupDist = std::uniform_int_distribution<int>(0, 7);
+
 
     int contents = powerupDist(generator);
     if (contents == 1) {
