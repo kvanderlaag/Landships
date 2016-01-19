@@ -20,9 +20,9 @@
 #define DSTRBLK 0x05
 #define BLOCK   0x06
 
-extern std::default_random_engine generator;
-
 class DestructibleBlock;
+
+extern std::default_random_engine generator;
 
 class Map : public RenderableObject
 {
@@ -31,18 +31,18 @@ class Map : public RenderableObject
         virtual ~Map();
         void Render();
         std::vector<Collider>& GetColliders();
-        std::vector<DestructibleBlock>& GetDestructibleBlocks();
+        std::vector<DestructibleBlock*> GetDestructibleBlocks();
         const Vector2D& GetStartPos(const int pn) const;
         void Update(uint32_t ticks) {};
         const unsigned int GetTileAt(const int row, const int col) const;
         const bool LoadSuccess() const;
-        std::vector<Collider> CombineColliders(unsigned char (&tiles)[30][40]) const;
     protected:
     private:
+        std::vector<Collider> CombineColliders(unsigned char (&tiles)[30][40]) const;
         Vector2D StartPos[4];
         unsigned char tiles[30][40];
         std::vector<Collider> mvColliders;
-        std::vector<DestructibleBlock> mvDestructibleBlocks;
+        std::vector<DestructibleBlock*> mvDestructibleBlocks;
         bool mLoadSuccess;
 };
 

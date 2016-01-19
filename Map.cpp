@@ -63,7 +63,6 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
 
     std::uniform_int_distribution<int> rndTileDist(5, 16);
 
-
     for (int row = 0; row < 30; ++row) {
         for (int col = 0; col < 40; ++col) {
             char c;
@@ -95,6 +94,7 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
                 tiles[row][col] = EMPTY;
             } else if (c == DSTRBLK) {
                 // Do destructible block stuff
+                mvDestructibleBlocks.push_back(new DestructibleBlock(col * 8 + 4, row * 8 + 4, mRenderer, this));
                 tiles[row][col] = EMPTY;
             } else {
                 if (row != 0 && row != 29 && col != 0 && col != 39)
@@ -246,4 +246,8 @@ std::vector<Collider> Map::CombineColliders(unsigned char (&tiles)[30][40]) cons
     return vColliders;
 
 
+}
+
+std::vector<DestructibleBlock*> Map::GetDestructibleBlocks() {
+    return mvDestructibleBlocks;
 }

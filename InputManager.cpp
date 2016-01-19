@@ -54,22 +54,6 @@ void InputManager::CheckInput() {
             } else if (e.key.keysym.sym == SDLK_LALT || e.key.keysym.sym == SDLK_RALT) {
                 mAltHeld = false;
             }
-        } else if (e.type == SDL_JOYAXISMOTION || e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP || e.type == SDL_JOYHATMOTION) {
-            for (int i = 0; i < 4; ++i) {
-                if (mPlayer[i] == nullptr)
-                    continue;
-                mPlayer[i]->CheckInput();
-            }
-            /*SDL_Joystick* joy = SDL_JoystickFromInstanceID(e.jdevice.which);
-            for (int i = 0; i < 4; ++i) {
-                if (mPlayer[i] == nullptr)
-                    continue;
-
-                if (mPlayer[i]->Joystick() == joy) {
-                    mPlayer[i]->CheckInput();
-                    break;
-                }
-            } */
         } else if (e.type == SDL_JOYDEVICEREMOVED) {
             SDL_Joystick* joy = SDL_JoystickFromInstanceID(e.jdevice.which);
             for (int i = 0; i < 4; ++i) {
@@ -91,6 +75,11 @@ void InputManager::CheckInput() {
             }
         }
 
+    }
+    for (int i = 0; i < 4; ++i) {
+        if (mPlayer[i] == nullptr)
+            continue;
+        mPlayer[i]->CheckInput();
     }
 
 }

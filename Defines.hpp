@@ -16,7 +16,7 @@
 
 #define XBOX_CONTROLS_IMG "360Controls.png"
 #define PS4_CONTROLS_IMG "PS4Controls.png"
-#define CONTROLS_IMG "360Controls.png"
+#define CONTROLS_IMG "Controls.png"
 
 #define WALL_TILES_DIRT "WallTiles.png"
 #define WALL_TILES_ICE "WallTiles2.png"
@@ -29,12 +29,12 @@
 #define GAME_END_TICKS 2000
 
 #define GAME_MUSIC1 "music1.ogg"
-#define GAME_MUSIC2 "music1.ogg"
-#define GAME_MUSIC3 "music1.ogg"
+#define GAME_MUSIC2 "music2.ogg"
+#define GAME_MUSIC3 "music3.ogg"
 
 #define INTRO_MUSIC1 "intro1.ogg"
-#define INTRO_MUSIC2 "intro1.ogg"
-#define INTRO_MUSIC3 "intro1.ogg"
+#define INTRO_MUSIC2 "intro2.ogg"
+#define INTRO_MUSIC3 "intro3.ogg"
 
 #define MENU_MUSIC  "menu.ogg"
 #define SFX_FIRE "sfx_fire.ogg"
@@ -44,16 +44,16 @@
 #define SFX_DIE "sfx_die.ogg"
 
 #define SFX_POWERUP_BOUNCE1 "sfx_powerupBounce1.ogg"
-#define SFX_POWERUP_BOUNCE2 "sfx_powerupBounce1.ogg"
-#define SFX_POWERUP_BOUNCE3 "sfx_powerupBounce1.ogg"
+#define SFX_POWERUP_BOUNCE2 "sfx_powerupBounce2.ogg"
+#define SFX_POWERUP_BOUNCE3 "sfx_powerupBounce3.ogg"
 
 #define SFX_POWERUP_BULLET1 "sfx_powerupBullet1.ogg"
-#define SFX_POWERUP_BULLET2 "sfx_powerupBullet1.ogg"
-#define SFX_POWERUP_BULLET3 "sfx_powerupBullet1.ogg"
+#define SFX_POWERUP_BULLET2 "sfx_powerupBullet2.ogg"
+#define SFX_POWERUP_BULLET3 "sfx_powerupBullet3.ogg"
 
 #define SFX_POWERUP_SPEED1 "sfx_powerupSpeed1.ogg"
-#define SFX_POWERUP_SPEED2 "sfx_powerupSpeed1.ogg"
-#define SFX_POWERUP_SPEED3 "sfx_powerupSpeed1.ogg"
+#define SFX_POWERUP_SPEED2 "sfx_powerupSpeed2.ogg"
+#define SFX_POWERUP_SPEED3 "sfx_powerupSpeed3.ogg"
 
 #define RENDER_INTERVAL 16
 

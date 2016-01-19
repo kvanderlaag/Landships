@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1453149663 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1453164272 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -394,6 +394,7 @@
 	"Options.hpp"
 	"PlayerInput.hpp"
 	"InputManager.hpp"
+	"DestructibleBlock.hpp"
 
 1452720570 d:\users\kvand_000\documents\github\tanks\player.hpp
 	"GameObject.hpp"
@@ -423,7 +424,7 @@
 	"Utility.hpp"
 	<map>
 
-1453151365 d:\users\kvand_000\documents\github\tanks\map.hpp
+1453162763 d:\users\kvand_000\documents\github\tanks\map.hpp
 	"Tile.hpp"
 	"Collider.hpp"
 	"RenderableObject.hpp"
@@ -435,7 +436,7 @@
 	<cstring>
 	<random>
 
-1452893763 source:d:\users\kvand_000\documents\github\tanks\map.cpp
+1453162813 source:d:\users\kvand_000\documents\github\tanks\map.cpp
 	"Map.hpp"
 
 1452712402 source:d:\users\kvand_000\documents\github\tanks\player.cpp
@@ -514,18 +515,19 @@
 1451158244 d:\users\kvand_000\documents\github\tanks\collisioninfo.hpp
 	"Vector2D.hpp"
 
-1452893763 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
+1453164274 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
 	"Bullet.hpp"
 	<iostream>
 	<random>
 	<ctime>
 
-1452712476 d:\users\kvand_000\documents\github\tanks\bullet.hpp
+1453163303 d:\users\kvand_000\documents\github\tanks\bullet.hpp
 	"RenderableObject.hpp"
 	"Collider.hpp"
 	"CollisionInfo.hpp"
 	"Player.hpp"
 	"Container.hpp"
+	"DestructibleBlock.hpp"
 	"Defines.hpp"
 
 1451450959 source:d:\users\kvand_000\documents\github\tanks\explosion.cpp
@@ -916,14 +918,14 @@
 	"Player.hpp"
 	"Defines.hpp"
 
-1453148822 d:\users\kvand_000\documents\github\tanks\defines.hpp
+1453158806 d:\users\kvand_000\documents\github\tanks\defines.hpp
 
 1452985850 source:d:\users\kvand_000\documents\github\tanks\options.cpp
 	"Options.hpp"
 
 1452985817 d:\users\kvand_000\documents\github\tanks\options.hpp
 
-1453145217 source:d:\users\kvand_000\documents\github\tanks\playerinput.cpp
+1453154985 source:d:\users\kvand_000\documents\github\tanks\playerinput.cpp
 	"PlayerInput.hpp"
 
 1453144906 d:\users\kvand_000\documents\github\tanks\playerinput.hpp
@@ -934,20 +936,23 @@
 	"Defines.hpp"
 	"Vector2D.hpp"
 
-1453150254 source:d:\users\kvand_000\documents\github\tanks\inputmanager.cpp
+1453164096 source:d:\users\kvand_000\documents\github\tanks\inputmanager.cpp
 	"InputManager.hpp"
 
 1453149360 d:\users\kvand_000\documents\github\tanks\inputmanager.hpp
 	<SDL2/SDL.h>
 	"PlayerInput.hpp"
 
-1453151431 d:\users\kvand_000\documents\github\tanks\destructibleblock.hpp
+1453163228 d:\users\kvand_000\documents\github\tanks\destructibleblock.hpp
 	<random>
+	<SDL2/SDL.h>
+	<iostream>
 	"Collider.hpp"
 	"Powerup.hpp"
 	"RenderableObject.hpp"
 	"Defines.hpp"
+	"Map.hpp"
 
-1453151185 source:d:\users\kvand_000\documents\github\tanks\destructibleblock.cpp
+1453163847 source:d:\users\kvand_000\documents\github\tanks\destructibleblock.cpp
 	"DestructibleBlock.hpp"
 

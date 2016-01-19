@@ -28,6 +28,7 @@
 #include "Options.hpp"
 #include "PlayerInput.hpp"
 #include "InputManager.hpp"
+#include "DestructibleBlock.hpp"
 
 const int JBUTTON_DPADUP        = 1;
 const int JBUTTON_DPADUPRIGHT   = 3;
@@ -71,8 +72,6 @@ Mix_Chunk* sfxPowerupSpeed[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Chunk* sfxPowerupBounce[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Chunk* sfxPowerupBullet[MAX_TILESET + 1] = { NULL, NULL, NULL };
 std::default_random_engine generator(time(0));
-
-
 
 bool playersIn[4] = { false, false, false, false };
 int playersInCount = 0;
@@ -334,6 +333,7 @@ int main(int argc, char** argv) {
         std::vector<Explosion*> vExplosions, vExplosionsDelete;
         std::vector<Container*> vContainers, vContainersDelete;
         std::vector<Powerup*> vPowerups, vPowerupsDelete;
+        std::vector<DestructibleBlock*> vDestructibleBlocks, vDestructibleBlocksDelete;
 
         bool winningPlayer[4] = {false, false, false, false};
 
@@ -346,8 +346,7 @@ int main(int argc, char** argv) {
                     winningPlayer[i] = true;
                 }
                 vPlayers.push_back(&players[i]);
-                vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &players[i]));
-                RenderableObject::next++;
+                vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next++, &players[i]));
             } else {
                 players[i].Die();
             }
@@ -359,8 +358,14 @@ int main(int argc, char** argv) {
             vStationary.push_back(&c);
         }
 
-        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, &m));
-        RenderableObject::next++;
+        std::vector<DestructibleBlock*> destructibleBlocks = m.GetDestructibleBlocks();
+        for (DestructibleBlock* d : destructibleBlocks) {
+            vDestructibleBlocks.push_back(d);
+            vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next++, d));
+        }
+
+
+        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next++, &m));
 
         Utility::PlayMusic(gGameMusic[gRndTiles]);
 
@@ -448,203 +453,9 @@ int main(int argc, char** argv) {
                 break;
             }
 
-            /* Event Polling - old code */
-            /*
-            SDL_Event e;
-            while (SDL_PollEvent(&e)) {
 
-                int index = -1;
-                if (e.type == SDL_JOYAXISMOTION) {
-                    for (int i = 0; i < maxPlayers; ++i) {
-                        if (SDL_JoystickInstanceID(gController[i]) == e.jaxis.which) {
-                            index = i;
-                            break;
-                        }
-                    }
 
-                } else if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP) {
-                    for (int i = 0; i < maxPlayers; ++i) {
-                        if (SDL_JoystickInstanceID(gController[i]) == e.jbutton.which) {
-                            index = i;
-                            break;
-                        }
-                    }
-                }
-
-                if (e.type == SDL_QUIT) {
-                    running = false;
-                    loopGame = false;
-                } else if (e.type == SDL_JOYBUTTONDOWN) {
-                    if (e.jbutton.button == JBUTTON_FIRE && !players[index].FireHeld()) {
-                        players[index].FireIsHeld(true);
-                    } else if (e.jbutton.button == JBUTTON_BACK) {
-                        running = false;
-                    }
-                    #ifdef _POWERUP_DEBUG
-                    else if (e.jbutton.button == JBUTTON_A) {
-                        players[index].IncreaseMaxSpeed();
-                        players[index].IncreaseMaxSpeed();
-                        players[index].IncreaseMaxBounce();
-                        players[index].IncreaseMaxBounce();
-                        players[index].IncreaseMaxBullets();
-                        players[index].IncreaseMaxBullets();
-                        players[index].IncreaseMaxBullets();
-                        players[index].IncreaseMaxBullets();
-                    }
-                    #endif
-                } else if (e.type == SDL_JOYBUTTONUP) {
-                    if (e.jbutton.button == JBUTTON_FIRE) {
-                        players[index].FireIsHeld(false);
-                        players[index].FireIsReleased(true);
-                    }
-                } else if (e.type == SDL_JOYAXISMOTION) {
-                    if (e.jaxis.axis == JAXIS_FIRE) {
-                        if (e.jaxis.value > JOYFIRE_DEADZONE) {
-                            if (!players[index].FireHeld())
-                                players[index].FireIsHeld(true);
-                        } else {
-                            players[index].FireIsHeld(false);
-                            players[index].FireIsReleased(true);
-                        }
-
-                    } else if (e.jaxis.axis == JAXIS_MOVEX || e.jaxis.axis == JAXIS_MOVEY) {
-                        int32_t joyX, joyY;
-                        joyX = SDL_JoystickGetAxis(gController[index], JAXIS_MOVEX);
-                        joyY = SDL_JoystickGetAxis(gController[index], JAXIS_MOVEY);
-                        if (std::sqrt(joyX * joyX + joyY * joyY) > JOYMOVE_DEADZONE) {
-                            players[index].SetJoyMove(true);
-                        } else {
-                            players[index].SetJoyMove(false);
-                            players[index].SetRotationVel(0);
-                            players[index].SetForwardVel(0);
-
-                        }
-                    } else if (e.jaxis.axis == JAXIS_TURRETX || e.jaxis.axis == JAXIS_TURRETY) {
-                        int32_t joyX, joyY;
-                        joyX = SDL_JoystickGetAxis(gController[index], JAXIS_TURRETX);
-                        joyY = SDL_JoystickGetAxis(gController[index], JAXIS_TURRETY);
-                        if (std::sqrt(joyX * joyX + joyY * joyY) > JOYTURRET_DEADZONE) {
-                            players[index].SetJoyTurret(true);
-                        //if (e.jaxis.value < -JOYSTICK_DEADZONE || e.jaxis.value > JOYSTICK_DEADZONE) {
-                        } else {
-                            players[index].SetJoyTurret(false);
-                            players[index].SetTurretRotationVel(0);
-
-                        }
-
-                    }
-
-                } else if (e.type == SDL_KEYDOWN) {
-                    switch (e.key.keysym.sym) {
-                    case SDLK_p:
-                        #ifdef _POWERUP_DEBUG
-                        players[0].IncreaseMaxSpeed();
-                        players[0].IncreaseMaxSpeed();
-                        players[0].IncreaseMaxBounce();
-                        players[0].IncreaseMaxBounce();
-                        players[0].IncreaseMaxBullets();
-                        players[0].IncreaseMaxBullets();
-                        players[0].IncreaseMaxBullets();
-                        players[0].IncreaseMaxBullets();
-                        #endif
-                        break;
-                    case SDLK_LALT:
-                    case SDLK_RALT:
-                        altHeld = true;
-                        break;
-                    case SDLK_RETURN:
-                        if (altHeld) {
-                            if (fullscreen) {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                gFullscreen = false;
-                            } else {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                gFullscreen = true;
-                            }
-                        }
-                        break;
-                    case SDLK_PAUSE:
-                    case SDLK_END:
-                    case SDLK_ESCAPE:
-                        running = false;
-                        break;
-                    case SDLK_LEFT:
-                        if (!players[0].JoyMove())
-                            players[0].SetRotationVel(-MAX_ROTATE);
-                        break;
-                    case SDLK_RIGHT:
-                        if (!players[0].JoyMove())
-                            players[0].SetRotationVel(MAX_ROTATE);
-                        break;
-                    case SDLK_a:
-                    case SDLK_TAB:
-                        if (!players[0].JoyTurret())
-                            players[0].SetTurretRotationVel(-MAX_ROTATE);
-                        break;
-                    case SDLK_d:
-                    case SDLK_BACKSPACE:
-                        if (!players[0].JoyTurret())
-                            players[0].SetTurretRotationVel(MAX_ROTATE);
-                        break;
-                    case SDLK_UP:
-                        if (!players[0].JoyMove())
-                            players[0].SetForwardVel(MAX_MOVE);
-                        break;
-                    case SDLK_DOWN:
-                        if (!players[0].JoyMove())
-                            players[0].SetForwardVel(-MAX_MOVE);
-                        break;
-                    case SDLK_SPACE:
-                        players[0].FireIsHeld(true);
-                        break;
-                    }
-
-                } else if (e.type == SDL_KEYUP) {
-                    switch (e.key.keysym.sym) {
-                    case SDLK_LALT:
-                    case SDLK_RALT:
-                        altHeld = false;
-                        break;
-                    case SDLK_LEFT:
-                        if (players[0].GetRotationVel() < 0 && !players[0].JoyMove())
-                            players[0].SetRotationVel(0);
-                        break;
-                    case SDLK_RIGHT:
-                        if (players[0].GetRotationVel() > 0 && !players[0].JoyMove())
-                            players[0].SetRotationVel(0);
-                        break;
-                    case SDLK_TAB:
-                    case SDLK_a:
-                        if (players[0].GetTurretRotationVel() < 0)
-                            players[0].SetTurretRotationVel(0);
-                        break;
-                    case SDLK_BACKSPACE:
-                    case SDLK_d:
-                        if (players[0].GetTurretRotationVel() > 0)
-                            players[0].SetTurretRotationVel(0);
-                        break;
-                    case SDLK_UP:
-                        if (players[0].GetForwardVel() > 0 && !players[0].JoyMove())
-                            players[0].SetForwardVel(0);
-                        break;
-                    case SDLK_DOWN:
-                        if (players[0].GetForwardVel() < 0 && !players[0].JoyMove())
-                            players[0].SetForwardVel(0);
-                        break;
-                    case SDLK_SPACE:
-                        players[0].FireIsHeld(false);
-                        players[0].FireIsReleased(true);
-                        break;
-                    }
-
-                }
-            }
-            */
-            /* End of old event polling code */
-
-            //std::cout << "Checking input." << std::endl;
             gInput->CheckInput();
-            //std::cout << "Checked input." << std::endl;
 
             if (gInput->QuitFlag()) {
                 Quit(0);
@@ -718,8 +529,7 @@ int main(int argc, char** argv) {
                         if (b != nullptr) {
                             //Utility::FireRumble(gHaptic[i]);
                             vBullets.insert(std::pair<int, Bullet*>(Bullet::next, b));
-                            vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, b));
-                            RenderableObject::next++;
+                            vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next++, b));
                         }
                 }
             }
@@ -780,11 +590,6 @@ int main(int argc, char** argv) {
                     double diff = (joyVec.GetX() * ptY) - (joyVec.GetY() * ptX);
                     scale = (diff > 0 ) - (diff < 0);
 
-                    //std::cout << "Joystick angle: " << joyAngle / M_PI << ", Turret Angle: " << ptAngle / M_PI << ", Diff: " << diff << std::endl;
-
-
-                    //std::cout << "Rotating Turret " << scale << std::endl;
-                    //players[e.jaxis.which].SetTurretAngle(joyAngle + 90);
                     players[i].SetTurretRotationVel(MAX_ROTATE * scale * joyVec.GetMagnitude());
                 }
             }
@@ -806,12 +611,7 @@ int main(int argc, char** argv) {
 
                 if (players[i].JoyMove()) {
                     players[i].IsMoving(true);
-                    //int32_t joyX, joyY;
-                    //joyX = SDL_JoystickGetAxis(gController[i], JAXIS_MOVEX);
-                    //joyY = SDL_JoystickGetAxis(gController[i], JAXIS_MOVEY);
-                    //Vector2D joyVec(-joyX, -joyY);
                     Vector2D joyVec(gInput->Player(i)->LeftStickVector().Normalized());
-                    //joyVec = joyVec.Normalized();
 
 
                     float pAngle = players[i].GetAngle() - 90;
@@ -828,7 +628,6 @@ int main(int argc, char** argv) {
                     if (pAngle < -180) {
                         pAngle += 360;
                     }
-                    //float joyAngle = std::atan2(joyY, joyX);
 
                     pAngle = pAngle * M_PI / 180;
 
@@ -848,11 +647,6 @@ int main(int argc, char** argv) {
                     double diff = (joyVec.GetX() * pY) - (joyVec.GetY() * pX);
                     scale = (diff > 0 ) - (diff < 0);
 
-                    //std::cout << "Joystick angle: " << joyAngle / M_PI << ", Player Angle: " << pAngle / M_PI << ", Diff: " << diff << std::endl;
-
-
-                    //std::cout << "Rotating Turret " << scale << std::endl;
-                    //players[e.jaxis.which].SetTurretAngle(joyAngle + 90);
                     players[i].SetRotationVel(MAX_ROTATE * scale);
                     players[i].SetForwardVel(MAX_MOVE * joyVec.GetMagnitude());
                 } else if (players[i].Moving()) {
@@ -880,11 +674,28 @@ int main(int argc, char** argv) {
                     } else {
                         bool exists = false;
                             for (Container* c1 : vContainersDelete) {
-                                if (c1 == c)
+                                if (c1 == c) {
                                     exists = true;
+                                    break;
+                                }
                             }
                             if (!exists)
                                 vContainersDelete.push_back(c);
+                    }
+                }
+                for (DestructibleBlock* d : vDestructibleBlocks) {
+                    if (!d->IsDead()) {
+                        p->CheckCollision(d->GetCollider(), frame_time);
+                    } else {
+                        bool exists = false;
+                        for (DestructibleBlock* d1 : vDestructibleBlocksDelete) {
+                            if (d == d1) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists)
+                            vDestructibleBlocksDelete.push_back(d);
                     }
                 }
 
@@ -916,9 +727,37 @@ int main(int argc, char** argv) {
                 }
             }
 
+            for (GameObject* d : vDestructibleBlocks) {
+                d->Update(frame_time);
+            }
+
             for (std::pair<int, Bullet*> b : vBullets) {
                 if (!b.second->IsDead()) {
                     b.second->Update(frame_time);
+
+                    for (DestructibleBlock* d : vDestructibleBlocks) {
+                        if (!d->IsDead()) {
+                            CollisionInfo coll = b.second->CheckCollision(*d, frame_time);
+                            if (coll.Colliding() || coll.WillCollide()) {
+                                if (d->Damage() == 1) {
+                                    b.second->Die();
+                                    b.second->GetOwner().DestroyBullet();
+                                    RenderableObject::next++;
+                                    NewExplosion(d->GetX(), d->GetY(), ren, vRenderable, vExplosions);
+                                    if (d->GetContents() != -1) {
+                                        Powerup* pow = new Powerup(d->GetX(), d->GetY(), ren, d->GetContents());
+                                        vPowerups.push_back(pow);
+                                        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, pow));
+                                    }
+                                } else if (b.second->IsDead() ) {
+                                    b.second->Die();
+                                    b.second->GetOwner().DestroyBullet();
+                                    RenderableObject::next++;
+                                    NewExplosion(b.second->GetX(), b.second->GetY(), ren, vRenderable, vExplosions);
+                                }
+                            }
+                        }
+                    }
 
                     for (Container* c : vContainers) {
                         if (!c->IsDead()) {
@@ -1031,6 +870,26 @@ int main(int argc, char** argv) {
                 }
             }
 
+            while (!vDestructibleBlocksDelete.empty()) {
+                std::vector<DestructibleBlock*>::iterator it = vDestructibleBlocksDelete.begin();
+                DestructibleBlock* d = *it;
+                for (std::vector<DestructibleBlock*>::iterator dIt = vDestructibleBlocks.begin(); dIt != vDestructibleBlocks.end(); dIt++) {
+                    if (d == *dIt) {
+                        vDestructibleBlocks.erase(dIt);
+                        break;
+                    }
+                }
+                for (std::map<int, RenderableObject*>::iterator rIt = vRenderable.begin(); rIt != vRenderable.end(); rIt++) {
+                    if (rIt->second == d) {
+                        vRenderable.erase(rIt->first);
+                        break;
+                    }
+                }
+                vDestructibleBlocksDelete.erase(it);
+                std::cout << "Deleting d" << std::endl;
+                delete d;
+
+            }
 
             while (!vExplosionsDelete.empty()) {
                 std::vector<Explosion*>::iterator it = vExplosionsDelete.begin();

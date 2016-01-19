@@ -6,6 +6,7 @@
 #include "CollisionInfo.hpp"
 #include "Player.hpp"
 #include "Container.hpp"
+#include "DestructibleBlock.hpp"
 
 #include "Defines.hpp"
 
@@ -13,6 +14,7 @@ extern Mix_Chunk* sfxBounce[3];
 extern std::default_random_engine generator;
 
 class Player;
+class DestructibleBlock;
 
 class Bullet : public RenderableObject {
 private:
@@ -45,6 +47,7 @@ public:
     CollisionInfo CheckCollision(const Container& container, const uint32_t ticks);
     CollisionInfo CheckCollision(const Collider& other, const uint32_t ticks);
     CollisionInfo CheckCollision(const Bullet& other, const uint32_t ticks);
+    CollisionInfo CheckCollision(const DestructibleBlock& other, const uint32_t ticks);
 
     void Render();
 
