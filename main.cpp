@@ -337,6 +337,8 @@ int main(int argc, char** argv) {
 
         bool winningPlayer[4] = {false, false, false, false};
 
+        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next++, &m));
+
         for (int i = 0; i < 4; ++i) {
             if (gInput->Player(i) == nullptr) {
                 continue;
@@ -365,7 +367,7 @@ int main(int argc, char** argv) {
         }
 
 
-        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next++, &m));
+
 
         Utility::PlayMusic(gGameMusic[gRndTiles]);
 
