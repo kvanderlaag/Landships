@@ -71,7 +71,7 @@ Mix_Chunk* sfxDie = NULL;
 Mix_Chunk* sfxPowerupSpeed[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Chunk* sfxPowerupBounce[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Chunk* sfxPowerupBullet[MAX_TILESET + 1] = { NULL, NULL, NULL };
-std::default_random_engine generator(time(0));
+std::default_random_engine generator(time(NULL));
 
 bool playersIn[4] = { false, false, false, false };
 int playersInCount = 0;
@@ -263,9 +263,9 @@ int main(int argc, char** argv) {
     }
 
     while (loopGame) {
-        if (!Mix_PlayingMusic()) {
-            Mix_FadeInMusic(menuMusic, -1, 1000);
-        }
+
+        Mix_FadeInMusic(menuMusic, -1, 1000);
+
         if (Menu() == -1) {
             loopGame = false;
             break;
@@ -289,6 +289,8 @@ int main(int argc, char** argv) {
         else
             mapfilename = "default.d";
         #endif
+
+        generator = std::default_random_engine(time(0));
 
         std::uniform_int_distribution<int> distTiles(0,MAX_TILESET);
         gRndTiles = distTiles(generator);
@@ -2528,9 +2530,10 @@ int Pause() {
         }
     }
 
-    if (quit)
+    if (quit) {
+        Mix_ResumeMusic();
         return -1;
-    else {
+    } else {
         Mix_ResumeMusic();
         return 0;
     }
