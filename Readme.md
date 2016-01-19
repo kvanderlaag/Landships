@@ -69,3 +69,9 @@ containers reveals a power-up, which the player can collect by driving their
 tank over it. Power-ups are one of an extra bullet, an extra bounce, or extra
 tank speed. The maximum number of bullets is 5, the maximum number of bounces
 for each bullet is 3, and the maximum tank speed is 3.
+
+Some playing fields contain blocks which can be destroyed by shooting them three
+time. Blocks which appear reflective are more likely to reveal a power-up when
+destroyed, but bullets also bounce off of them. Blocks which appears matte are
+less likely to reveal a power-up when destroyed, but bullets detonate on impact
+with them.

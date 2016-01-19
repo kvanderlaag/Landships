@@ -749,7 +749,7 @@ int main(int argc, char** argv) {
                                     if (d->GetContents() != -1) {
                                         Powerup* pow = new Powerup(d->GetX(), d->GetY(), ren, d->GetContents());
                                         vPowerups.push_back(pow);
-                                        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, pow));
+                                        vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next++, pow));
                                     }
                                 } else if (!d->Bounce() ) {
                                     b.second->Die();
@@ -775,8 +775,7 @@ int main(int argc, char** argv) {
                                 b.second->GetOwner().DestroyBullet();
                                 Powerup* pow = new Powerup(c->GetX(), c->GetY(), ren, c->GetContents());
                                 vPowerups.push_back(pow);
-                                vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, pow));
-                                RenderableObject::next++;
+                                vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next++, pow));
                                 NewExplosion(c->GetX(), c->GetY(), ren, vRenderable, vExplosions);
                                 containers--;
                             }
