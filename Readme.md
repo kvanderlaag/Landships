@@ -41,7 +41,9 @@ aim.
 
 Right Trigger / R2 / Right Bumper / R1: Fire.
 
-Back / Share: Quit game
+Start / Options: Pause Game
+
+Back / Share: Quit, when game is paused.
 
 ### Gameplay:
 Each player controls a tank. (Player 1 controls the green tank, Player 2

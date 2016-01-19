@@ -86,6 +86,7 @@ SDL_Renderer* ren = NULL;
 SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
 //SDL_Haptic* gHaptic[4] = { NULL, NULL, NULL, NULL };
 InputManager* gInput = nullptr;
+uint32_t rmask, gmask, bmask, amask;
 
 const int JOYTURRET_DEADZONE = 12000;
 const int JOYMOVE_DEADZONE = 12000;
@@ -96,12 +97,12 @@ void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int,
 
 int Title();
 int Menu();
-//int ControllerSelect();
 int DisplayControls();
 Options* OptionsMenu();
 int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]);
 void Quit(int status);
-//void CheckJoysticks();
+int Pause();
+int ConfirmQuit();
 
 
 int main(int argc, char** argv) {
@@ -232,18 +233,17 @@ int main(int argc, char** argv) {
         Quit(10);
     }
 
-    uint32_t rmask, gmask, bmask, amask;
-        #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-            rmask = 0xff000000;
-            gmask = 0x00ff0000;
-            bmask = 0x0000ff00;
-            amask = 0x000000ff;
-        #else
-            amask = 0xff000000;
-            bmask = 0x00ff0000;
-            gmask = 0x0000ff00;
-            rmask = 0x000000ff;
-        #endif // SDL_BIG_ENDIAN
+    #if SDL_BYTEORDER == SDL_BIG_ENDIAN
+        rmask = 0xff000000;
+        gmask = 0x00ff0000;
+        bmask = 0x0000ff00;
+        amask = 0x000000ff;
+    #else
+        amask = 0xff000000;
+        bmask = 0x00ff0000;
+        gmask = 0x0000ff00;
+        rmask = 0x000000ff;
+    #endif // SDL_BIG_ENDIAN
 
     SDL_Surface* rSurface = SDL_CreateRGBSurface(0, 1, 1, 32, rmask, gmask, bmask, amask);
     uint32_t backgroundColor[MAX_TILESET + 1] = { SDL_MapRGB(rSurface->format, 0x20, 0x20, 0x05),
@@ -388,11 +388,20 @@ int main(int argc, char** argv) {
 
         /* End of background texture */
 
+        uint32_t ticksSincePause = 500;
 
         while (running == true) {
             uint32_t new_time = SDL_GetTicks();
             uint32_t frame_time = std::min(new_time - old_time, (uint32_t) 30);
             old_time = new_time;
+
+            if (ticksSincePause > 0) {
+                if (frame_time > ticksSincePause) {
+                    ticksSincePause = 0;
+                } else {
+                    ticksSincePause -= frame_time;
+                }
+            }
 
             if (timeToExit > 0) {
                 timeToExit -= frame_time;
@@ -468,8 +477,15 @@ int main(int argc, char** argv) {
             }
             for (int i = 0; i < 4; ++i) {
                 if (gInput->Player(i)) {
-                    if (gInput->Player(i)->BackHeld()) {
-                        running = false;
+                    //if (gInput->Player(i)->BackHeld()) {
+                    //    running = false;
+                    //}
+                    if (gInput->Player(i)->StartHeld() && ticksSincePause == 0) {
+                        if (Pause() == -1) {
+                            running = false;
+                        } else {
+                            ticksSincePause = 300;
+                        }
                     }
                 }
             }
@@ -1286,6 +1302,7 @@ int Menu() {
     uint32_t time = SDL_GetTicks();
 
     uint32_t ticksSinceStart = 1000;
+    uint32_t ticksSincePause = 1000;
 
     int topLevel = 0;
     int bottomLevel = 17;
@@ -1317,6 +1334,13 @@ int Menu() {
                 ticksSinceStart -= frameTime;
         }
 
+        if (ticksSincePause > 0) {
+            if (frameTime > ticksSincePause)
+                ticksSincePause = 0;
+            else
+                ticksSincePause -= frameTime;
+        }
+
         gInput->CheckInput();
 
         if (gInput->QuitFlag()) {
@@ -1324,9 +1348,13 @@ int Menu() {
             quit = true;
         }
 
-        if (gInput->EscapeHeld() && ticksSinceStart == 0) {
-            menuRunning = false;
-            quit = true;
+        if (gInput->EscapeHeld() && ticksSinceStart == 0 && ticksSincePause == 0) {
+            if (ConfirmQuit() == -1) {
+                menuRunning = false;
+                quit = true;
+            } else {
+                ticksSincePause = 2000;
+            }
         }
 
         if (gInput->EnterHeld() && ticksSinceStart == 0) {
@@ -1348,9 +1376,13 @@ int Menu() {
                 if (gInput->Player(i)->StartHeld() && ticksSinceStart == 0) {
                     mapSelect = true;
                 }
-                if (gInput->Player(i)->BackHeld() && ticksSinceStart == 0) {
-                    menuRunning = false;
-                    quit = true;
+                if (gInput->Player(i)->BackHeld() && ticksSinceStart == 0 && ticksSincePause == 0) {
+                    if (ConfirmQuit() == -1) {
+                        menuRunning = false;
+                        quit = true;
+                    } else {
+                        ticksSincePause = 2000;
+            }
                 }
                 if (gInput->Player(i)->UpHeld()) {
                     if (mapSelected > 0) {
@@ -1669,179 +1701,6 @@ Options* OptionsMenu() {
         uint32_t frameTime = SDL_GetTicks() - nowTime;
         nowTime = SDL_GetTicks();
         ticksSinceStart = std::max(0, ticksSinceStart - (int) frameTime);
-
-        /*
-        int index = -1;
-
-
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP || e.type == SDL_JOYAXISMOTION || e.type == SDL_JOYHATMOTION) {
-                for (int i = 0; i < maxPlayers; ++i) {
-                    if (SDL_JoystickInstanceID(gController[i]) == e.jdevice.which) {
-                        index = i;
-                        break;
-                    }
-                }
-            }
-
-            if (e.type == SDL_QUIT) {
-              return nullptr;
-            } else if (e.type == SDL_KEYDOWN) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_LALT:
-                    case SDLK_RALT:
-                        altHeld = true;
-                        break;
-                    case SDLK_END:
-                    case SDLK_ESCAPE:
-                        return nullptr;
-                        break;
-                    case SDLK_RETURN:
-                        if (altHeld) {
-                            if (gFullscreen) {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                gFullscreen = false;
-                            } else {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                gFullscreen = true;
-                            }
-                        } else {
-                            optionsMenuRunning = false;
-                        }
-                        break;
-                    case SDLK_SPACE:
-                        optionsMenuRunning = false;
-                        break;
-                    case SDLK_RIGHT:
-                        playersRightHeld[0] = true;
-                        playersLeftHeld[0] = false;
-                        break;
-                    case SDLK_LEFT:
-                        playersLeftHeld[0] = true;
-                        playersRightHeld[0] = false;
-                        break;
-                    case SDLK_UP:
-                        playersUpHeld[0] = true;
-                        playersDownHeld[0] = false;
-                        break;
-                    case SDLK_DOWN:
-                        playersUpHeld[0] = false;
-                        playersDownHeld[0] = true;
-                        break;
-                } // switch e.key.keysym.sym
-            } else if (e.type == SDL_KEYUP) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_UP:
-                        playersUpHeld[0] = false;
-                        break;
-                    case SDLK_DOWN:
-                        playersDownHeld[0] = false;
-                        break;
-                    case SDLK_LEFT:
-                        playersLeftHeld[0] = false;
-                        break;
-                    case SDLK_RIGHT:
-                        playersRightHeld[0] = false;
-                        break;
-                    case SDLK_LALT:
-                    case SDLK_RALT:
-                        altHeld = false;
-                        break;
-                } // switch e.key.keysym.sym
-            } else if (e.type == SDL_JOYAXISMOTION) {
-                if (e.jaxis.axis == JAXIS_MOVEY) {
-                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
-                        playersDownHeld[index] = true;
-                        playersUpHeld[index] = false;
-                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                    } else {
-                        playersDownHeld[index] = false;
-                        playersUpHeld[index] = false;
-                    }
-                } else if (e.jaxis.axis == JAXIS_MOVEX) {
-                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
-                        playersRightHeld[index] = true;
-                        playersLeftHeld[index] = false;
-                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                    } else {
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                    }
-                }
-            } else if (e.type == SDL_JOYBUTTONDOWN) {
-                if (e.jbutton.button == JBUTTON_BACK || e.jbutton.button == JBUTTON_B) {
-                        return new Options(gameType, score, stock, time, true);
-                } else if (e.jbutton.button == JBUTTON_START || e.jbutton.button == JBUTTON_A) {
-                        optionsMenuRunning = false;
-                        break;
-                }
-            } else if (e.type == SDL_JOYBUTTONUP) { // if e.type == SDL_JOYBUTTONDOWN
-
-            } else if (e.type == SDL_JOYHATMOTION) {
-                switch (e.jhat.value) {
-                    case JBUTTON_DPADCENTER:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADUP:
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADUPRIGHT:
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = true;
-                        break;
-                    case JBUTTON_DPADRIGHT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = true;
-                        break;
-                    case JBUTTON_DPADDOWNRIGHT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = true;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = true;
-                        break;
-                    case JBUTTON_DPADDOWN:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = true;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADDOWNLEFT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = true;
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADLEFT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADUPLEFT:
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                        break;
-                }
-            }
-        } // While SDL_PollEvent()
-        */
 
         gInput->CheckInput();
 
@@ -2289,19 +2148,6 @@ void Quit(int status) {
 
 int Title() {
 
-    uint32_t rmask, gmask, bmask, amask;
-        #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-            rmask = 0xff000000;
-            gmask = 0x00ff0000;
-            bmask = 0x0000ff00;
-            amask = 0x000000ff;
-        #else
-            amask = 0xff000000;
-            bmask = 0x00ff0000;
-            gmask = 0x0000ff00;
-            rmask = 0x000000ff;
-        #endif // SDL_BIG_ENDIAN
-
     bool titleRunning = true;
     SDL_Texture* titleTexture = Utility::LoadTexture(ren, TITLE_IMG);
 
@@ -2324,63 +2170,22 @@ int Title() {
 
     bool quit = false;
 
-    while (titleRunning) {
+    uint32_t ticksSincePause = 0;
 
-        /*
-        if (SDL_NumJoysticks() > 0 && SDL_NumJoysticks() != numJoysticks) {
-            numJoysticks = SDL_NumJoysticks();
-            for (int i = 0; i < 4; ++i) {
-                playersIn[i] = false;
-            }
-            CheckJoysticks();
-        }
-        */
+    while (titleRunning) {
 
         uint32_t frameTime = SDL_GetTicks() - time;
         time = SDL_GetTicks();
 
-        /*
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                titleRunning = false;
-                SDL_DestroyTexture(titleTexture);
-                return -1;
-            } else if (e.type == SDL_JOYBUTTONDOWN) {
-                if (fadeInDone) {
-                    titleRunning = false;
-                }
-            } else if (e.type == SDL_KEYDOWN) {
-                if (e.key.keysym.sym == SDLK_RETURN) {
-                        if (altHeld) {
-                            if (gFullscreen) {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                gFullscreen = false;
-                            } else {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                gFullscreen = true;
-                            }
-                        } else if (fadeInDone) {
-                            titleRunning = false;
-                        }
-                } else if (e.key.keysym.sym == SDLK_ESCAPE) {
-                    titleRunning = false;
-                    SDL_DestroyTexture(titleTexture);
-                    return -1;
-                } else if (e.key.keysym.sym == SDLK_LALT || e.key.keysym.sym == SDLK_RALT) {
-                    altHeld = true;
-                }
-            } else if (e.type == SDL_KEYUP) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_LALT:
-                    case SDLK_RALT:
-                        altHeld = false;
-                }
+        gInput->CheckInput();
+
+        if (ticksSincePause > 0) {
+            if (frameTime > ticksSincePause) {
+                ticksSincePause = 0;
+            } else {
+                ticksSincePause -= frameTime;
             }
         }
-        */
-
-        gInput->CheckInput();
 
         if (gInput->QuitFlag() ) {
             quit = true;
@@ -2388,9 +2193,14 @@ int Title() {
         }
 
         if (fadeInDone) {
-            if (gInput->EscapeHeld() && fadeInDone) {
-                quit = true;
-                titleRunning = false;
+            if (gInput->EscapeHeld() && fadeInDone && ticksSincePause == 0) {
+                if (ConfirmQuit() == -1) {
+                    quit = true;
+                    titleRunning = false;
+                } else {
+                    ticksSincePause = 2000;
+                    gInput->CheckInput();
+                }
             }
 
             if (gInput->EnterHeld() && fadeInDone) {
@@ -2403,6 +2213,15 @@ int Title() {
                 }
                 if (gInput->Player(i)->StartHeld()) {
                     titleRunning = false;
+                }
+                if (gInput->Player(i)->BackHeld() && ticksSincePause == 0) {
+                    if (ConfirmQuit() == -1) {
+                        titleRunning = false;
+                        quit = true;
+                    } else {
+                        ticksSincePause = 2000;
+                        gInput->CheckInput();
+                    }
                 }
             }
         }
@@ -2471,348 +2290,12 @@ int Title() {
         return 0;
 }
 
-/*
-void CheckJoysticks() {
-    //std::cout << "Haptic devices: " << SDL_NumHaptics() << std::endl;
-    if (SDL_NumJoysticks() > 0) {
-            maxPlayers = std::min(SDL_NumJoysticks(), 4);
-            for (int i = 0; i < std::min(SDL_NumJoysticks(), 4); ++i) {
-                //std::cout << "Joystick " << i << ": " << SDL_JoystickNameForIndex(i) << std::endl;
-                if (gController[i] != SDL_JoystickOpen(i)) {
-                    free(gController[i]);
-                    gController[i] = SDL_JoystickOpen(i);
-
-                }
-                if (gController[i] == NULL) {
-                    std::cout << "Could not open joystick " << i << ". SDL Error: " << SDL_GetError() << std::endl;
-                    Quit(2);
-                }
-            }
-        }
-}
-*/
-
-/*
-int ControllerSelect() {
-    bool controllerMenuRunning = true;
-
-    const int cursorRepeatV = MENU_REPEAT_VERT_TICKS;
-    const int cursorRepeatH = MENU_REPEAT_HORIZ_TICKS;
-    int ticksSinceMove[4] = {0, 0, 0, 0};
-    bool playersUpHeld[4] = { false, false, false, false };
-    bool playersDownHeld[4] = {false, false, false, false };
-    bool playersLeftHeld[4] = { false, false, false, false };
-    bool playersRightHeld[4] = {false, false, false, false };
-
-    uint32_t nowTime, renderTime;
-
-    renderTime = nowTime = SDL_GetTicks();
-
-    std::string controllerTypeString = "Controller Type: ";
-    std::string xboxString = "Xbox 360";
-    std::string ps4String = "PlayStation 4";
-
-    SDL_Color white = { 255, 255, 255, 255 };
-
-    SDL_Texture* controllerTypeTexture = Utility::RenderText(controllerTypeString, GAME_FONT, white, 16, ren);
-    int typeWidth, typeHeight;
-    SDL_QueryTexture(controllerTypeTexture, NULL, NULL, &typeWidth, &typeHeight);
-
-    SDL_Texture* xboxTexture = Utility::RenderText(xboxString, GAME_FONT, white, 14, ren);
-    int xboxWidth, xboxHeight;
-    SDL_QueryTexture(xboxTexture, NULL, NULL, &xboxWidth, &xboxHeight);
-
-    SDL_Texture* ps4Texture = Utility::RenderText(ps4String, GAME_FONT, white, 14, ren);
-    int ps4Width, ps4Height;
-    SDL_QueryTexture(ps4Texture, NULL, NULL, &ps4Width, &ps4Height);
-
-    SDL_Texture* arrowTexture = Utility::LoadTexture(ren, "Arrows.png");
-    int arrowWidth, arrowHeight;
-    SDL_QueryTexture(arrowTexture, NULL, NULL, &arrowWidth, &arrowHeight);
-
-    SDL_Rect typeRect, xboxRect, ps4Rect, arrowSrcRect;
-
-    typeRect.x = (SCREEN_WIDTH / 2) - (typeWidth / 2);
-    typeRect.y = (SCREEN_HEIGHT / 2) - ((typeHeight + xboxHeight + ps4Height + 6) / 2);
-    typeRect.h = typeHeight;
-    typeRect.w = typeWidth;
-
-    xboxRect.x = (SCREEN_WIDTH / 2) - (xboxWidth / 2);
-    xboxRect.y = typeRect.y + typeHeight + 2;
-    xboxRect.h = xboxHeight;
-    xboxRect.w = xboxWidth;
-
-    ps4Rect.x = (SCREEN_WIDTH / 2) - (ps4Width / 2);
-    ps4Rect.y = xboxRect.y + xboxHeight + 2;
-    ps4Rect.h = ps4Height;
-    ps4Rect.w = ps4Width;
-
-    arrowSrcRect.x = 8;
-    arrowSrcRect.y = 0;
-    arrowSrcRect.w = 8;
-    arrowSrcRect.h = 8;
-
-
-
-    while (controllerMenuRunning) {
-
-        uint32_t frameTime = SDL_GetTicks() - nowTime;
-        nowTime = SDL_GetTicks();
-
-        CheckJoysticks();
-
-
-        int index = -1;
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP || e.type == SDL_JOYAXISMOTION || e.type == SDL_JOYHATMOTION) {
-                for (int i = 0; i < maxPlayers; ++i) {
-                    if (SDL_JoystickInstanceID(gController[i]) == e.jdevice.which) {
-                        index = i;
-                        break;
-                    }
-                }
-            }
-
-            if (e.type == SDL_QUIT) {
-              return -1;
-            } else if (e.type == SDL_KEYDOWN) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_LALT:
-                    case SDLK_RALT:
-                        altHeld = true;
-                        break;
-                    case SDLK_END:
-                    case SDLK_ESCAPE:
-                        return -1;
-                        break;
-                    case SDLK_RETURN:
-                        if (altHeld) {
-                            if (gFullscreen) {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                gFullscreen = false;
-                            } else {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                gFullscreen = true;
-                            }
-                        } else {
-                            controllerMenuRunning = false;
-                        }
-                        break;
-                    case SDLK_SPACE:
-                        controllerMenuRunning = false;
-                        break;
-                    case SDLK_RIGHT:
-                        playersRightHeld[0] = true;
-                        playersLeftHeld[0] = false;
-                        break;
-                    case SDLK_LEFT:
-                        playersLeftHeld[0] = true;
-                        playersRightHeld[0] = false;
-                        break;
-                    case SDLK_UP:
-                        playersUpHeld[0] = true;
-                        playersDownHeld[0] = false;
-                        break;
-                    case SDLK_DOWN:
-                        playersUpHeld[0] = false;
-                        playersDownHeld[0] = true;
-                        break;
-                } // switch e.key.keysym.sym
-            } else if (e.type == SDL_KEYUP) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_UP:
-                        playersUpHeld[0] = false;
-                        break;
-                    case SDLK_DOWN:
-                        playersDownHeld[0] = false;
-                        break;
-                    case SDLK_LEFT:
-                        playersLeftHeld[0] = false;
-                        break;
-                    case SDLK_RIGHT:
-                        playersRightHeld[0] = false;
-                        break;
-                    case SDLK_LALT:
-                    case SDLK_RALT:
-                        altHeld = false;
-                        break;
-                } // switch e.key.keysym.sym
-            } else if (e.type == SDL_JOYAXISMOTION) {
-                if (e.jaxis.axis == JAXIS_MOVEY) {
-                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
-                        playersDownHeld[index] = true;
-                        playersUpHeld[index] = false;
-                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                    } else {
-                        playersDownHeld[index] = false;
-                        playersUpHeld[index] = false;
-                    }
-                } else if (e.jaxis.axis == JAXIS_MOVEX) {
-                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
-                        playersRightHeld[index] = true;
-                        playersLeftHeld[index] = false;
-                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                    } else {
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                    }
-                }
-            } else if (e.type == SDL_JOYBUTTONDOWN) {
-                controllerMenuRunning = false;
-                break;
-            } else if (e.type == SDL_JOYBUTTONUP) { // if e.type == SDL_JOYBUTTONDOWN
-                switch (e.jbutton.button) {
-                } // switch e.jbutton.button
-            } else if (e.type == SDL_JOYHATMOTION) {
-                switch (e.jhat.value) {
-                    case JBUTTON_DPADCENTER:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADUP:
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADUPRIGHT:
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = true;
-                        break;
-                    case JBUTTON_DPADRIGHT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = true;
-                        break;
-                    case JBUTTON_DPADDOWNRIGHT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = true;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = true;
-                        break;
-                    case JBUTTON_DPADDOWN:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = true;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADDOWNLEFT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = true;
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADLEFT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADUPLEFT:
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                        break;
-                }
-            }
-        } // While SDL_PollEvent()
-
-
-        for (int i = 0; i < 4; ++i) {
-            if (ticksSinceMove[i] > 0) {
-                ticksSinceMove[i] = std::max((uint32_t) 0, ticksSinceMove[i] - frameTime);
-            } else  {
-                if (playersUpHeld[i]) {
-                    if (controllerType == PS4_CONTROLLER)
-                            controllerType = XBOX_360_CONTROLLER;
-                    ticksSinceMove[i] = cursorRepeatV;
-                } else if (playersDownHeld[i]) {
-                    if (controllerType == XBOX_360_CONTROLLER)
-                            controllerType = PS4_CONTROLLER;
-                    ticksSinceMove[i] = cursorRepeatV;
-                } else if (playersLeftHeld[i]) {
-                    ticksSinceMove[i] = cursorRepeatH;
-                } else if (playersRightHeld[i]) {
-                    ticksSinceMove[i] = cursorRepeatH;
-                }
-            }
-        }
-
-        if (SDL_TICKS_PASSED(nowTime - renderTime, RENDER_INTERVAL) ) {
-
-            SDL_Rect arrowDstRect;
-
-            arrowDstRect.h = arrowHeight;
-            arrowDstRect.w = 8;
-            if (controllerType == XBOX_360_CONTROLLER) {
-                    arrowDstRect.x = xboxRect.x - 2 - 8;
-                    arrowDstRect.y = xboxRect.y + (xboxHeight / 2) - (arrowHeight / 2);
-            } else if (controllerType == PS4_CONTROLLER) {
-                    arrowDstRect.x = ps4Rect.x - 2 - 8;
-                    arrowDstRect.y = ps4Rect.y + (ps4Height / 2) - (arrowHeight / 2);
-            }
-
-            SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
-            SDL_RenderClear(ren);
-
-            SDL_RenderCopy(ren, controllerTypeTexture, NULL, &typeRect);
-            SDL_RenderCopy(ren, xboxTexture, NULL, &xboxRect);
-            SDL_RenderCopy(ren, ps4Texture, NULL, &ps4Rect);
-            SDL_RenderCopy(ren, arrowTexture, &arrowSrcRect, &arrowDstRect);
-
-            SDL_RenderPresent(ren);
-        }
-    }
-
-    SDL_DestroyTexture(controllerTypeTexture);
-    SDL_DestroyTexture(xboxTexture);
-    SDL_DestroyTexture(ps4Texture);
-    SDL_DestroyTexture(arrowTexture);
-
-    if (controllerType == PS4_CONTROLLER) {
-        JBUTTON_START         = 9;
-        JBUTTON_BACK          = 8;
-        JBUTTON_FIRE          = 5;
-        JBUTTON_A             = 1;
-        JBUTTON_B             = 2;
-        JAXIS_MOVE            = 0x01;
-        JAXIS_ROTATE          = 0x00;
-        JAXIS_LTRIGGER        = 0x03;
-        JAXIS_TURRETX         = 0x02;
-        JAXIS_TURRETY         = 0x05;
-        JAXIS_MOVEX           = 0x00;
-        JAXIS_MOVEY           = 0x01;
-        JAXIS_FIRE            = 0x04;
-
-    }
-
-    return 0;
-}
-*/
-
-
 int DisplayControls() {
     bool controlsDisplayRunning = true;
 
     const int cursorRepeatV = MENU_REPEAT_VERT_TICKS;
     const int cursorRepeatH = MENU_REPEAT_HORIZ_TICKS;
     int ticksSinceMove[4] = {0, 0, 0, 0};
-    //bool playersUpHeld[4] = { false, false, false, false };
-    //bool playersDownHeld[4] = {false, false, false, false };
-    //bool playersLeftHeld[4] = { false, false, false, false };
-    //bool playersRightHeld[4] = {false, false, false, false };
-
 
     SDL_Texture* controlsTex = NULL;
 
@@ -2821,6 +2304,7 @@ int DisplayControls() {
     uint32_t nowTime, renderTime;
 
     uint32_t ticksSinceStart = 1000;
+    uint32_t ticksSincePause = 0;
 
     renderTime = nowTime = SDL_GetTicks();
 
@@ -2838,178 +2322,12 @@ int DisplayControls() {
                 ticksSinceStart -= frameTime;
         }
 
-        /*
-        CheckJoysticks();
-
-
-        int index = -1;
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_JOYBUTTONDOWN || e.type == SDL_JOYBUTTONUP || e.type == SDL_JOYAXISMOTION || e.type == SDL_JOYHATMOTION) {
-                for (int i = 0; i < maxPlayers; ++i) {
-                    if (SDL_JoystickInstanceID(gController[i]) == e.jdevice.which) {
-                        index = i;
-                        break;
-                    }
-                }
-            }
-
-            if (e.type == SDL_QUIT) {
-                SDL_DestroyTexture(controlsTex);
-                return -1;
-            } else if (e.type == SDL_KEYDOWN) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_LALT:
-                    case SDLK_RALT:
-                        altHeld = true;
-                        break;
-                    case SDLK_END:
-                    case SDLK_ESCAPE:
-                        SDL_DestroyTexture(controlsTex);
-                        return -1;
-                        break;
-                    case SDLK_RETURN:
-                        if (altHeld) {
-                            if (gFullscreen) {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                gFullscreen = false;
-                            } else {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                gFullscreen = true;
-                            }
-                        } else {
-                            controlsDisplayRunning = false;
-                        }
-                        break;
-                    case SDLK_SPACE:
-                        controlsDisplayRunning = false;
-                        break;
-                    case SDLK_RIGHT:
-                        playersRightHeld[0] = true;
-                        playersLeftHeld[0] = false;
-                        break;
-                    case SDLK_LEFT:
-                        playersLeftHeld[0] = true;
-                        playersRightHeld[0] = false;
-                        break;
-                    case SDLK_UP:
-                        playersUpHeld[0] = true;
-                        playersDownHeld[0] = false;
-                        break;
-                    case SDLK_DOWN:
-                        playersUpHeld[0] = false;
-                        playersDownHeld[0] = true;
-                        break;
-                } // switch e.key.keysym.sym
-            } else if (e.type == SDL_KEYUP) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_UP:
-                        playersUpHeld[0] = false;
-                        break;
-                    case SDLK_DOWN:
-                        playersDownHeld[0] = false;
-                        break;
-                    case SDLK_LEFT:
-                        playersLeftHeld[0] = false;
-                        break;
-                    case SDLK_RIGHT:
-                        playersRightHeld[0] = false;
-                        break;
-                    case SDLK_LALT:
-                    case SDLK_RALT:
-                        altHeld = false;
-                        break;
-                } // switch e.key.keysym.sym
-            } else if (e.type == SDL_JOYAXISMOTION) {
-                if (e.jaxis.axis == JAXIS_MOVEY) {
-                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
-                        playersDownHeld[index] = true;
-                        playersUpHeld[index] = false;
-                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                    } else {
-                        playersDownHeld[index] = false;
-                        playersUpHeld[index] = false;
-                    }
-                } else if (e.jaxis.axis == JAXIS_MOVEX) {
-                    if (e.jaxis.value > JOYMOVE_DEADZONE) {
-                        playersRightHeld[index] = true;
-                        playersLeftHeld[index] = false;
-                    } else if (e.jaxis.value < -JOYMOVE_DEADZONE) {
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                    } else {
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                    }
-                }
-            } else if (e.type == SDL_JOYBUTTONDOWN && e.jbutton.button == JBUTTON_START) {
-                controlsDisplayRunning = false;
-                break;
-            } else if (e.type == SDL_JOYBUTTONUP) { // if e.type == SDL_JOYBUTTONDOWN
-                switch (e.jbutton.button) {
-                } // switch e.jbutton.button
-            } else if (e.type == SDL_JOYHATMOTION) {
-                switch (e.jhat.value) {
-                    case JBUTTON_DPADCENTER:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADUP:
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADUPRIGHT:
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = true;
-                        break;
-                    case JBUTTON_DPADRIGHT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = true;
-                        break;
-                    case JBUTTON_DPADDOWNRIGHT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = true;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = true;
-                        break;
-                    case JBUTTON_DPADDOWN:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = true;
-                        playersLeftHeld[index] = false;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADDOWNLEFT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = true;
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADLEFT:
-                        playersUpHeld[index] = false;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                        break;
-                    case JBUTTON_DPADUPLEFT:
-                        playersUpHeld[index] = true;
-                        playersDownHeld[index] = false;
-                        playersLeftHeld[index] = true;
-                        playersRightHeld[index] = false;
-                        break;
-                }
-            }
-        } // While SDL_PollEvent()
-        */
+        if (ticksSincePause > 0) {
+            if (frameTime > ticksSincePause)
+                ticksSincePause = 0;
+            else
+                ticksSincePause -= frameTime;
+        }
 
         gInput->CheckInput();
 
@@ -3018,9 +2336,14 @@ int DisplayControls() {
             controlsDisplayRunning = false;
         }
 
-        if (gInput->EscapeHeld() && ticksSinceStart == 0) {
-            quit = true;
-            controlsDisplayRunning = false;
+        if (gInput->EscapeHeld() && ticksSinceStart == 0 && ticksSincePause == 0) {
+            if (ConfirmQuit() == -1) {
+                quit = true;
+                controlsDisplayRunning = false;
+            } else {
+                ticksSincePause = 2000;
+                gInput->CheckInput();
+            }
         }
 
         if (gInput->EnterHeld() && ticksSinceStart == 0) {
@@ -3033,9 +2356,14 @@ int DisplayControls() {
             }
             if (gInput->Player(i)->StartHeld() && ticksSinceStart == 0)
                 controlsDisplayRunning = false;
-            if (gInput->Player(i)->BackHeld() && ticksSinceStart == 0) {
-                quit = true;
-                controlsDisplayRunning = false;
+            if (gInput->Player(i)->BackHeld() && ticksSinceStart == 0 && ticksSincePause == 0) {
+                if (ConfirmQuit() == -1) {
+                    quit = true;
+                    controlsDisplayRunning = false;
+                } else {
+                    ticksSincePause = 2000;
+                    gInput->CheckInput();
+                }
             }
             if (ticksSinceMove[i] > 0) {
                 ticksSinceMove[i] = std::max((uint32_t) 0, ticksSinceMove[i] - frameTime);
@@ -3070,3 +2398,249 @@ int DisplayControls() {
     else
         return 0;
 }
+
+int Pause() {
+
+    bool pauseRunning = true;
+    bool quit = false;
+
+    uint32_t ticksSinceStart = 500;
+
+    uint32_t nowTime, renderTime;
+    nowTime = renderTime = SDL_GetTicks();
+
+    SDL_Color white = { 255, 255, 255, 255 };
+    SDL_Texture* pausedTex = Utility::RenderText("Paused", GAME_FONT, white, 16, ren);
+    SDL_Texture* resumeTex = Utility::RenderText("Press Start to Resume", GAME_FONT, white, 12, ren);
+    SDL_Texture* quitTex = Utility::RenderText("Press Back to Quit", GAME_FONT, white, 12, ren);
+
+    int pausedW, pausedH;
+    int resumeW, resumeH;
+    int quitW, quitH;
+
+    SDL_QueryTexture(pausedTex, NULL, NULL, &pausedW, &pausedH);
+    SDL_QueryTexture(resumeTex, NULL, NULL, &resumeW, &resumeH);
+    SDL_QueryTexture(quitTex, NULL, NULL, &quitW, &quitH);
+
+    SDL_Rect bgRect, pausedRect, resumeRect, quitRect;
+
+    pausedRect.x = (320 / 2) - (pausedW / 2);
+    resumeRect.x = (320 / 2) - (resumeW / 2);
+    quitRect.x = (320 / 2) - (quitW / 2);
+
+    pausedRect.y = (SCREEN_HEIGHT / 2) - ((pausedH + 2 + resumeH + 2 + quitH) / 2);
+    resumeRect.y = pausedRect.y + pausedH + 2;
+    quitRect.y = resumeRect.y + resumeH + 2;
+
+    pausedRect.h = pausedH;
+    pausedRect.w = pausedW;
+
+    resumeRect.h = resumeH;
+    resumeRect.w = resumeW;
+
+    quitRect.h = quitH;
+    quitRect.w = quitW;
+
+    int baseWidth = std::max(pausedW, std::max(resumeW, quitW));
+    int baseHeight = pausedH + 2 + resumeH + 2 + quitH;
+
+    bgRect.x = (320 / 2) - (baseWidth / 2) - 2;
+    bgRect.y = (SCREEN_HEIGHT / 2) - (baseHeight / 2) - 2;
+    bgRect.h = baseHeight + 4;
+    bgRect.w = baseWidth + 4;
+
+    SDL_Surface* bgSurface = SDL_CreateRGBSurface(0, baseWidth, baseHeight, 32, rmask, gmask, bmask, amask);
+    SDL_FillRect(bgSurface, NULL, SDL_MapRGB(bgSurface->format, 0, 0, 0));
+    SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(ren, bgSurface);
+    SDL_FreeSurface(bgSurface);
+
+    SDL_RenderCopy(ren, bgTexture, NULL, &bgRect);
+
+    SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderDrawRect(ren, &bgRect);
+
+    SDL_RenderCopy(ren, pausedTex, NULL, &pausedRect);
+    SDL_RenderCopy(ren, resumeTex, NULL, &resumeRect);
+    SDL_RenderCopy(ren, quitTex, NULL, &quitRect);
+
+
+    SDL_RenderPresent(ren);
+
+    SDL_DestroyTexture(bgTexture);
+    SDL_DestroyTexture(pausedTex);
+    SDL_DestroyTexture(resumeTex);
+    SDL_DestroyTexture(quitTex);
+
+    while (pauseRunning) {
+
+        uint32_t frame_time = SDL_GetTicks() - nowTime;
+        nowTime = SDL_GetTicks();
+
+        if (ticksSinceStart > 0) {
+            if (frame_time > ticksSinceStart)
+                ticksSinceStart = 0;
+            else
+                ticksSinceStart -= frame_time;
+        }
+
+        gInput->CheckInput();
+
+        if (gInput->QuitFlag()) {
+            pauseRunning = false;
+            quit = true;
+        }
+
+        if (gInput->EnterHeld() && ticksSinceStart == 0) {
+            pauseRunning = false;
+        } else if (gInput->EscapeHeld() && ticksSinceStart == 0) {
+            pauseRunning = false;
+            quit = true;
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            if (gInput->Player(i) != nullptr) {
+                if (gInput->Player(i)->StartHeld() && ticksSinceStart == 0) {
+                    pauseRunning = false;
+                } else if (gInput->Player(i)->BackHeld() && ticksSinceStart == 0) {
+                    pauseRunning = false;
+                    quit = true;
+                }
+            }
+        }
+
+        if (SDL_TICKS_PASSED(nowTime - renderTime, RENDER_INTERVAL)) {
+            renderTime = nowTime;
+
+            SDL_RenderPresent(ren);
+        }
+    }
+
+    if (quit)
+        return -1;
+    else
+        return 0;
+}
+
+
+int ConfirmQuit() {
+
+    bool pauseRunning = true;
+    bool quit = false;
+
+    uint32_t ticksSinceStart = 500;
+
+    uint32_t nowTime, renderTime;
+    nowTime = renderTime = SDL_GetTicks();
+
+    SDL_Color white = { 255, 255, 255, 255 };
+    SDL_Texture* pausedTex = Utility::RenderText("Really Quit?", GAME_FONT, white, 16, ren);
+    SDL_Texture* resumeTex = Utility::RenderText("Press Start to Confirm", GAME_FONT, white, 12, ren);
+    SDL_Texture* quitTex = Utility::RenderText("Press Back to Cancel", GAME_FONT, white, 12, ren);
+
+    int pausedW, pausedH;
+    int resumeW, resumeH;
+    int quitW, quitH;
+
+    SDL_QueryTexture(pausedTex, NULL, NULL, &pausedW, &pausedH);
+    SDL_QueryTexture(resumeTex, NULL, NULL, &resumeW, &resumeH);
+    SDL_QueryTexture(quitTex, NULL, NULL, &quitW, &quitH);
+
+    SDL_Rect bgRect, pausedRect, resumeRect, quitRect;
+
+    pausedRect.x = (SCREEN_WIDTH / 2) - (pausedW / 2);
+    resumeRect.x = (SCREEN_WIDTH / 2) - (resumeW / 2);
+    quitRect.x = (SCREEN_WIDTH / 2) - (quitW / 2);
+
+    pausedRect.y = (SCREEN_HEIGHT / 2) - ((pausedH + 2 + resumeH + 2 + quitH) / 2);
+    resumeRect.y = pausedRect.y + pausedH + 2;
+    quitRect.y = resumeRect.y + resumeH + 2;
+
+    pausedRect.h = pausedH;
+    pausedRect.w = pausedW;
+
+    resumeRect.h = resumeH;
+    resumeRect.w = resumeW;
+
+    quitRect.h = quitH;
+    quitRect.w = quitW;
+
+    int baseWidth = std::max(pausedW, std::max(resumeW, quitW));
+    int baseHeight = pausedH + 2 + resumeH + 2 + quitH;
+
+    bgRect.x = (SCREEN_WIDTH / 2) - (baseWidth / 2) - 2;
+    bgRect.y = (SCREEN_HEIGHT / 2) - (baseHeight / 2) - 2;
+    bgRect.h = baseHeight + 4;
+    bgRect.w = baseWidth + 4;
+
+    SDL_Surface* bgSurface = SDL_CreateRGBSurface(0, baseWidth, baseHeight, 32, rmask, gmask, bmask, amask);
+    SDL_FillRect(bgSurface, NULL, SDL_MapRGB(bgSurface->format, 0, 0, 0));
+    SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(ren, bgSurface);
+    SDL_FreeSurface(bgSurface);
+
+    SDL_RenderCopy(ren, bgTexture, NULL, &bgRect);
+
+    SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderDrawRect(ren, &bgRect);
+
+    SDL_RenderCopy(ren, pausedTex, NULL, &pausedRect);
+    SDL_RenderCopy(ren, resumeTex, NULL, &resumeRect);
+    SDL_RenderCopy(ren, quitTex, NULL, &quitRect);
+
+
+    SDL_RenderPresent(ren);
+
+    SDL_DestroyTexture(bgTexture);
+    SDL_DestroyTexture(pausedTex);
+    SDL_DestroyTexture(resumeTex);
+    SDL_DestroyTexture(quitTex);
+
+    while (pauseRunning) {
+
+        uint32_t frame_time = SDL_GetTicks() - nowTime;
+        nowTime = SDL_GetTicks();
+
+        if (ticksSinceStart > 0) {
+            if (frame_time > ticksSinceStart)
+                ticksSinceStart = 0;
+            else
+                ticksSinceStart -= frame_time;
+        }
+
+        gInput->CheckInput();
+
+        if (gInput->QuitFlag()) {
+            pauseRunning = false;
+            quit = true;
+        }
+
+        if (gInput->EnterHeld() && ticksSinceStart == 0) {
+            pauseRunning = false;
+            quit = true;
+        } else if (gInput->EscapeHeld() && ticksSinceStart == 0) {
+            pauseRunning = false;
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            if (gInput->Player(i) != nullptr) {
+                if (gInput->Player(i)->StartHeld() && ticksSinceStart == 0) {
+                    pauseRunning = false;
+                    quit = true;
+                } else if (gInput->Player(i)->BackHeld() && ticksSinceStart == 0) {
+                    pauseRunning = false;
+                }
+            }
+        }
+
+        if (SDL_TICKS_PASSED(nowTime - renderTime, RENDER_INTERVAL)) {
+            renderTime = nowTime;
+
+            SDL_RenderPresent(ren);
+        }
+    }
+
+    if (quit)
+        return -1;
+    else
+        return 0;
+}
+
