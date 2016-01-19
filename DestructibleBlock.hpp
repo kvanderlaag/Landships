@@ -18,7 +18,7 @@ class Map;
 
 class DestructibleBlock : public RenderableObject {
 public:
-    DestructibleBlock(const float x, const float y, SDL_Renderer* ren, Map* parent);
+    DestructibleBlock(const float x, const float y, SDL_Renderer* ren, Map* parent, const bool bounce);
     virtual ~DestructibleBlock();
 
     int Damage();
@@ -42,6 +42,7 @@ private:
     int mDieFrame;
     int mDieAnimationFrames;
     int mAnimTicks;
+    bool mBounce;
     const int ticksPerDieFrame = 100;
 };
 #endif // _DESTRUCTIBLEBLOCK_H

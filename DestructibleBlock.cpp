@@ -1,6 +1,6 @@
 #include "DestructibleBlock.hpp"
 
-DestructibleBlock::DestructibleBlock(const float x, const float y, SDL_Renderer* ren, Map* parent) :
+DestructibleBlock::DestructibleBlock(const float x, const float y, SDL_Renderer* ren, Map* parent, const bool bounce) :
     RenderableObject("DestructibleBlock.png", 16, 16, x, y, 0, ren),
     mParent(*parent),
     mHealth(3),
@@ -8,7 +8,8 @@ DestructibleBlock::DestructibleBlock(const float x, const float y, SDL_Renderer*
     mContents(-1),
     mDieFrame(0),
     mDieAnimationFrames(3),
-    mAnimTicks(0)
+    mAnimTicks(0),
+    mBounce(bounce)
 {
     std::uniform_int_distribution<int> powerupDist(0, 6);
 
@@ -85,4 +86,8 @@ const int DestructibleBlock::GetContents() const {
 
 const int DestructibleBlock::Health() const {
     return mHealth;
+}
+
+const bool DestructibleBlock::Bounce() const {
+    return mBounce;
 }
