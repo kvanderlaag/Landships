@@ -33,6 +33,8 @@ public:
     const int GetContents() const;
     const Collider& GetCollider() const;
 
+    const bool Bounce() const;
+
 private:
     Map& mParent;
     int mHealth;

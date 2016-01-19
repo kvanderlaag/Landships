@@ -741,7 +741,7 @@ int main(int argc, char** argv) {
                         if (!d->IsDead()) {
                             CollisionInfo coll = b.second->CheckCollision(*d, frame_time);
                             if (coll.Colliding() || coll.WillCollide()) {
-                                if (d->Damage() == 1) {
+                                if (d->Damage() == 1 || !d->Bounce()) {
                                     b.second->Die();
                                     b.second->GetOwner().DestroyBullet();
                                     RenderableObject::next++;

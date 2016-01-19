@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 
         for (int i = 0; i < 30 * 40; ++i) {
             inFile.get(c);
-            if (c >= 0x05) {
+            if (c >= 0x06) {
                 tiles[i] = c + 1;
             }  else {
                 tiles[i] = c;

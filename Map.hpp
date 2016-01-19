@@ -18,7 +18,8 @@
 #define P3START 0x03
 #define P4START 0x04
 #define DSTRBLK 0x05
-#define BLOCK   0x06
+#define DSTRBNC 0x06
+#define BLOCK   0x07
 
 class DestructibleBlock;
 

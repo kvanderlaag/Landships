@@ -128,7 +128,7 @@ CollisionInfo Bullet::CheckCollision(const DestructibleBlock& destr, const uint3
     CollisionInfo coll = mCollider.CheckCollision(destr.GetCollider(), mVelocity);
 
     if (coll.Colliding() || coll.WillCollide()) {
-        if (destr.Health() > 1) {
+        if (destr.Health() > 1 && destr.Bounce()) {
             Bounce(coll, ticks);
         }
     }

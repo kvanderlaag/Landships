@@ -54,6 +54,8 @@ void DestructibleBlock::Render() {
 
     //srcRect.y = 0;
     srcRect.y = 16 * gRndTiles;
+    if (mBounce)
+        srcRect.y += 3 * 16;
 
     if (mHealth == 3) {
         srcRect.x = 0;

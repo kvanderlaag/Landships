@@ -94,7 +94,10 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
                 tiles[row][col] = EMPTY;
             } else if (c == DSTRBLK) {
                 // Do destructible block stuff
-                mvDestructibleBlocks.push_back(new DestructibleBlock(col * 8, row * 8, mRenderer, this));
+                mvDestructibleBlocks.push_back(new DestructibleBlock(col * 8, row * 8, mRenderer, this, false));
+                tiles[row][col] = EMPTY;
+            } else if (c == DSTRBNC) {
+                mvDestructibleBlocks.push_back(new DestructibleBlock(col * 8, row * 8, mRenderer, this, true));
                 tiles[row][col] = EMPTY;
             } else {
                 if (row != 0 && row != 29 && col != 0 && col != 39)
