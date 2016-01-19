@@ -12,7 +12,7 @@ Player::Player(const std::string& filename, int id, int lives, SDL_Renderer* ren
     mRotationVel(0),
     mTurretAngle(0),
     mTurretRotationVel(0),
-    mCollider(PLAYER_SIZE, PLAYER_SIZE, 0, 0, 0, this),
+    mCollider(PLAYER_SIZE - 1, PLAYER_SIZE - 1, 0, 0, 0, this),
     mMaxBullets(1),
     mBullets(0),
     mMaxBounce(1),
