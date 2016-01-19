@@ -741,7 +741,7 @@ int main(int argc, char** argv) {
                         if (!d->IsDead()) {
                             CollisionInfo coll = b.second->CheckCollision(*d, frame_time);
                             if (coll.Colliding() || coll.WillCollide()) {
-                                if (d->Damage() == 1 || !d->Bounce()) {
+                                if (d->Damage() == 1) {
                                     b.second->Die();
                                     b.second->GetOwner().DestroyBullet();
                                     RenderableObject::next++;
@@ -751,6 +751,11 @@ int main(int argc, char** argv) {
                                         vPowerups.push_back(pow);
                                         vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, pow));
                                     }
+                                } else if (!d->Bounce() ) {
+                                    b.second->Die();
+                                    b.second->GetOwner().DestroyBullet();
+                                    RenderableObject::next++;
+                                    NewExplosion(b.second->GetX(), b.second->GetY(), ren, vRenderable, vExplosions);
                                 } else if (b.second->IsDead() ) {
                                     b.second->Die();
                                     b.second->GetOwner().DestroyBullet();
