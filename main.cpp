@@ -506,14 +506,24 @@ int main(int argc, char** argv) {
                             if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
                                 (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
                                     overlap = true;
+                                    break;
                                 }
                         }
                         for (Player* c1 : vPlayers) {
                             if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
                                 (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
                                     overlap = true;
+                                    break;
                                 }
                         }
+                        for (DestructibleBlock* c1 : vDestructibleBlocks) {
+                            if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
+                                (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
+                                    overlap = true;
+                                    break;
+                                }
+                        }
+
                         if (!overlap) {
                             Container* c = new Container(cX * 8, cY * 8, ren);
                             //std::cout << "Creating new container at (" << cX << ", " << cY << ")" << std::endl;
@@ -1352,6 +1362,7 @@ int Menu() {
             if (ConfirmQuit() == -1) {
                 menuRunning = false;
                 quit = true;
+                break;
             } else {
                 ticksSincePause = 2000;
             }
@@ -2471,6 +2482,8 @@ int Pause() {
     SDL_DestroyTexture(resumeTex);
     SDL_DestroyTexture(quitTex);
 
+    Mix_PauseMusic();
+
     while (pauseRunning) {
 
         uint32_t frame_time = SDL_GetTicks() - nowTime;
@@ -2517,8 +2530,10 @@ int Pause() {
 
     if (quit)
         return -1;
-    else
+    else {
+        Mix_ResumeMusic();
         return 0;
+    }
 }
 
 
@@ -2640,7 +2655,9 @@ int ConfirmQuit() {
 
     if (quit)
         return -1;
-    else
+    else {
         return 0;
+    }
+
 }
 
