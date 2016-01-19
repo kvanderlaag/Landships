@@ -886,7 +886,7 @@ int main(int argc, char** argv) {
                     }
                 }
                 vDestructibleBlocksDelete.erase(it);
-                std::cout << "Deleting d" << std::endl;
+
                 delete d;
 
             }
