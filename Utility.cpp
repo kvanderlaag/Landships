@@ -1,10 +1,9 @@
 #include "Utility.hpp"
 
 SDL_Texture* Utility::LoadTexture(SDL_Renderer* ren, const std::string& filename) {
-    char* basePath = SDL_GetBasePath();
-    std::string base(basePath);
+    std::string base = basePath + GFX_PATH;
     base += filename;
-    //std::cout << base << std::endl;
+    //std::cout << "Loading texture " << base << std::endl;
     SDL_Texture* tex = IMG_LoadTexture(ren, base.c_str());
     if (tex == nullptr) {
         std::cout << "SDL_LoadTexture error: " << SDL_GetError() << std::endl;
@@ -15,8 +14,9 @@ SDL_Texture* Utility::LoadTexture(SDL_Renderer* ren, const std::string& filename
 }
 
 SDL_Texture* Utility::RenderText(const std::string& message, const std::string& fontFile, SDL_Color color, int fontSize, SDL_Renderer* ren) {
-    std::string path = SDL_GetBasePath();
+    std::string path = basePath + FONTS_PATH;
     path += fontFile;
+    //std::cout << "Loading font " << path << std::endl;
     TTF_Font* font = TTF_OpenFont(path.c_str(), fontSize);
 
     if (font == nullptr) {
@@ -72,7 +72,7 @@ float Utility::IntervalDistance(float minA, float maxA, float minB, float maxB) 
 
 
 Mix_Music* Utility::LoadMusic(const std::string& filename) {
-    std::string path = SDL_GetBasePath();
+    std::string path = basePath + MUS_PATH;
     path += filename;
 
     //std::cout << "Loading music " << path << std::endl;
@@ -86,7 +86,7 @@ Mix_Music* Utility::LoadMusic(const std::string& filename) {
 }
 
 Mix_Chunk* Utility::LoadSound(const std::string& filename) {
-    std::string path = SDL_GetBasePath();
+    std::string path = basePath + SFX_PATH;
     path += filename;
 
     //std::cout << "Loading sound " << path << std::endl;

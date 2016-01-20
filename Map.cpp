@@ -7,7 +7,7 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
     StartPos({Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0)}),
     mLoadSuccess(true)
 {
-    std::string path = SDL_GetBasePath();
+    std::string path = basePath + MAPS_PATH;
     path += filename;
     std::ifstream inFile(path, std::ios::binary);
 

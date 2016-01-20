@@ -365,7 +365,7 @@
 	<SDL2/SDL.h>
 	<fstream>
 
-1453267118 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1453332613 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -407,7 +407,7 @@
 	<memory>
 	<cmath>
 
-1452821825 d:\users\kvand_000\documents\github\tanks\utility.hpp
+1453331130 d:\users\kvand_000\documents\github\tanks\utility.hpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -419,12 +419,13 @@
 	<cstring>
 	"Vector2D.hpp"
 	"Rectangle.hpp"
+	"Defines.hpp"
 
 1450920354 d:\users\kvand_000\documents\github\tanks\tile.hpp
 	"Utility.hpp"
 	<map>
 
-1453172784 d:\users\kvand_000\documents\github\tanks\map.hpp
+1453331119 d:\users\kvand_000\documents\github\tanks\map.hpp
 	"Tile.hpp"
 	"Collider.hpp"
 	"RenderableObject.hpp"
@@ -436,7 +437,7 @@
 	<cstring>
 	<random>
 
-1453173511 source:d:\users\kvand_000\documents\github\tanks\map.cpp
+1453331913 source:d:\users\kvand_000\documents\github\tanks\map.cpp
 	"Map.hpp"
 
 1453170896 source:d:\users\kvand_000\documents\github\tanks\player.cpp
@@ -445,7 +446,7 @@
 1451706143 source:d:\users\kvand_000\documents\github\tanks\tile.cpp
 	"Tile.hpp"
 
-1453057982 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
+1453332336 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
 	"Utility.hpp"
 
 1451872871 source:d:\users\kvand_000\documents\github\tanks\collider.cpp
@@ -918,7 +919,8 @@
 	"Player.hpp"
 	"Defines.hpp"
 
-1453267004 d:\users\kvand_000\documents\github\tanks\defines.hpp
+1453331896 d:\users\kvand_000\documents\github\tanks\defines.hpp
+	<string>
 
 1452985850 source:d:\users\kvand_000\documents\github\tanks\options.cpp
 	"Options.hpp"
@@ -928,7 +930,7 @@
 1453154985 source:d:\users\kvand_000\documents\github\tanks\playerinput.cpp
 	"PlayerInput.hpp"
 
-1453144906 d:\users\kvand_000\documents\github\tanks\playerinput.hpp
+1453329500 d:\users\kvand_000\documents\github\tanks\playerinput.hpp
 	<string>
 	<SDL2/SDL_joystick.h>
 	<SDL2/SDL_haptic.h>

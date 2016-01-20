@@ -13,6 +13,9 @@
 
 #include "Vector2D.hpp"
 #include "Rectangle.hpp"
+#include "Defines.hpp"
+
+extern std::string basePath;
 
 class Collider;
 

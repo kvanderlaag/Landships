@@ -30,32 +30,7 @@
 #include "InputManager.hpp"
 #include "DestructibleBlock.hpp"
 
-const int JBUTTON_DPADUP        = 1;
-const int JBUTTON_DPADUPRIGHT   = 3;
-const int JBUTTON_DPADRIGHT     = 2;
-const int JBUTTON_DPADDOWNRIGHT = 6;
-const int JBUTTON_DPADDOWN      = 4;
-const int JBUTTON_DPADDOWNLEFT  = 12;
-const int JBUTTON_DPADLEFT      = 8;
-const int JBUTTON_DPADUPLEFT    = 9;
-const int JBUTTON_DPADCENTER    = 0;
-
-int controllerType = XBOX_360_CONTROLLER;
-
-int JBUTTON_START         = 7;
-int JBUTTON_BACK          = 6;
-int JBUTTON_FIRE          = 5;
-int JBUTTON_A             = 0;
-int JBUTTON_B             = 1;
-int JAXIS_MOVE            = 0x01;
-int JAXIS_ROTATE          = 0x00;
-int JAXIS_LTRIGGER        = 0x02;
-int JAXIS_TURRETX         = 0x03;
-int JAXIS_TURRETY         = 0x04;
-int JAXIS_MOVEX           = 0x00;
-int JAXIS_MOVEY           = 0x01;
-int JAXIS_FIRE            = 0x05;
-
+/* Global variable definitions */
 
 bool gRunning = true;
 bool software = false;
@@ -91,16 +66,10 @@ bool gFullscreen = true;
 
 SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
-SDL_Joystick* gController[4] = { NULL, NULL, NULL, NULL };
-//SDL_Haptic* gHaptic[4] = { NULL, NULL, NULL, NULL };
 InputManager* gInput = nullptr;
 uint32_t rmask, gmask, bmask, amask;
 
-const int JOYTURRET_DEADZONE = 12000;
-const int JOYMOVE_DEADZONE = 12000;
-const int JOYFIRE_DEADZONE = 0;
-
-const std::string basePath = SDL_GetBasePath();
+std::string basePath;
 void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int, RenderableObject*>& vRenderable, std::vector<Explosion*>& vExplosions);
 
 int Title();
@@ -124,23 +93,30 @@ int main(int argc, char** argv) {
         std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
         Quit(1);
     }
+    //std::cout << "SDL Initialized" << std::endl;
+
+    basePath = SDL_GetBasePath();
+    //std::cout << basePath << std::endl;
 
     if (IMG_Init(IMG_INIT_PNG) < 0) {
         std::cout << "Error initializing SDL_IMG: " << SDL_GetError() << std::endl;
         Quit(2);
     }
+    //std::cout << "IMG Initialized" << std::endl;
 
     if (TTF_Init() != 0) {
         std::cout << "Error initializing SDL_TTF: " << SDL_GetError() << std::endl;
         Quit(3);
     }
+    //std::cout << "TTF Initialized" << std::endl;
 
 
-    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 4, 2048 ) < 0 )
     {
         std::cout << "Error initializing SDL_Mixer: " << Mix_GetError() << std::endl;
         Quit(4);
     }
+    //std::cout << "Mixer Initialized" << std::endl;
 
     gGameMusic[0] = Utility::LoadMusic(GAME_MUSIC1);
     gGameMusic[1] = Utility::LoadMusic(GAME_MUSIC2);
@@ -178,6 +154,8 @@ int main(int argc, char** argv) {
 
     sfxReady = Utility::LoadSound(SFX_READY);
     sfxNotReady = Utility::LoadSound(SFX_NOTREADY);
+
+    std::cout << "Resources loaded" << std::endl;
 
     if (gGameMusic[0] == nullptr || gGameMusic[1] == nullptr || gGameMusic[2] == nullptr) {
         std::cout << "Could not load sound music. Exiting." << std::endl;
@@ -1057,14 +1035,13 @@ int main(int argc, char** argv) {
                 #ifdef _FPS_DEBUG
                 /* FPS Texture */
                 SDL_Color c = {255, 255, 255, 255};
-                std::string basePath = SDL_GetBasePath();
                 uint32_t fps = 1000 / (new_time + (SDL_GetTicks() - new_time) - ticks);
                 //if (frame_time > 0)
                 //    fps = 1000 / frame_time;
                 std::stringstream strFPS;
                 strFPS << "FPS: " << fps;
 
-                SDL_Texture* fps_tex = Utility::RenderText(strFPS.str(), basePath + GAME_FONT, c, 10, ren);
+                SDL_Texture* fps_tex = Utility::RenderText(strFPS.str(), GAME_FONT, c, 10, ren);
 
                 int fps_w, fps_h;
 
@@ -1275,10 +1252,9 @@ int Menu() {
     dirent* de;
     DIR* dp;
 
-    //int numJoysticks = 0;
+    std::string mapsPath = basePath + MAPS_PATH;
 
-    std::string basePath = SDL_GetBasePath();
-    dp = opendir(basePath.c_str());
+    dp = opendir(mapsPath.c_str());
     if (dp) {
         while (true) {
             errno = 0;
@@ -1288,7 +1264,7 @@ int Menu() {
                 break;
             std::string filename = de->d_name;
             if (filename.at(filename.length() - 1) == 'd' && filename.at(filename.length() - 2) == '.') {
-                std::string fullPath = basePath + filename;
+                std::string fullPath = mapsPath + filename;
                 std::ifstream inFile(fullPath);
                 if (inFile.good() ) {
                     char c;

@@ -12,18 +12,10 @@
 #include <cstring>
 #include <random>
 
-#define EMPTY   0x00
-#define P1START 0x01
-#define P2START 0x02
-#define P3START 0x03
-#define P4START 0x04
-#define DSTRBLK 0x05
-#define DSTRBNC 0x06
-#define BLOCK   0x07
-
 class DestructibleBlock;
 
 extern std::default_random_engine generator;
+extern std::string basePath;
 
 class Map : public RenderableObject
 {
@@ -39,6 +31,15 @@ class Map : public RenderableObject
         const bool LoadSuccess() const;
     protected:
     private:
+
+        static const char EMPTY   = 0x00;
+        static const char P1START = 0x01;
+        static const char P2START = 0x02;
+        static const char P3START = 0x03;
+        static const char P4START = 0x04;
+        static const char DSTRBLK = 0x05;
+        static const char DSTRBNC = 0x06;
+        static const char BLOCK   = 0x07;
         std::vector<Collider> CombineColliders(unsigned char (&tiles)[30][40]) const;
         Vector2D StartPos[4];
         unsigned char tiles[30][40];
