@@ -48,7 +48,6 @@
 #define SFX_MENU_CONFIRM "sfx_menuConfirm.ogg"
 #define SFX_PAUSE "sfx_pause.ogg"
 #define SFX_UNPAUSE "sfx_unpause.ogg"
-
 #define SFX_READY "sfx_ready.ogg"
 #define SFX_NOTREADY "sfx_notready.ogg"
 

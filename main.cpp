@@ -79,7 +79,6 @@ Mix_Chunk* sfxPause = NULL;
 Mix_Chunk* sfxUnpause = NULL;
 Mix_Chunk* sfxReady = NULL;
 Mix_Chunk* sfxNotReady = NULL;
-
 std::default_random_engine generator(time(NULL));
 
 bool playersIn[4] = { false, false, false, false };
