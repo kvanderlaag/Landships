@@ -49,6 +49,9 @@
 #define SFX_PAUSE "sfx_pause.ogg"
 #define SFX_UNPAUSE "sfx_unpause.ogg"
 
+#define SFX_READY "sfx_ready.ogg"
+#define SFX_NOTREADY "sfx_notready.ogg"
+
 #define SFX_POWERUP_BOUNCE1 "sfx_powerupBounce1.ogg"
 #define SFX_POWERUP_BOUNCE2 "sfx_powerupBounce2.ogg"
 #define SFX_POWERUP_BOUNCE3 "sfx_powerupBounce3.ogg"

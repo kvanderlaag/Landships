@@ -77,6 +77,9 @@ Mix_Chunk* sfxMenu = NULL;
 Mix_Chunk* sfxMenuConfirm = NULL;
 Mix_Chunk* sfxPause = NULL;
 Mix_Chunk* sfxUnpause = NULL;
+Mix_Chunk* sfxReady = NULL;
+Mix_Chunk* sfxNotReady = NULL;
+
 std::default_random_engine generator(time(NULL));
 
 bool playersIn[4] = { false, false, false, false };
@@ -174,6 +177,9 @@ int main(int argc, char** argv) {
     sfxPause = Utility::LoadSound(SFX_PAUSE);
     sfxUnpause = Utility::LoadSound(SFX_UNPAUSE);
 
+    sfxReady = Utility::LoadSound(SFX_READY);
+    sfxNotReady = Utility::LoadSound(SFX_NOTREADY);
+
     if (gGameMusic[0] == nullptr || gGameMusic[1] == nullptr || gGameMusic[2] == nullptr) {
         std::cout << "Could not load sound music. Exiting." << std::endl;
         Quit(5);
@@ -194,7 +200,7 @@ int main(int argc, char** argv) {
     }
 
     if (sfxMenu == nullptr || sfxMenuConfirm == nullptr || sfxBulletWall == nullptr || sfxBulletBrick == nullptr ||
-        sfxPause == nullptr || sfxUnpause == nullptr) {
+        sfxPause == nullptr || sfxUnpause == nullptr || sfxReady == nullptr || sfxNotReady == nullptr) {
             std::cout << "Could not load sound effects. Exiting." << std::endl;
         Quit(6);
     }
@@ -1400,9 +1406,15 @@ int Menu() {
                 continue;
 
             if (gInput->Player(i)->SelectHeld() ) {
-                playersIn[i] = true;
+                if (!playersIn[i]) {
+                    playersIn[i] = true;
+                    Utility::PlaySound(sfxReady);
+                }
             } else if (gInput->Player(i)->CancelHeld() ) {
-                playersIn[i] = false;
+                if (playersIn[i]) {
+                    playersIn[i] = false;
+                    Utility::PlaySound(sfxNotReady);
+                }
             }
             if (ticksSinceMove[i] > 0) {
                 ticksSinceMove[i] = std::max((uint32_t) 0, ticksSinceMove[i] - frameTime);
