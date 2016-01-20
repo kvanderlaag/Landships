@@ -71,6 +71,12 @@ Mix_Chunk* sfxDie = NULL;
 Mix_Chunk* sfxPowerupSpeed[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Chunk* sfxPowerupBounce[MAX_TILESET + 1] = { NULL, NULL, NULL };
 Mix_Chunk* sfxPowerupBullet[MAX_TILESET + 1] = { NULL, NULL, NULL };
+Mix_Chunk* sfxBulletWall = NULL;
+Mix_Chunk* sfxBulletBrick = NULL;
+Mix_Chunk* sfxMenu = NULL;
+Mix_Chunk* sfxMenuConfirm = NULL;
+Mix_Chunk* sfxPause = NULL;
+Mix_Chunk* sfxUnpause = NULL;
 std::default_random_engine generator(time(NULL));
 
 bool playersIn[4] = { false, false, false, false };
@@ -161,6 +167,13 @@ int main(int argc, char** argv) {
     sfxPowerupSpeed[1] = Utility::LoadSound(SFX_POWERUP_SPEED2);
     sfxPowerupSpeed[2] = Utility::LoadSound(SFX_POWERUP_SPEED3);
 
+    sfxBulletWall = Utility::LoadSound(SFX_BULLET_WALL);
+    sfxBulletBrick = Utility::LoadSound(SFX_BULLET_BRICK);
+    sfxMenu = Utility::LoadSound(SFX_MENU);
+    sfxMenuConfirm = Utility::LoadSound(SFX_MENU_CONFIRM);
+    sfxPause = Utility::LoadSound(SFX_PAUSE);
+    sfxUnpause = Utility::LoadSound(SFX_UNPAUSE);
+
     if (gGameMusic[0] == nullptr || gGameMusic[1] == nullptr || gGameMusic[2] == nullptr) {
         std::cout << "Could not load sound music. Exiting." << std::endl;
         Quit(5);
@@ -178,6 +191,12 @@ int main(int argc, char** argv) {
         {
         std::cout << "Could not load powerup sound effects. Exiting." << std::endl;
         Quit(7);
+    }
+
+    if (sfxMenu == nullptr || sfxMenuConfirm == nullptr || sfxBulletWall == nullptr || sfxBulletBrick == nullptr ||
+        sfxPause == nullptr || sfxUnpause == nullptr) {
+            std::cout << "Could not load sound effects. Exiting." << std::endl;
+        Quit(6);
     }
 
 
@@ -769,6 +788,7 @@ int main(int argc, char** argv) {
                         if (!d->IsDead()) {
                             CollisionInfo coll = b.second->CheckCollision(*d, frame_time);
                             if (coll.Colliding() || coll.WillCollide()) {
+                                Utility::PlaySound(sfxBulletBrick);
                                 if (d->Damage() == 1) {
                                     b.second->Die();
                                     b.second->GetOwner().DestroyBullet();
@@ -881,6 +901,7 @@ int main(int argc, char** argv) {
                     for (Collider* c : vStationary) {
                         CollisionInfo coll = b.second->CheckCollision(*c, frame_time);
                         if (b.second->IsDead() && (coll.Colliding() || coll.WillCollide()) ) {
+                            Utility::PlaySound(sfxBulletWall);
                             b.second->GetOwner().DestroyBullet();
                             NewExplosion(b.second->GetX(), b.second->GetY(), ren, vRenderable, vExplosions);
                             b.second->Die();
@@ -1406,6 +1427,7 @@ int Menu() {
                             }
 
                             ticksSinceMove[i] = cursorRepeat;
+                            Utility::PlaySound(sfxMenu);
                     }
                 } else if (gInput->Player(i)->DownHeld()) {
                     if (mapSelected < mapCount - 1) {
@@ -1415,6 +1437,7 @@ int Menu() {
                                 topLevel++;
                             }
                             ticksSinceMove[i] = cursorRepeat;
+                            Utility::PlaySound(sfxMenu);
                     }
                 }
             }
@@ -1679,8 +1702,10 @@ int Menu() {
     }
     if (quit)
         return -1;
-    else
+    else {
+        Utility::PlaySound(sfxMenuConfirm);
         return 0;
+    }
 }
 
 
@@ -1752,10 +1777,12 @@ Options* OptionsMenu() {
                     if (gameType > SCORE_MATCH)
                             gameType--;
                     ticksSinceMove[i] = cursorRepeatV;
+                    Utility::PlaySound(sfxMenu);
                 } else if (gInput->Player(i)->DownHeld()) {
                     if (gameType < TIME_MATCH)
                             gameType++;
                     ticksSinceMove[i] = cursorRepeatV;
+                    Utility::PlaySound(sfxMenu);
                 } else if (gInput->Player(i)->LeftHeld()) {
                     switch (gameType) {
                         case SCORE_MATCH:
@@ -1772,6 +1799,7 @@ Options* OptionsMenu() {
                             break;
                     } // switch gameType
                     ticksSinceMove[i] = cursorRepeatH;
+                    Utility::PlaySound(sfxMenu);
                 } else if (gInput->Player(i)->RightHeld()) {
                     switch (gameType) {
                             case SCORE_MATCH:
@@ -1788,6 +1816,7 @@ Options* OptionsMenu() {
                                 break;
                         } // switch gameType
                     ticksSinceMove[i] = cursorRepeatH;
+                    Utility::PlaySound(sfxMenu);
                 }
             }
         }
@@ -1909,6 +1938,7 @@ Options* OptionsMenu() {
             SDL_RenderPresent(ren);
         }
     } // while optionsMenuRunning
+    Utility::PlaySound(sfxMenuConfirm);
 
     return new Options(gameType, score, stock, time, false);
 }
@@ -1930,54 +1960,12 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
         int frameTime = SDL_GetTicks() - nowTime;
         nowTime = SDL_GetTicks();
 
-        if (ticksSinceStart > 0)
-            ticksSinceStart = std::max(0, ticksSinceStart - frameTime);
-        /*
-        SDL_Event e;
-
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                return -1;
-            } else if (e.type == SDL_KEYDOWN) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_RETURN:
-                        if (altHeld) {
-                            if (gFullscreen) {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_SHOWN);
-                                gFullscreen = false;
-                            } else {
-                                SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                                gFullscreen = true;
-                            }
-                        } else {
-                            WinScreenRunning = false;
-                        }
-                        break;
-                    case SDLK_SPACE:
-                    case SDLK_ESCAPE:
-                    case SDLK_END:
-                    case SDLK_PAUSE:
-                        WinScreenRunning = false;
-                    break;
-                    case SDLK_LALT:
-                    case SDLK_RALT:
-                        altHeld = true;
-                        break;
-
-                }
-            } else if (e.type == SDL_KEYUP) {
-                switch (e.key.keysym.sym) {
-                        case SDLK_LALT:
-                        case SDLK_RALT:
-                            altHeld = false;
-                }
-            } else if (e.type == SDL_JOYBUTTONDOWN) {
-                if (e.jbutton.button == JBUTTON_A || e.jbutton.button == JBUTTON_START || e.jbutton.button == JBUTTON_BACK) {
-                        WinScreenRunning = false;
-                }
-            }
+        if (ticksSinceStart > 0) {
+            if (frameTime > ticksSinceStart)
+                ticksSinceStart = 0;
+            else
+                ticksSinceStart -= frameTime;
         }
-        */
 
         gInput->CheckInput();
 
@@ -2112,7 +2100,7 @@ int WinScreen(bool (&winningPlayer)[4], Player (&players)[4]) {
         SDL_DestroyTexture(p3Tex);
         SDL_DestroyTexture(p4Tex);
     }
-
+    Utility::PlaySound(sfxMenuConfirm);
     return 0;
 }
 
@@ -2299,8 +2287,10 @@ int Title() {
 
     if (quit)
         return -1;
-    else
+    else {
+        Utility::PlaySound(sfxMenuConfirm);
         return 0;
+    }
 }
 
 int DisplayControls() {
@@ -2408,8 +2398,10 @@ int DisplayControls() {
 
     if (quit)
         return -1;
-    else
+    else {
+        Utility::PlaySound(sfxMenuConfirm);
         return 0;
+    }
 }
 
 int Pause() {
@@ -2485,6 +2477,7 @@ int Pause() {
     SDL_DestroyTexture(quitTex);
 
     Mix_PauseMusic();
+    Utility::PlaySound(sfxPause);
 
     while (pauseRunning) {
 
@@ -2531,9 +2524,11 @@ int Pause() {
     }
 
     if (quit) {
+        Utility::PlaySound(sfxMenuConfirm);
         Mix_ResumeMusic();
         return -1;
     } else {
+        Utility::PlaySound(sfxUnpause);
         Mix_ResumeMusic();
         return 0;
     }
@@ -2612,6 +2607,8 @@ int ConfirmQuit() {
     SDL_DestroyTexture(resumeTex);
     SDL_DestroyTexture(quitTex);
 
+    Utility::PlaySound(sfxMenu);
+
     while (pauseRunning) {
 
         uint32_t frame_time = SDL_GetTicks() - nowTime;
@@ -2656,6 +2653,7 @@ int ConfirmQuit() {
         }
     }
 
+    Utility::PlaySound(sfxMenuConfirm);
     if (quit)
         return -1;
     else {

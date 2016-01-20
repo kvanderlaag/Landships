@@ -42,6 +42,12 @@
 #define SFX_BOUNCE2 "sfx_bounce2.ogg"
 #define SFX_BOUNCE3 "sfx_bounce3.ogg"
 #define SFX_DIE "sfx_die.ogg"
+#define SFX_BULLET_WALL "sfx_bulletWall.ogg"
+#define SFX_BULLET_BRICK "sfx_bulletBrick.ogg"
+#define SFX_MENU "sfx_menu.ogg"
+#define SFX_MENU_CONFIRM "sfx_menuConfirm.ogg"
+#define SFX_PAUSE "sfx_pause.ogg"
+#define SFX_UNPAUSE "sfx_unpause.ogg"
 
 #define SFX_POWERUP_BOUNCE1 "sfx_powerupBounce1.ogg"
 #define SFX_POWERUP_BOUNCE2 "sfx_powerupBounce2.ogg"
