@@ -202,6 +202,7 @@ int main(int argc, char** argv) {
     if (SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
         std::cout << "Error setting fullscreen video mode. SDL_Error: " << SDL_GetError() << std::endl;
     }
+    SDL_RestoreWindow(win); // Win7 hack?
     SDL_ShowCursor(0);
 
     if (argc > 1) {
