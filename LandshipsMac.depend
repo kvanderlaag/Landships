@@ -1,0 +1,234 @@
+# depslib dependency file v1.0
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Bullet.cpp
+	"Bullet.hpp"
+	<iostream>
+	<random>
+	<ctime>
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Bullet.hpp
+	"RenderableObject.hpp"
+	"Collider.hpp"
+	"CollisionInfo.hpp"
+	"Player.hpp"
+	"Container.hpp"
+	"DestructibleBlock.hpp"
+	"Defines.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/RenderableObject.hpp
+	"GameObject.hpp"
+	"Utility.hpp"
+	<string>
+	<SDL2/SDL.h>
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/GameObject.hpp
+	<cstdint>
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Utility.hpp
+	<SDL2/SDL.h>
+	<SDL2/SDL_image.h>
+	<SDL2/SDL_ttf.h>
+	<SDL2/SDL_mixer.h>
+	<string>
+	<iostream>
+	<numeric>
+	<cmath>
+	<cstring>
+	"Vector2D.hpp"
+	"Rectangle.hpp"
+	"Defines.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Vector2D.hpp
+	<cmath>
+	<algorithm>
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Rectangle.hpp
+	"Point.hpp"
+	"Vector2D.hpp"
+	<vector>
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Point.hpp
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Defines.hpp
+	<string>
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Collider.hpp
+	"GameObject.hpp"
+	"Rectangle.hpp"
+	"Vector2D.hpp"
+	"CollisionInfo.hpp"
+	"Utility.hpp"
+	<cfloat>
+	<cmath>
+	<vector>
+	"Point.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/CollisionInfo.hpp
+	"Vector2D.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Player.hpp
+	"GameObject.hpp"
+	"RenderableObject.hpp"
+	"Utility.hpp"
+	"Map.hpp"
+	"Collider.hpp"
+	<SDL2/SDL_mixer.h>
+	"Bullet.hpp"
+	<memory>
+	<cmath>
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Map.hpp
+	"Tile.hpp"
+	"Collider.hpp"
+	"RenderableObject.hpp"
+	"DestructibleBlock.hpp"
+	"Vector2D.hpp"
+	<SDL2/SDL.h>
+	<fstream>
+	<vector>
+	<cstring>
+	<random>
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Tile.hpp
+	"Utility.hpp"
+	<map>
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/DestructibleBlock.hpp
+	<random>
+	<SDL2/SDL.h>
+	<iostream>
+	"Collider.hpp"
+	"Powerup.hpp"
+	"RenderableObject.hpp"
+	"Defines.hpp"
+	"Map.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Powerup.hpp
+	"RenderableObject.hpp"
+	"Collider.hpp"
+	"Player.hpp"
+	"Defines.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Container.hpp
+	<random>
+	"RenderableObject.hpp"
+	"Collider.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Collider.cpp
+	"Collider.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/CollisionInfo.cpp
+	"CollisionInfo.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Container.cpp
+	"Container.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/DestructibleBlock.cpp
+	"DestructibleBlock.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Explosion.cpp
+	"Explosion.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Explosion.hpp
+	"RenderableObject.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Game.cpp
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/GameObject.cpp
+	"GameObject.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/GameState.cpp
+	"GameState.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/GameState.hpp
+	"Menu.hpp"
+	"Game.hpp"
+	<cinttypes>
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Menu.hpp
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Game.hpp
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/InputManager.cpp
+	"InputManager.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/InputManager.hpp
+	<SDL2/SDL.h>
+	"PlayerInput.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/PlayerInput.hpp
+	<string>
+	<SDL2/SDL_joystick.h>
+	<SDL2/SDL_haptic.h>
+	<iostream>
+	"Defines.hpp"
+	"Vector2D.hpp"
+
+1453341950 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/main.cpp
+	<SDL2/SDL.h>
+	<SDL2/SDL_image.h>
+	<SDL2/SDL_ttf.h>
+	<SDL2/SDL_mixer.h>
+	<SDL2/SDL_haptic.h>
+	<string>
+	<fstream>
+	<iostream>
+	<sstream>
+	<cstdio>
+	<climits>
+	<map>
+	<ctime>
+	<dirent.h>
+	"Player.hpp"
+	"Tile.hpp"
+	"Map.hpp"
+	"Rectangle.hpp"
+	"Vector2D.hpp"
+	"Point.hpp"
+	"Collider.hpp"
+	"Explosion.hpp"
+	"Container.hpp"
+	"Powerup.hpp"
+	"Defines.hpp"
+	"Options.hpp"
+	"PlayerInput.hpp"
+	"InputManager.hpp"
+	"DestructibleBlock.hpp"
+
+1453341124 /Users/kvanderlaag/Documents/Code/CPP/Landships/Options.hpp
+
+1453341890 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Map.cpp
+	"Map.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Menu.cpp
+	"Menu.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Options.cpp
+	"Options.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Player.cpp
+	"Player.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/PlayerInput.cpp
+	"PlayerInput.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Point.cpp
+	"Point.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Powerup.cpp
+	"Powerup.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Rectangle.cpp
+	"Rectangle.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/RenderableObject.cpp
+	"RenderableObject.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Tile.cpp
+	"Tile.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Utility.cpp
+	"Utility.hpp"
+
+1453341124 source:/Users/kvanderlaag/Documents/Code/CPP/Landships/Vector2D.cpp
+	"Vector2D.hpp"
+

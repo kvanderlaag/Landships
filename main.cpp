@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
     std::cout << "Resources loaded" << std::endl;
 
     if (gGameMusic[0] == nullptr || gGameMusic[1] == nullptr || gGameMusic[2] == nullptr) {
-        std::cout << "Could not load sound music. Exiting." << std::endl;
+        std::cout << "Could not load music. Exiting." << std::endl;
         Quit(5);
     }
 

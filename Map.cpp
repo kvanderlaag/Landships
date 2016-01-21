@@ -4,7 +4,7 @@
 
 Map::Map(const std::string& filename, const std::string& texturefile, SDL_Renderer* ren) :
     RenderableObject(texturefile, 320, 240, 0, 0, 0, ren),
-    StartPos({Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0)}),
+    StartPos{Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0), Vector2D(0, 0)},
     mLoadSuccess(true)
 {
     std::string path = basePath + MAPS_PATH;
