@@ -58,7 +58,7 @@ std::default_random_engine generator(time(NULL));
 
 bool playersIn[4] = { false, false, false, false };
 int playersInCount = 0;
-//int maxPlayers = 0;
+
 std::string mapfilename;
 
 bool altHeld = false;
@@ -93,30 +93,44 @@ int main(int argc, char** argv) {
         std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
         Quit(1);
     }
-    //std::cout << "SDL Initialized" << std::endl;
+
+    #ifdef _DEBUG_BUILD
+    std::cout << "SDL Initialized" << std::endl;
+    #endif
 
     basePath = SDL_GetBasePath();
-    //std::cout << basePath << std::endl;
+
+    #ifdef _DEBUG_BUILD
+    std::cout << basePath << std::endl;
+    #endif
 
     if (IMG_Init(IMG_INIT_PNG) < 0) {
         std::cout << "Error initializing SDL_IMG: " << SDL_GetError() << std::endl;
         Quit(2);
     }
-    //std::cout << "IMG Initialized" << std::endl;
+
+    #ifdef _DEBUG_BUILD
+    std::cout << "IMG Initialized" << std::endl;
+    #endif
 
     if (TTF_Init() != 0) {
         std::cout << "Error initializing SDL_TTF: " << SDL_GetError() << std::endl;
         Quit(3);
     }
-    //std::cout << "TTF Initialized" << std::endl;
 
+    #ifdef _DEBUG_BUILD
+    std::cout << "TTF Initialized" << std::endl;
+    #endif
 
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 4, 2048 ) < 0 )
     {
         std::cout << "Error initializing SDL_Mixer: " << Mix_GetError() << std::endl;
         Quit(4);
     }
-    //std::cout << "Mixer Initialized" << std::endl;
+
+    #ifdef _DEBUG_BUILD
+    std::cout << "Mixer Initialized" << std::endl;
+    #endif
 
     gGameMusic[0] = Utility::LoadMusic(GAME_MUSIC1);
     gGameMusic[1] = Utility::LoadMusic(GAME_MUSIC2);
@@ -155,7 +169,9 @@ int main(int argc, char** argv) {
     sfxReady = Utility::LoadSound(SFX_READY);
     sfxNotReady = Utility::LoadSound(SFX_NOTREADY);
 
-    //std::cout << "Resources loaded" << std::endl;
+    #ifdef _DEBUG_BUILD
+    std::cout << "Resources loaded" << std::endl;
+    #endif
 
     if (gGameMusic[0] == nullptr || gGameMusic[1] == nullptr || gGameMusic[2] == nullptr) {
         std::cout << "Could not load music. Exiting." << std::endl;
@@ -187,7 +203,9 @@ int main(int argc, char** argv) {
 
     // Initialize joysticks
     gInput = new InputManager();
-    //CheckJoysticks();
+    #ifdef _DEBUG_BUILD
+    std::cout << "Initialized joysticks." << std::endl;
+    #endif // _DEBUG_BUILD
 
     int playerx, playery;
     playerx = (SCREEN_WIDTH / 2);
@@ -198,10 +216,11 @@ int main(int argc, char** argv) {
         std::cout << "Error creating window. SDL_Error: " << SDL_GetError() << std::endl;
         Quit(8);
     }
-    //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
+
     if (SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
         std::cout << "Error setting fullscreen video mode. SDL_Error: " << SDL_GetError() << std::endl;
     }
+
     SDL_RestoreWindow(win); // Win7 hack?
     SDL_ShowCursor(0);
 
@@ -533,7 +552,7 @@ int main(int argc, char** argv) {
 
                         if (!overlap) {
                             Container* c = new Container(cX * 8, cY * 8, ren);
-                            //std::cout << "Creating new container at (" << cX << ", " << cY << ")" << std::endl;
+
                             vContainers.push_back(c);
                             vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next, c));
                             RenderableObject::next++;
@@ -1677,7 +1696,6 @@ int Menu() {
                 fileRect.w = fileWidth;
                 fileRect.h = fileHeight;
 
-                //if (i * fileHeight + i * 2 < 240 - fileHeight - 2)
                 SDL_RenderCopy(ren, fileTex, NULL, &fileRect);
                 i++;
                 j++;
@@ -1707,17 +1725,10 @@ Options* OptionsMenu() {
     int score = std::min(10, MAX_SCORE);
     int time = std::min(120, MAX_TIME);
     int stock = std::min(10, MAX_STOCK);
-    //int score = MIN_SCORE + ((MAX_SCORE - MIN_SCORE) / 2);
-    //int time = MIN_TIME + ((MAX_TIME - MIN_TIME) / 2);
-    //int stock = MIN_STOCK + ((MAX_STOCK - MIN_STOCK) / 2);
 
     const int cursorRepeatV = MENU_REPEAT_VERT_TICKS;
     const int cursorRepeatH = MENU_REPEAT_HORIZ_TICKS;
     int ticksSinceMove[4] = {200, 200, 200, 200};
-    //bool playersUpHeld[4] = { false, false, false, false };
-    //bool playersDownHeld[4] = {false, false, false, false };
-    //bool playersLeftHeld[4] = { false, false, false, false };
-    //bool playersRightHeld[4] = {false, false, false, false };
 
     uint32_t nowTime, renderTime;
     int ticksSinceStart = 1000;
@@ -2126,13 +2137,24 @@ void Quit(int status) {
         Mix_FreeMusic(introMusic[i]);
 
     Mix_Quit();
-    //std::cout << "Mix_Quit() successful" << std::endl;
+    #ifdef _DEBUG_BUILD
+    std::cout << "Mix_Quit() successful" << std::endl;
+    #endif
+
     TTF_Quit();
-    //std::cout << "TTF_Quit() successful" << std::endl;
+    #ifdef _DEBUG_BUILD
+    std::cout << "TTF_Quit() successful" << std::endl;
+    #endif // _DEBUG_BUILD
+
     IMG_Quit();
-    //std::cout << "IMG_Quit() successful" << std::endl;
+    #ifdef _DEBUG_BUILD
+    std::cout << "IMG_Quit() successful" << std::endl;
+    #endif // _DEBUG_BUILD
+
     SDL_Quit();
-    //std::cout << "SDL_Quit() successful" << std::endl;
+    #ifdef _DEBUG_BUILD
+    std::cout << "SDL_Quit() successful" << std::endl;
+    #endif // _DEBUG_BUILD
     exit(status);
 
 }
@@ -2151,8 +2173,6 @@ int Title() {
     const int flashTicks = 500;
     bool fadeInDone = false;
     bool flash = true;
-
-    //int numJoysticks = 0;
 
     SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(ren);
