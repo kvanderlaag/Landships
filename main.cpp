@@ -155,7 +155,7 @@ int main(int argc, char** argv) {
     sfxReady = Utility::LoadSound(SFX_READY);
     sfxNotReady = Utility::LoadSound(SFX_NOTREADY);
 
-    std::cout << "Resources loaded" << std::endl;
+    //std::cout << "Resources loaded" << std::endl;
 
     if (gGameMusic[0] == nullptr || gGameMusic[1] == nullptr || gGameMusic[2] == nullptr) {
         std::cout << "Could not load music. Exiting." << std::endl;
@@ -495,10 +495,12 @@ int main(int argc, char** argv) {
             }
 
 
+            if (containerSpawnTicks > 0) {
+                containerSpawnTicks -= frame_time;
+            }
 
-            containerSpawnTicks -= frame_time;
             if (containerSpawnTicks <= 0) {
-                if (containers <= maxContainers) {
+                if (containers < maxContainers) {
                     std::uniform_int_distribution<int> cXdist(1,38);
                     std::uniform_int_distribution<int> cYdist(1,28);
                     int cX = cXdist(generator);
@@ -507,22 +509,22 @@ int main(int argc, char** argv) {
                         m.GetTileAt(cY, cX-1) == 0x00 && m.GetTileAt(cY-1, cX-1) == 0x00) {
                         bool overlap = false;
                         for (Container* c1 : vContainers) {
-                            if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
-                                (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
+                            if ( (cX * 8) >= (c1->GetX() - 16) && (cX * 8) <= (c1->GetX() + 16) &&
+                                (cY * 8) >= (c1->GetY() - 16) && (cX * 8) <= (c1->GetY() + 16)) {
                                     overlap = true;
                                     break;
                                 }
                         }
                         for (Player* c1 : vPlayers) {
-                            if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
-                                (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
+                            if ( (cX * 8) >= (c1->GetX() - 16) && (cX * 8) <= (c1->GetX() + 16) &&
+                                (cY * 8) >= (c1->GetY() - 16) && (cX * 8) <= (c1->GetY() + 16)) {
                                     overlap = true;
                                     break;
                                 }
                         }
                         for (DestructibleBlock* c1 : vDestructibleBlocks) {
-                            if ( (cX * 8) >= (c1->GetX() - 8) && (cX * 8) <= (c1->GetX() + 8) &&
-                                (cY * 8) >= (c1->GetY() - 8) && (cX * 8) <= (c1->GetY() + 8)) {
+                            if ( (cX * 8) >= (c1->GetX() - 16) && (cX * 8) <= (c1->GetX() + 16) &&
+                                (cY * 8) >= (c1->GetY() - 16) && (cX * 8) <= (c1->GetY() + 16)) {
                                     overlap = true;
                                     break;
                                 }
