@@ -164,27 +164,27 @@ void PlayerInput::CheckInput() {
         mUpHeld = false;
     }
 
-    if (fireButton || fireAxis)
+    if ((fireButton || fireAxis) && !mFireHeld)
         mFireHeld = true;
     else
         mFireHeld = false;
 
-    if (readyButton)
+    if (readyButton && !mSelectHeld)
         mSelectHeld = true;
     else
         mSelectHeld = false;
 
-    if (cancelButton)
+    if (cancelButton && !mCancelHeld)
         mCancelHeld = true;
     else
         mCancelHeld = false;
 
-    if (startButton)
+    if (startButton && !mStartHeld)
         mStartHeld = true;
     else
         mStartHeld = false;
 
-    if (backButton)
+    if (backButton && !mBackHeld)
         mBackHeld = true;
     else
         mBackHeld = false;
