@@ -34,6 +34,8 @@ int Load(SDL_Renderer* ren, unsigned char tiles[30][40]);
 bool gAltHeld = false;
 bool gFullscreen = true;
 
+int tileset = 1;
+
 int main(int argc, char** argv)
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
@@ -66,7 +68,7 @@ int main(int argc, char** argv)
         rmask = 0x000000ff;
     #endif // SDL_BIG_ENDIAN
 
-    SDL_Window* win = SDL_CreateWindow("Tanks Level Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    SDL_Window* win = SDL_CreateWindow("The Landships Committee Level Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     //SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
@@ -75,14 +77,9 @@ int main(int argc, char** argv)
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // make the scaled rendering look smoother.
     SDL_RenderSetLogicalSize(ren, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    SDL_Surface* surf = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
-    SDL_FillRect(surf, NULL, SDL_MapRGBA(surf->format, 0x20, 0x20, 0x05, 0xFF));
-
-    SDL_Texture* bgTex = SDL_CreateTextureFromSurface(ren, surf);
-
-    SDL_FreeSurface(surf);
-
     SDL_Texture* wallTex = Utility::LoadTexture(ren, "WallTiles.png");
+    SDL_Texture* wallTex2 = Utility::LoadTexture(ren, "WallTiles2.png");
+    SDL_Texture* wallTex3 = Utility::LoadTexture(ren, "WallTiles3.png");
 
     int tileCount;
 
@@ -161,6 +158,14 @@ int main(int argc, char** argv)
                         tiletype--;
                     }
                     break;
+                case SDLK_LEFT:
+                    if (tileset > 1)
+                        tileset--;
+                    break;
+                case SDLK_RIGHT:
+                    if (tileset < 3)
+                        tileset++;
+                    break;
                 case SDLK_s:
                     if (SaveAs(ren, tiles) == -1) {
                         running = false;
@@ -220,7 +225,27 @@ int main(int argc, char** argv)
         SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(ren);
 
+        SDL_Surface* surf = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, rmask, gmask, bmask, amask);
+        switch (tileset) {
+            case 1:
+                SDL_FillRect(surf, NULL, SDL_MapRGBA(surf->format, 0x20, 0x20, 0x05, 0xFF));
+                break;
+            case 2:
+                SDL_FillRect(surf, NULL, SDL_MapRGBA(surf->format, 0x00, 0x00, 0x40, 0xFF));
+                break;
+            case 3:
+                SDL_FillRect(surf, NULL, SDL_MapRGBA(surf->format, 0x30, 0x30, 0x30, 0xFF));
+                break;
+        }
+
+
+        SDL_Texture* bgTex = SDL_CreateTextureFromSurface(ren, surf);
+
+        SDL_FreeSurface(surf);
+
         SDL_RenderCopy(ren, bgTex, NULL, NULL);
+
+        SDL_DestroyTexture(bgTex);
 
         // Draw tiles as laid out
         for (int row = 0; row < 30; row++) {
@@ -237,14 +262,34 @@ int main(int argc, char** argv)
                     dstRect.w = 8;
                     dstRect.h = 8;
 
-                    SDL_RenderCopy(ren, wallTex, &srcRect, &dstRect);
+                    switch (tileset) {
+                    case 1:
+                        SDL_RenderCopy(ren, wallTex, &srcRect, &dstRect);
+                        break;
+                    case 2:
+                        SDL_RenderCopy(ren, wallTex2, &srcRect, &dstRect);
+                        break;
+                    case 3:
+                        SDL_RenderCopy(ren, wallTex3, &srcRect, &dstRect);
+                        break;
+                    }
                 }
             }
         }
 
         if (select != NULL) {
             SDL_Surface* blanktile = SDL_CreateRGBSurface(0, 8, 8, 32, rmask, gmask, bmask, amask);
-            SDL_FillRect(blanktile, NULL, SDL_MapRGB(blanktile->format, 0x20, 0x20, 0x05));
+            switch (tileset) {
+                case 1:
+                    SDL_FillRect(blanktile, NULL, SDL_MapRGB(blanktile->format, 0x20, 0x20, 0x05));
+                    break;
+                case 2:
+                    SDL_FillRect(blanktile, NULL, SDL_MapRGB(blanktile->format, 0x00, 0x00, 0x40));
+                    break;
+                case 3:
+                    SDL_FillRect(blanktile, NULL, SDL_MapRGB(blanktile->format, 0x30, 0x30, 0x30));
+                    break;
+            }
             SDL_Texture* blanktex = SDL_CreateTextureFromSurface(ren, blanktile);
 
 
@@ -275,7 +320,18 @@ int main(int argc, char** argv)
                 dstRect.w = 8;
                 dstRect.h = 8;
 
-                SDL_RenderCopy(ren, wallTex, &srcRect, &dstRect);
+                switch (tileset) {
+                    case 1:
+                        SDL_RenderCopy(ren, wallTex, &srcRect, &dstRect);
+                        break;
+                    case 2:
+                        SDL_RenderCopy(ren, wallTex2, &srcRect, &dstRect);
+                        break;
+                    case 3:
+                        SDL_RenderCopy(ren, wallTex3, &srcRect, &dstRect);
+                        break;
+
+                }
             } else {
 
 
@@ -306,7 +362,7 @@ int main(int argc, char** argv)
         SDL_RenderPresent(ren);
     }
 
-    SDL_DestroyTexture(bgTex);
+    //SDL_DestroyTexture(bgTex);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
 

@@ -1,0 +1,51 @@
+# depslib dependency file v1.0
+1453434999 source:d:\users\kvand_000\documents\github\tanks\editor.cpp
+	<iostream>
+	<SDL2/SDL.h>
+	<SDL2/SDL_image.h>
+	<SDL2/SDL_ttf.h>
+	"Utility.hpp"
+	<string>
+	<sstream>
+	<fstream>
+
+1453331130 d:\users\kvand_000\documents\github\tanks\utility.hpp
+	<SDL2/SDL.h>
+	<SDL2/SDL_image.h>
+	<SDL2/SDL_ttf.h>
+	<SDL2/SDL_mixer.h>
+	<string>
+	<iostream>
+	<numeric>
+	<cmath>
+	<cstring>
+	"Vector2D.hpp"
+	"Rectangle.hpp"
+	"Defines.hpp"
+
+1451164824 d:\users\kvand_000\documents\github\tanks\vector2d.hpp
+	<cmath>
+	<algorithm>
+
+1451020386 d:\users\kvand_000\documents\github\tanks\rectangle.hpp
+	"Point.hpp"
+	"Vector2D.hpp"
+	<vector>
+
+1450931217 d:\users\kvand_000\documents\github\tanks\point.hpp
+
+1453331896 d:\users\kvand_000\documents\github\tanks\defines.hpp
+	<string>
+
+1450931311 source:d:\users\kvand_000\documents\github\tanks\point.cpp
+	"Point.hpp"
+
+1451945682 source:d:\users\kvand_000\documents\github\tanks\rectangle.cpp
+	"Rectangle.hpp"
+
+1453332336 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
+	"Utility.hpp"
+
+1451434976 source:d:\users\kvand_000\documents\github\tanks\vector2d.cpp
+	"Vector2D.hpp"
+
