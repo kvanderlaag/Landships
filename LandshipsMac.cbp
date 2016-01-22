@@ -7,16 +7,17 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Mac/Debug/LandshipsMac" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Mac/Debug/Landships" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Mac/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-D_DEBUG_BUILD" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Mac/Release/LandshipsMac" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Mac/Release/Landships" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Mac/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -29,8 +30,60 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Os" />
+			<Add option="-std=c++0x" />
 			<Add option="-Wall" />
+			<Add option="-std=c++11" />
 		</Compiler>
+		<Linker>
+			<Add option="-lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer" />
+		</Linker>
+		<Unit filename="Bullet.cpp" />
+		<Unit filename="Bullet.hpp" />
+		<Unit filename="Collider.cpp" />
+		<Unit filename="Collider.hpp" />
+		<Unit filename="CollisionInfo.cpp" />
+		<Unit filename="CollisionInfo.hpp" />
+		<Unit filename="Container.cpp" />
+		<Unit filename="Container.hpp" />
+		<Unit filename="Defines.hpp" />
+		<Unit filename="DestructibleBlock.cpp" />
+		<Unit filename="DestructibleBlock.hpp" />
+		<Unit filename="Explosion.cpp" />
+		<Unit filename="Explosion.hpp" />
+		<Unit filename="Game.cpp" />
+		<Unit filename="Game.hpp" />
+		<Unit filename="GameObject.cpp" />
+		<Unit filename="GameObject.hpp" />
+		<Unit filename="GameState.cpp" />
+		<Unit filename="GameState.hpp" />
+		<Unit filename="InputManager.cpp" />
+		<Unit filename="InputManager.hpp" />
+		<Unit filename="Map.cpp" />
+		<Unit filename="Map.hpp" />
+		<Unit filename="Menu.cpp" />
+		<Unit filename="Menu.hpp" />
+		<Unit filename="Options.cpp" />
+		<Unit filename="Options.hpp" />
+		<Unit filename="Player.cpp" />
+		<Unit filename="Player.hpp" />
+		<Unit filename="PlayerInput.cpp" />
+		<Unit filename="PlayerInput.hpp" />
+		<Unit filename="Point.cpp" />
+		<Unit filename="Point.hpp" />
+		<Unit filename="Powerup.cpp" />
+		<Unit filename="Powerup.hpp" />
+		<Unit filename="Rectangle.cpp" />
+		<Unit filename="Rectangle.hpp" />
+		<Unit filename="RenderableObject.cpp" />
+		<Unit filename="RenderableObject.hpp" />
+		<Unit filename="Tile.cpp" />
+		<Unit filename="Tile.hpp" />
+		<Unit filename="Utility.cpp" />
+		<Unit filename="Utility.hpp" />
+		<Unit filename="Vector2D.cpp" />
+		<Unit filename="Vector2D.hpp" />
+		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
