@@ -1,0 +1,9 @@
+SDL Initialized
+D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Debug\
+IMG Initialized
+TTF Initialized
+Error initializing SDL_Mixer: Unsupported number of audio channels.
+Mix_Quit() successful
+TTF_Quit() successful
+IMG_Quit() successful
+SDL_Quit() successful

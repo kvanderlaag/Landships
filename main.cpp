@@ -121,8 +121,11 @@ int main(int argc, char** argv) {
     #ifdef _DEBUG_BUILD
     std::cout << "TTF Initialized" << std::endl;
     #endif
-
-    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 8, 2048 ) < 0 )
+    if (Mix_Init(MIX_INIT_OGG) != MIX_INIT_OGG) {
+        std::cout << "Unable to initialize OGG playback. SDL_Error: " << Mix_GetError() << std::endl;
+        Quit(4);
+    }
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
     {
         std::cout << "Error initializing SDL_Mixer: " << Mix_GetError() << std::endl;
         Quit(4);
