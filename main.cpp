@@ -496,8 +496,13 @@ int main(int argc, char** argv) {
                 Quit(0);
             }
             if (gInput->EscapeHeld()) {
-                running = false;
-                break;
+                if (ticksSincePause == 0) {
+                    if (Pause() == -1) {
+                        running = false;
+                    } else {
+                        ticksSincePause = 300;
+                    }
+                }
             }
             for (int i = 0; i < 4; ++i) {
                 if (gInput->Player(i)) {
@@ -530,21 +535,21 @@ int main(int argc, char** argv) {
                         bool overlap = false;
                         for (Container* c1 : vContainers) {
                             if ( (cX * 8) >= (c1->GetX() - 16) && (cX * 8) <= (c1->GetX() + 16) &&
-                                (cY * 8) >= (c1->GetY() - 16) && (cX * 8) <= (c1->GetY() + 16)) {
+                                (cY * 8) >= (c1->GetY() - 16) && (cY * 8) <= (c1->GetY() + 16)) {
                                     overlap = true;
                                     break;
                                 }
                         }
                         for (Player* c1 : vPlayers) {
                             if ( (cX * 8) >= (c1->GetX() - 16) && (cX * 8) <= (c1->GetX() + 16) &&
-                                (cY * 8) >= (c1->GetY() - 16) && (cX * 8) <= (c1->GetY() + 16)) {
+                                (cY * 8) >= (c1->GetY() - 16) && (cY * 8) <= (c1->GetY() + 16)) {
                                     overlap = true;
                                     break;
                                 }
                         }
                         for (DestructibleBlock* c1 : vDestructibleBlocks) {
                             if ( (cX * 8) >= (c1->GetX() - 16) && (cX * 8) <= (c1->GetX() + 16) &&
-                                (cY * 8) >= (c1->GetY() - 16) && (cX * 8) <= (c1->GetY() + 16)) {
+                                (cY * 8) >= (c1->GetY() - 16) && (cY * 8) <= (c1->GetY() + 16)) {
                                     overlap = true;
                                     break;
                                 }
@@ -572,7 +577,6 @@ int main(int argc, char** argv) {
                 if (gInput->Player(i) != nullptr) {
                     if (gInput->Player(i)->FireHeld()) {
                         players[i].FireIsHeld(true);
-                        //players[i].FireIsReleased(false);
                     } else {
                         players[i].FireIsHeld(false);
                         players[i].FireIsReleased(true);
@@ -624,7 +628,6 @@ int main(int argc, char** argv) {
                     if (ptAngle < -180) {
                         ptAngle += 360;
                     }
-                    //float joyAngle = std::atan2(joyY, joyX);
 
                     ptAngle = ptAngle * M_PI / 180;
 
@@ -666,7 +669,6 @@ int main(int argc, char** argv) {
                 if (players[i].JoyMove()) {
                     players[i].IsMoving(true);
                     Vector2D joyVec(gInput->Player(i)->LeftStickVector().Normalized());
-
 
                     float pAngle = players[i].GetAngle() - 90;
                     while (pAngle > 360) {
