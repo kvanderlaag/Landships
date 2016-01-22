@@ -16,6 +16,15 @@ const std::string GAME_FONT = "8bit.ttf";
 
 const std::string TITLE_IMG = "title.png";
 
+const std::string PLAYER1_TANK = "Tank1.png";
+const std::string PLAYER2_TANK = "Tank2.png";
+const std::string PLAYER3_TANK = "Tank3.png";
+const std::string PLAYER4_TANK = "Tank4.png";
+
+const std::string SCOREBOARD_BULLETS = "bullets.png";
+const std::string SCOREBOARD_SPEED = "tankspeed.png";
+const std::string SCOREBOARD_BOUNCE = "ricochet.png";
+
 const std::string XBOX_CONTROLS_IMG = "360Controls.png";
 const std::string PS4_CONTROLS_IMG = "PS4Controls.png";
 const std::string CONTROLS_IMG = "Controls.png";

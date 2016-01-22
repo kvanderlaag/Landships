@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
     std::cout << "TTF Initialized" << std::endl;
     #endif
 
-    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 4, 2048 ) < 0 )
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 8, 2048 ) < 0 )
     {
         std::cout << "Error initializing SDL_Mixer: " << Mix_GetError() << std::endl;
         Quit(4);
@@ -323,10 +323,10 @@ int main(int argc, char** argv) {
             exit(10);
         }
 
-        Player players[4] = { Player("Tank1.png", 1, gameOptions->GetStock(), ren),
-                                Player("Tank2.png", 2, gameOptions->GetStock(), ren),
-                                Player("Tank3.png", 3, gameOptions->GetStock(),ren),
-                                Player("Tank4.png", 4, gameOptions->GetStock(),ren) };
+        Player players[4] = { Player(PLAYER1_TANK, 1, gameOptions->GetStock(), ren),
+                                Player(PLAYER2_TANK, 2, gameOptions->GetStock(), ren),
+                                Player(PLAYER3_TANK, 3, gameOptions->GetStock(),ren),
+                                Player(PLAYER4_TANK, 4, gameOptions->GetStock(),ren) };
 
         for (int i = 0; i < 4; ++i) {
             if (!playersIn[i]) {
@@ -411,6 +411,22 @@ int main(int argc, char** argv) {
         SDL_FreeSurface(surf);
 
         /* End of background texture */
+
+        /* Scoreboard power-up textures */
+
+        SDL_Texture* scoreboardBulletsTex = Utility::LoadTexture(ren, SCOREBOARD_BULLETS);
+        SDL_Texture* scoreboardBounceTex = Utility::LoadTexture(ren, SCOREBOARD_BOUNCE);
+        SDL_Texture* scoreboardSpeedTex = Utility::LoadTexture(ren, SCOREBOARD_SPEED);
+
+        int sbBulletsW, sbBulletsH;
+        int sbBounceW, sbBounceH;
+        int sbSpeedW, sbSpeedH;
+
+        SDL_QueryTexture(scoreboardBulletsTex, NULL, NULL, &sbBulletsW, &sbBulletsH);
+        SDL_QueryTexture(scoreboardBounceTex, NULL, NULL, &sbBounceW, &sbBounceH);
+        SDL_QueryTexture(scoreboardSpeedTex, NULL, NULL, &sbSpeedW, &sbSpeedH);
+
+        /* End of scoreboard power-up textures */
 
         uint32_t ticksSincePause = 500;
 
@@ -799,13 +815,14 @@ int main(int argc, char** argv) {
                                 if (d->Damage() == 1) {
                                     b.second->Die();
                                     b.second->GetOwner().DestroyBullet();
-                                    RenderableObject::next++;
-                                    NewExplosion(d->GetX(), d->GetY(), ren, vRenderable, vExplosions);
                                     if (d->GetContents() != -1) {
                                         Powerup* pow = new Powerup(d->GetX(), d->GetY(), ren, d->GetContents());
                                         vPowerups.push_back(pow);
                                         vRenderable.insert(std::pair<int, RenderableObject*>(RenderableObject::next++, pow));
                                     }
+                                    RenderableObject::next++;
+                                    NewExplosion(d->GetX(), d->GetY(), ren, vRenderable, vExplosions);
+
                                 } else if (!d->Bounce() ) {
                                     b.second->Die();
                                     b.second->GetOwner().DestroyBullet();
@@ -1182,11 +1199,25 @@ int main(int argc, char** argv) {
                         SDL_QueryTexture(scoreTex, NULL, NULL, &scoreWidth, &scoreHeight);
                         scoreString.str("");
 
-                        scoreString << "B: " << players[i].GetMaxBullets() << ", O: " << players[i].GetMaxBounce() << ", S: " << players[i].GetMaxSpeed();
-                        SDL_Texture* PowerupsTex = Utility::RenderText(scoreString.str(), GAME_FONT, c, 12, ren);
-                        int powWidth, powHeight;
-                        SDL_QueryTexture(PowerupsTex, NULL, NULL, &powWidth, &powHeight);
+                        scoreString << "- " << players[i].GetMaxBullets();
+                        SDL_Texture* bulletsTex = Utility::RenderText(scoreString.str(), GAME_FONT, c, 12, ren);
+                        int bulletsWidth, bulletsHeight;
+                        SDL_QueryTexture(bulletsTex, NULL, NULL, &bulletsWidth, &bulletsHeight);
                         scoreString.str("");
+
+                        scoreString << "- " << players[i].GetMaxBounce();
+                        SDL_Texture* bounceTex = Utility::RenderText(scoreString.str(), GAME_FONT, c, 12, ren);
+                        int bounceWidth, bounceHeight;
+                        SDL_QueryTexture(bounceTex, NULL, NULL, &bounceWidth, &bounceHeight);
+                        scoreString.str("");
+
+                        scoreString << "- " << players[i].GetMaxSpeed();
+                        SDL_Texture* speedTex = Utility::RenderText(scoreString.str(), GAME_FONT, c, 12, ren);
+                        int speedWidth, speedHeight;
+                        SDL_QueryTexture(speedTex, NULL, NULL, &speedWidth, &speedHeight);
+                        scoreString.str("");
+
+                        int horizOffset = 320 + 2;
 
                         srcRect.x = 0;
                         srcRect.y = 0;
@@ -1212,17 +1243,91 @@ int main(int argc, char** argv) {
 
                         SDL_RenderCopy(ren, scoreTex, &srcRect, &dstRect);
 
+                        /* Bullets powerup stats */
+
+                        SDL_Rect bulletsRect;
+
+                        bulletsRect.x = horizOffset;
+                        bulletsRect.y = verticalOffset + (i * rHeight + plHeight + scoreHeight + 6);
+                        bulletsRect.h = sbBulletsH;
+                        bulletsRect.w = sbBulletsW;
+
+                        SDL_RenderCopy(ren, scoreboardBulletsTex, NULL, &bulletsRect);
+
+                        horizOffset += sbBulletsW + 2;
+
                         srcRect.x = 0;
                         srcRect.y = 0;
-                        srcRect.w = powWidth;
-                        srcRect.h = powHeight;
+                        srcRect.w = bulletsWidth;
+                        srcRect.h = bulletsHeight;
 
-                        dstRect.x = 320 + 2;
+                        dstRect.x = horizOffset;
                         dstRect.y = verticalOffset + (i * rHeight + plHeight + scoreHeight + 6);
-                        dstRect.w = powWidth;
-                        dstRect.h = powHeight;
+                        dstRect.w = bulletsWidth;
+                        dstRect.h = bulletsHeight;
 
-                        SDL_RenderCopy(ren, PowerupsTex, &srcRect, &dstRect);
+                        horizOffset += bulletsWidth + 4;
+
+                        SDL_RenderCopy(ren, bulletsTex, &srcRect, &dstRect);
+
+                        /* Bounce power-up stats */
+
+                        SDL_Rect bounceRect;
+
+                        bounceRect.x = horizOffset;
+                        bounceRect.y = verticalOffset + (i * rHeight + plHeight + scoreHeight + 6);
+                        bounceRect.h = sbBounceH;
+                        bounceRect.w = sbBounceW;
+
+                        SDL_RenderCopy(ren, scoreboardBounceTex, NULL, &bounceRect);
+
+                        horizOffset += sbBounceW + 2;
+
+                        srcRect.x = 0;
+                        srcRect.y = 0;
+                        srcRect.w = bounceWidth;
+                        srcRect.h = bounceHeight;
+
+                        dstRect.x = horizOffset;
+                        dstRect.y = verticalOffset + (i * rHeight + plHeight + scoreHeight + 6);
+                        dstRect.w = bounceWidth;
+                        dstRect.h = bounceHeight;
+
+                        horizOffset += bounceWidth + 4;
+
+                        SDL_RenderCopy(ren, bounceTex, &srcRect, &dstRect);
+
+                        /* Speed power-up stats */
+
+                        SDL_Rect speedRect;
+
+                        speedRect.x = horizOffset;
+                        speedRect.y = verticalOffset + (i * rHeight + plHeight + scoreHeight + 6);
+                        speedRect.h = sbSpeedH;
+                        speedRect.w = sbSpeedW;
+
+                        SDL_RenderCopy(ren, scoreboardSpeedTex, NULL, &speedRect);
+
+                        horizOffset += sbSpeedW + 2;
+
+                        srcRect.x = 0;
+                        srcRect.y = 0;
+                        srcRect.w = speedWidth;
+                        srcRect.h = speedHeight;
+
+                        dstRect.x = horizOffset;
+                        dstRect.y = verticalOffset + (i * rHeight + plHeight + scoreHeight + 6);
+                        dstRect.w = speedWidth;
+                        dstRect.h = speedHeight;
+
+                        SDL_RenderCopy(ren, speedTex, &srcRect, &dstRect);
+
+                        SDL_DestroyTexture(plTex);
+                        SDL_DestroyTexture(scoreTex);
+                        SDL_DestroyTexture(bulletsTex);
+                        SDL_DestroyTexture(bounceTex);
+                        SDL_DestroyTexture(speedTex);
+
 
 
                     }
@@ -1238,6 +1343,11 @@ int main(int argc, char** argv) {
 
 
         }
+
+        /* Delete scoreboard texture */
+        SDL_DestroyTexture(scoreboardBulletsTex);
+        SDL_DestroyTexture(scoreboardBounceTex);
+        SDL_DestroyTexture(scoreboardSpeedTex);
 
         /* Delete background texture */
         SDL_DestroyTexture(bgTex);
@@ -1326,10 +1436,6 @@ int Menu() {
     free(dp);
     free(de);
 
-    //bool playersUpHeld[4] = { false, false, false, false };
-    //bool playersDownHeld[4] = {false, false, false, false };
-    //bool playersLeftHeld[4] = {false, false, false, false };
-    //bool playersRightHeld[4] = {false, false, false, false };
     const int cursorRepeat = MENU_REPEAT_VERT_TICKS;
     int ticksSinceMove[4] = {200, 200, 200, 200};
     bool mapSelect = false;
