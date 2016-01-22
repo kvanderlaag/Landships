@@ -9,7 +9,7 @@ public:
     virtual ~GameObject();
 
     virtual void Move() {};
-    virtual void Rotate() {};
+    virtual void Rotate(float rotation) {};
     virtual void Update(uint32_t ticks) = 0;
 
     const float GetX() const;

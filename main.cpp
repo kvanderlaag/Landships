@@ -1386,8 +1386,8 @@ int Menu() {
     bool menuRunning = true;
     std::vector<std::string> levelFiles;
 
-    dirent* de;
-    DIR* dp;
+    dirent* de = NULL;
+    DIR* dp = NULL;
 
     std::string mapsPath = basePath + MAPS_PATH;
 
@@ -1437,7 +1437,8 @@ int Menu() {
     }
 
     free(dp);
-    free(de);
+    if (de)
+        free(de);
 
     const int cursorRepeat = MENU_REPEAT_VERT_TICKS;
     int ticksSinceMove[4] = {200, 200, 200, 200};
@@ -2592,10 +2593,7 @@ int Pause() {
 
     SDL_RenderPresent(ren);
 
-    SDL_DestroyTexture(bgTexture);
-    SDL_DestroyTexture(pausedTex);
-    SDL_DestroyTexture(resumeTex);
-    SDL_DestroyTexture(quitTex);
+
 
     Mix_PauseMusic();
     Utility::PlaySound(sfxPause);
@@ -2640,9 +2638,23 @@ int Pause() {
         if (SDL_TICKS_PASSED(nowTime - renderTime, RENDER_INTERVAL)) {
             renderTime = nowTime;
 
+            SDL_RenderCopy(ren, bgTexture, NULL, &bgRect);
+
+            SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
+            SDL_RenderDrawRect(ren, &bgRect);
+
+            SDL_RenderCopy(ren, pausedTex, NULL, &pausedRect);
+            SDL_RenderCopy(ren, resumeTex, NULL, &resumeRect);
+            SDL_RenderCopy(ren, quitTex, NULL, &quitRect);
+
             SDL_RenderPresent(ren);
         }
     }
+
+    SDL_DestroyTexture(bgTexture);
+    SDL_DestroyTexture(pausedTex);
+    SDL_DestroyTexture(resumeTex);
+    SDL_DestroyTexture(quitTex);
 
     if (quit) {
         Utility::PlaySound(sfxMenuConfirm);
@@ -2723,10 +2735,7 @@ int ConfirmQuit() {
 
     SDL_RenderPresent(ren);
 
-    SDL_DestroyTexture(bgTexture);
-    SDL_DestroyTexture(pausedTex);
-    SDL_DestroyTexture(resumeTex);
-    SDL_DestroyTexture(quitTex);
+
 
     Utility::PlaySound(sfxMenu);
 
@@ -2770,9 +2779,23 @@ int ConfirmQuit() {
         if (SDL_TICKS_PASSED(nowTime - renderTime, RENDER_INTERVAL)) {
             renderTime = nowTime;
 
+            SDL_RenderCopy(ren, bgTexture, NULL, &bgRect);
+
+            SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0xFF);
+            SDL_RenderDrawRect(ren, &bgRect);
+
+            SDL_RenderCopy(ren, pausedTex, NULL, &pausedRect);
+            SDL_RenderCopy(ren, resumeTex, NULL, &resumeRect);
+            SDL_RenderCopy(ren, quitTex, NULL, &quitRect);
+
             SDL_RenderPresent(ren);
         }
     }
+
+    SDL_DestroyTexture(bgTexture);
+    SDL_DestroyTexture(pausedTex);
+    SDL_DestroyTexture(resumeTex);
+    SDL_DestroyTexture(quitTex);
 
     Utility::PlaySound(sfxMenuConfirm);
     if (quit)
