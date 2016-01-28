@@ -12,6 +12,9 @@ public:
     virtual void Rotate(float rotation) {};
     virtual void Update(uint32_t ticks) = 0;
 
+    const int GetWidth() const;
+    const int GetHeight() const;
+
     const float GetX() const;
     const float GetY() const;
     const float GetAngle() const;

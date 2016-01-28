@@ -31,6 +31,14 @@ void GameObject::SetX(float newx) {
     x = newx;
 }
 
+const int GameObject::GetWidth() const {
+    return width;
+}
+
+const int GameObject::GetHeight() const {
+    return height;
+}
+
 void GameObject::SetY(float newy) {
     y = newy;
 }

@@ -1,7 +1,6 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include "Tile.hpp"
 #include "Collider.hpp"
 #include "RenderableObject.hpp"
 #include "DestructibleBlock.hpp"

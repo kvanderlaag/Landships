@@ -15,7 +15,6 @@
 #include <dirent.h>
 
 #include "Player.hpp"
-#include "Tile.hpp"
 #include "Map.hpp"
 #include "Rectangle.hpp"
 #include "Vector2D.hpp"

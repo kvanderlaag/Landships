@@ -31,6 +31,7 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Weffc++" />
 			<Add option="-std=c++11" />
 			<Add option="-Wall" />
 			<Add option="-D_USE_MATH_DEFINES" />
@@ -53,18 +54,12 @@
 		<Unit filename="DestructibleBlock.hpp" />
 		<Unit filename="Explosion.cpp" />
 		<Unit filename="Explosion.hpp" />
-		<Unit filename="Game.cpp" />
-		<Unit filename="Game.hpp" />
 		<Unit filename="GameObject.cpp" />
 		<Unit filename="GameObject.hpp" />
-		<Unit filename="GameState.cpp" />
-		<Unit filename="GameState.hpp" />
 		<Unit filename="InputManager.cpp" />
 		<Unit filename="InputManager.hpp" />
 		<Unit filename="Map.cpp" />
 		<Unit filename="Map.hpp" />
-		<Unit filename="Menu.cpp" />
-		<Unit filename="Menu.hpp" />
 		<Unit filename="Options.cpp" />
 		<Unit filename="Options.hpp" />
 		<Unit filename="Player.cpp" />
@@ -79,8 +74,6 @@
 		<Unit filename="Rectangle.hpp" />
 		<Unit filename="RenderableObject.cpp" />
 		<Unit filename="RenderableObject.hpp" />
-		<Unit filename="Tile.cpp" />
-		<Unit filename="Tile.hpp" />
 		<Unit filename="Utility.cpp" />
 		<Unit filename="Utility.hpp" />
 		<Unit filename="Vector2D.cpp" />
