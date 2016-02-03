@@ -164,7 +164,7 @@ void PlayerInput::CheckInput() {
         mUpHeld = false;
     }
 
-    if ((fireButton || fireAxis) && !mFireHeld)
+    if ((fireButton || fireAxis))
         mFireHeld = true;
     else
         mFireHeld = false;

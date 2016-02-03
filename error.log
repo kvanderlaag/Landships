@@ -1,0 +1,11 @@
+SDL Initialized
+D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Debug\
+IMG Initialized
+TTF Initialized
+Mixer Initialized
+Resources loaded
+Initialized joysticks.
+Mix_Quit() successful
+TTF_Quit() successful
+IMG_Quit() successful
+SDL_Quit() successful
