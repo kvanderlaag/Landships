@@ -595,7 +595,7 @@ int main(int argc, char** argv) {
                 if (gInput->Player(i) != nullptr) {
                     if (gInput->Player(i)->FireHeld()) {
                         players[i].FireIsHeld(true);
-                    } else if (players[i].FireHeld()) {
+                    } else if (!gInput->Player(i)->FireHeld() && players[i].FireHeld()) {
                         players[i].FireIsHeld(false);
                         players[i].FireIsReleased(true);
                     }
