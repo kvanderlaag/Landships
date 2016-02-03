@@ -595,7 +595,7 @@ int main(int argc, char** argv) {
                 if (gInput->Player(i) != nullptr) {
                     if (gInput->Player(i)->FireHeld()) {
                         players[i].FireIsHeld(true);
-                    } else {
+                    } else if (players[i].FireHeld()) {
                         players[i].FireIsHeld(false);
                         players[i].FireIsReleased(true);
                     }
@@ -625,12 +625,8 @@ int main(int argc, char** argv) {
                     }
                 }
                 if (players[i].JoyTurret()) {
-                    //int32_t joyX, joyY;
-                    //joyX = SDL_JoystickGetAxis(gController[i], JAXIS_TURRETX);
-                    //joyY = SDL_JoystickGetAxis(gController[i], JAXIS_TURRETY);
-                    Vector2D joyVec(gInput->Player(i)->RightStickVector().Normalized());
-                    //joyVec = joyVec.Normalized();
 
+                    Vector2D joyVec(gInput->Player(i)->RightStickVector().Normalized());
 
                     float ptAngle = players[i].GetTurretAngle() - 90;
                     while (ptAngle > 360) {
