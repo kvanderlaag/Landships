@@ -38,7 +38,7 @@
 			<Add directory="D:/libraries/SDL/SDL2-2.0.4/i686-w64-mingw32/include" />
 		</Compiler>
 		<Linker>
-			<Add option="-static -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lfreetype -lpng -lz -mwindows -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid" />
+			<Add option="-static -static-libgcc -static-libstdc++ -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lfreetype -lpng16 -lpng -lz -mwindows -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid" />
 			<Add directory="D:/libraries/SDL/SDL2-2.0.4/i686-w64-mingw32/lib" />
 		</Linker>
 		<Unit filename="Bullet.cpp" />

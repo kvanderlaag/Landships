@@ -5,6 +5,8 @@ TTF Initialized
 Mixer Initialized
 Resources loaded
 Initialized joysticks.
+SDL_LoadTexture error: Failed loading libpng16-16.dll: The specified module could not be found.
+
 Mix_Quit() successful
 TTF_Quit() successful
 IMG_Quit() successful
