@@ -146,8 +146,8 @@ CollisionInfo Bullet::CheckCollision(const Collider& other, const uint32_t ticks
 
     CollisionInfo coll = mCollider.CheckCollision(other, mVelocity);
 
-    if (coll.Colliding() || coll.WillCollide() ) {
-        if (mBounce < mMaxBounce && !(other.StopsShots() && other.Passable())) {
+    if ((coll.Colliding() || coll.WillCollide()) && !(other.StopsShots() && other.Passable()) ) {
+        if (mBounce < mMaxBounce) {
             std::uniform_int_distribution<int> dist(1,3);
             int rnd = dist(generator);
             Utility::PlaySound(sfxBounce[rnd - 1]);
