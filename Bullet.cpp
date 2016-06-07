@@ -146,7 +146,10 @@ CollisionInfo Bullet::CheckCollision(const Collider& other, const uint32_t ticks
 
     CollisionInfo coll = mCollider.CheckCollision(other, mVelocity);
 
-    if ((coll.Colliding() || coll.WillCollide()) && !(other.StopsShots() && other.Passable()) ) {
+    if ((coll.Colliding() || coll.WillCollide())) {
+        if (other.StopsShots() && other.Passable()) {
+            mBounce = mMaxBounce;
+        }
         if (mBounce < mMaxBounce) {
             std::uniform_int_distribution<int> dist(1,3);
             int rnd = dist(generator);
