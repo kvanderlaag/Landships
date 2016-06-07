@@ -96,8 +96,8 @@ const uint32_t MENU_REPEAT_VERT_TICKS = 300;
 const int XBOX_360_CONTROLLER = 0;
 const int PS4_CONTROLLER = 1;
 
-const int SCORE_MATCH = 1;
-const int STOCK_MATCH = 2;
+const int STOCK_MATCH = 1;
+const int SCORE_MATCH = 2;
 const int TIME_MATCH = 3;
 
 const int MIN_STOCK = 1;
@@ -106,5 +106,10 @@ const int MIN_TIME = 30;
 const int MAX_TIME = 600;
 const int MIN_SCORE = 1;
 const int MAX_SCORE = 100;
+
+const int NORMAL_TILES = 50;
+const int CANNOT_SHOOT = 1;
+const int CANNOT_PASS = 1;
+
 
 #endif // _DEFINES_H

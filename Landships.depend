@@ -1,11 +1,11 @@
 # depslib dependency file v1.0
-1453252709 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
+1465251249 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
 	"Bullet.hpp"
 	<iostream>
 	<random>
 	<ctime>
 
-1453163303 d:\users\kvand_000\documents\github\tanks\bullet.hpp
+1453166903 d:\users\kvand_000\documents\github\tanks\bullet.hpp
 	"RenderableObject.hpp"
 	"Collider.hpp"
 	"CollisionInfo.hpp"
@@ -14,16 +14,16 @@
 	"DestructibleBlock.hpp"
 	"Defines.hpp"
 
-1453745468 d:\users\kvand_000\documents\github\tanks\renderableobject.hpp
+1453749068 d:\users\kvand_000\documents\github\tanks\renderableobject.hpp
 	"GameObject.hpp"
 	"Utility.hpp"
 	<string>
 	<SDL2/SDL.h>
 
-1453744753 d:\users\kvand_000\documents\github\tanks\gameobject.hpp
+1465251321 d:\users\kvand_000\documents\github\tanks\gameobject.hpp
 	<cstdint>
 
-1453331130 d:\users\kvand_000\documents\github\tanks\utility.hpp
+1453334730 d:\users\kvand_000\documents\github\tanks\utility.hpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>
@@ -37,7 +37,7 @@
 	"Rectangle.hpp"
 	"Defines.hpp"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl.h
 	"SDL_main.h"
 	"SDL_stdinc.h"
 	"SDL_assert.h"
@@ -68,12 +68,12 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_main.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_main.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_stdinc.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_stdinc.h
 	"SDL_config.h"
 	<sys/types.h>
 	<stdio.h>
@@ -102,34 +102,34 @@
 	<stdlib.h>
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_config.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_config.h
 	"SDL_platform.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_platform.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_platform.h
 	"AvailabilityMacros.h"
 	"TargetConditionals.h"
 	<winapifamily.h>
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\begin_code.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\begin_code.h
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\close_code.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\close_code.h
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_assert.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_assert.h
 	"SDL_config.h"
 	"begin_code.h"
 	<signal.h>
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_atomic.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_atomic.h
 	"SDL_stdinc.h"
 	"SDL_platform.h"
 	"begin_code.h"
 	<mbarrier.h>
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_audio.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_audio.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_endian.h"
@@ -139,24 +139,24 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_error.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_error.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_endian.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_endian.h
 	"SDL_stdinc.h"
 	<endian.h>
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_mutex.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_mutex.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_thread.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_thread.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_atomic.h"
@@ -165,18 +165,18 @@
 	<process.h>
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_rwops.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_rwops.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_clipboard.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_clipboard.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_cpuinfo.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_cpuinfo.h
 	"SDL_stdinc.h"
 	<intrin.h>
 	<intrin.h>
@@ -188,7 +188,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_events.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_events.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
@@ -202,7 +202,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_video.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_video.h
 	"SDL_stdinc.h"
 	"SDL_pixels.h"
 	"SDL_rect.h"
@@ -210,12 +210,12 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_pixels.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_pixels.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_rect.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_rect.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_pixels.h"
@@ -223,7 +223,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_surface.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_surface.h
 	"SDL_stdinc.h"
 	"SDL_pixels.h"
 	"SDL_rect.h"
@@ -232,11 +232,11 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_blendmode.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_blendmode.h
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_keyboard.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_keyboard.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_keycode.h"
@@ -244,27 +244,27 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_keycode.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_keycode.h
 	"SDL_stdinc.h"
 	"SDL_scancode.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_scancode.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_scancode.h
 	"SDL_stdinc.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_mouse.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_mouse.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_joystick.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_joystick.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_gamecontroller.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_gamecontroller.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_rwops.h"
@@ -272,11 +272,11 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_quit.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_quit.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_gesture.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_gesture.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
@@ -284,60 +284,60 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_touch.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_touch.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_filesystem.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_filesystem.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_haptic.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_haptic.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_joystick.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_hints.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_hints.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_loadso.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_loadso.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_log.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_log.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_messagebox.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_messagebox.h
 	"SDL_stdinc.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_power.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_power.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_render.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_render.h
 	"SDL_stdinc.h"
 	"SDL_rect.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_system.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_system.h
 	"SDL_stdinc.h"
 	"SDL_keyboard.h"
 	"SDL_render.h"
@@ -345,29 +345,29 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_timer.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_timer.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1451764693 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_version.h
+1451768293 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_version.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1376156342 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_image.h
+1376159942 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_image.h
 	"SDL.h"
 	"SDL_version.h"
 	"begin_code.h"
 	"close_code.h"
 
-1376156543 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_ttf.h
+1376160143 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_ttf.h
 	"SDL.h"
 	"begin_code.h"
 	"close_code.h"
 
-1376156425 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_mixer.h
+1376160025 d:\libraries\sdl\sdl2-2.0.4\i686-w64-mingw32\include\sdl2\sdl_mixer.h
 	"SDL_stdinc.h"
 	"SDL_rwops.h"
 	"SDL_audio.h"
@@ -376,21 +376,21 @@
 	"begin_code.h"
 	"close_code.h"
 
-1451164824 d:\users\kvand_000\documents\github\tanks\vector2d.hpp
+1451168424 d:\users\kvand_000\documents\github\tanks\vector2d.hpp
 	<cmath>
 	<algorithm>
 
-1451020386 d:\users\kvand_000\documents\github\tanks\rectangle.hpp
+1451023986 d:\users\kvand_000\documents\github\tanks\rectangle.hpp
 	"Point.hpp"
 	"Vector2D.hpp"
 	<vector>
 
-1450931217 d:\users\kvand_000\documents\github\tanks\point.hpp
+1450934817 d:\users\kvand_000\documents\github\tanks\point.hpp
 
-1453486718 d:\users\kvand_000\documents\github\tanks\defines.hpp
+1465324157 d:\users\kvand_000\documents\github\tanks\defines.hpp
 	<string>
 
-1451872863 d:\users\kvand_000\documents\github\tanks\collider.hpp
+1465250883 d:\users\kvand_000\documents\github\tanks\collider.hpp
 	"GameObject.hpp"
 	"Rectangle.hpp"
 	"Vector2D.hpp"
@@ -401,10 +401,10 @@
 	<vector>
 	"Point.hpp"
 
-1451158244 d:\users\kvand_000\documents\github\tanks\collisioninfo.hpp
+1451161844 d:\users\kvand_000\documents\github\tanks\collisioninfo.hpp
 	"Vector2D.hpp"
 
-1452720570 d:\users\kvand_000\documents\github\tanks\player.hpp
+1452724170 d:\users\kvand_000\documents\github\tanks\player.hpp
 	"GameObject.hpp"
 	"RenderableObject.hpp"
 	"Utility.hpp"
@@ -415,7 +415,7 @@
 	<memory>
 	<cmath>
 
-1453745653 d:\users\kvand_000\documents\github\tanks\map.hpp
+1453749253 d:\users\kvand_000\documents\github\tanks\map.hpp
 	"Collider.hpp"
 	"RenderableObject.hpp"
 	"DestructibleBlock.hpp"
@@ -430,7 +430,7 @@
 	"Utility.hpp"
 	<map>
 
-1453172784 d:\users\kvand_000\documents\github\tanks\destructibleblock.hpp
+1453176384 d:\users\kvand_000\documents\github\tanks\destructibleblock.hpp
 	<random>
 	<SDL2/SDL.h>
 	<iostream>
@@ -440,38 +440,38 @@
 	"Defines.hpp"
 	"Map.hpp"
 
-1453151226 d:\users\kvand_000\documents\github\tanks\powerup.hpp
+1453154826 d:\users\kvand_000\documents\github\tanks\powerup.hpp
 	"RenderableObject.hpp"
 	"Collider.hpp"
 	"Player.hpp"
 	"Defines.hpp"
 
-1451873038 d:\users\kvand_000\documents\github\tanks\container.hpp
+1451876638 d:\users\kvand_000\documents\github\tanks\container.hpp
 	<random>
 	"RenderableObject.hpp"
 	"Collider.hpp"
 
-1451872871 source:d:\users\kvand_000\documents\github\tanks\collider.cpp
+1465250909 source:d:\users\kvand_000\documents\github\tanks\collider.cpp
 	"Collider.hpp"
 
-1451158363 source:d:\users\kvand_000\documents\github\tanks\collisioninfo.cpp
+1451161963 source:d:\users\kvand_000\documents\github\tanks\collisioninfo.cpp
 	"CollisionInfo.hpp"
 
-1451873289 source:d:\users\kvand_000\documents\github\tanks\container.cpp
+1465251342 source:d:\users\kvand_000\documents\github\tanks\container.cpp
 	"Container.hpp"
 
-1453179305 source:d:\users\kvand_000\documents\github\tanks\destructibleblock.cpp
+1465251298 source:d:\users\kvand_000\documents\github\tanks\destructibleblock.cpp
 	"DestructibleBlock.hpp"
 
-1451450959 source:d:\users\kvand_000\documents\github\tanks\explosion.cpp
+1451454559 source:d:\users\kvand_000\documents\github\tanks\explosion.cpp
 	"Explosion.hpp"
 
-1451451022 d:\users\kvand_000\documents\github\tanks\explosion.hpp
+1451454622 d:\users\kvand_000\documents\github\tanks\explosion.hpp
 	"RenderableObject.hpp"
 
 1451585563 source:d:\users\kvand_000\documents\github\tanks\game.cpp
 
-1453744738 source:d:\users\kvand_000\documents\github\tanks\gameobject.cpp
+1465251330 source:d:\users\kvand_000\documents\github\tanks\gameobject.cpp
 	"GameObject.hpp"
 
 1451586327 source:d:\users\kvand_000\documents\github\tanks\gamestate.cpp
@@ -486,14 +486,14 @@
 
 1451585626 d:\users\kvand_000\documents\github\tanks\game.hpp
 
-1453164096 source:d:\users\kvand_000\documents\github\tanks\inputmanager.cpp
+1453167696 source:d:\users\kvand_000\documents\github\tanks\inputmanager.cpp
 	"InputManager.hpp"
 
-1453149360 d:\users\kvand_000\documents\github\tanks\inputmanager.hpp
+1453152960 d:\users\kvand_000\documents\github\tanks\inputmanager.hpp
 	<SDL2/SDL.h>
 	"PlayerInput.hpp"
 
-1453329500 d:\users\kvand_000\documents\github\tanks\playerinput.hpp
+1453333100 d:\users\kvand_000\documents\github\tanks\playerinput.hpp
 	<string>
 	<SDL2/SDL_joystick.h>
 	<SDL2/SDL_haptic.h>
@@ -504,42 +504,42 @@
 1451585590 source:d:\users\kvand_000\documents\github\tanks\menu.cpp
 	"Menu.hpp"
 
-1452985850 source:d:\users\kvand_000\documents\github\tanks\options.cpp
+1452989450 source:d:\users\kvand_000\documents\github\tanks\options.cpp
 	"Options.hpp"
 
-1452985817 d:\users\kvand_000\documents\github\tanks\options.hpp
+1452989417 d:\users\kvand_000\documents\github\tanks\options.hpp
 
-1453170896 source:d:\users\kvand_000\documents\github\tanks\player.cpp
+1465251077 source:d:\users\kvand_000\documents\github\tanks\player.cpp
 	"Player.hpp"
 
-1454543477 source:d:\users\kvand_000\documents\github\tanks\playerinput.cpp
+1454547077 source:d:\users\kvand_000\documents\github\tanks\playerinput.cpp
 	"PlayerInput.hpp"
 
-1450931311 source:d:\users\kvand_000\documents\github\tanks\point.cpp
+1450934911 source:d:\users\kvand_000\documents\github\tanks\point.cpp
 	"Point.hpp"
 
-1452896528 source:d:\users\kvand_000\documents\github\tanks\powerup.cpp
+1465251281 source:d:\users\kvand_000\documents\github\tanks\powerup.cpp
 	"Powerup.hpp"
 
-1451945682 source:d:\users\kvand_000\documents\github\tanks\rectangle.cpp
+1451949282 source:d:\users\kvand_000\documents\github\tanks\rectangle.cpp
 	"Rectangle.hpp"
 
-1453745472 source:d:\users\kvand_000\documents\github\tanks\renderableobject.cpp
+1453749072 source:d:\users\kvand_000\documents\github\tanks\renderableobject.cpp
 	"RenderableObject.hpp"
 
 1451706143 source:d:\users\kvand_000\documents\github\tanks\tile.cpp
 	"Tile.hpp"
 
-1453332336 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
+1453335936 source:d:\users\kvand_000\documents\github\tanks\utility.cpp
 	"Utility.hpp"
 
-1451434976 source:d:\users\kvand_000\documents\github\tanks\vector2d.cpp
+1451438576 source:d:\users\kvand_000\documents\github\tanks\vector2d.cpp
 	"Vector2D.hpp"
 
-1453414149 source:d:\users\kvand_000\documents\github\tanks\map.cpp
+1465323934 source:d:\users\kvand_000\documents\github\tanks\map.cpp
 	"Map.hpp"
 
-1454543486 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1465323387 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>

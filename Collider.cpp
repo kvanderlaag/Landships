@@ -1,9 +1,11 @@
 #include "Collider.hpp"
 
-Collider::Collider(float w, float h, float x, float y, float a, const GameObject* parent) :
+Collider::Collider(float w, float h, float x, float y, float a, const GameObject* parent, const bool passable, const bool stopsShots) :
     GameObject(w, h, x, y, a),
     mRectangle(w, h, x, y, a),
-    owner(*parent)
+    owner(*parent),
+    mPassable(passable),
+    mStopsShots(stopsShots)
 {
 
 }
@@ -107,4 +109,12 @@ const std::vector<Point> Collider::GetPoints() const {
 
 const GameObject& Collider::GetOwner() const {
     return owner;
+}
+
+const bool Collider::Passable() const {
+     return mPassable;
+}
+
+const bool Collider::StopsShots() const {
+     return mStopsShots;
 }

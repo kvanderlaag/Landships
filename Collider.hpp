@@ -14,7 +14,7 @@
 
 class Collider : public GameObject {
 public:
-    Collider(float w, float h, float x, float y, float a, const GameObject* parent);
+    Collider(float w, float h, float x, float y, float a, const GameObject* parent, const bool passable, const bool stopsShots);
     virtual ~Collider();
 
     void Move(float x, float y);
@@ -29,9 +29,15 @@ public:
     const std::vector<Point> GetPoints() const;
     const GameObject& GetOwner() const;
 
+    const bool Passable() const;
+    const bool StopsShots() const;
+
 private:
     Rectangle mRectangle;
     const GameObject& owner;
+    bool mPassable;
+    bool mStopsShots;
+
 
 };
 #endif // _COLLIDER_H

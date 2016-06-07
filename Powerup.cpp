@@ -3,7 +3,7 @@
 Powerup::Powerup(const float x, const float y, SDL_Renderer* ren, int type) :
     RenderableObject("Powerups.png", 16, 16, x, y, 0, ren),
     mType(powerupBullets),
-    mCollider(Collider(16, 16, x, y, 0, this)),
+    mCollider(Collider(16, 16, x, y, 0, this, false, false)),
     mFrame(0),
     mTicksElapsed(0)
 {

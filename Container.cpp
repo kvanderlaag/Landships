@@ -4,7 +4,7 @@
 Container::Container(const float x, const float y, SDL_Renderer* ren) :
     RenderableObject("Container.png", 16, 16, x, y, 0, ren),
     mContents(powerupBullets),
-    mCollider(Collider(16, 16, x, y, 0, this))
+    mCollider(Collider(16, 16, x, y, 0, this, false, true))
 {
     std::uniform_int_distribution<int> dist(powerupBullets, powerupSpeed);
     int rnd = dist(generator);

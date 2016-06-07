@@ -8,7 +8,7 @@ int Bullet::next = 0;
 
 Bullet::Bullet(float x, float y, float a, const Vector2D& dir, Player& owner, SDL_Renderer* ren) :
     RenderableObject("Bullet.png", 4, 4, x, y, a, ren),
-    mCollider(Collider(3, 3, x, y, a, this) ),
+    mCollider(Collider(3, 3, x, y, a, this, false, true) ),
     mOwner(owner),
     mDirection(dir),
     mVelocity(Vector2D()),

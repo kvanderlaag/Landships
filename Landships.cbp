@@ -35,6 +35,7 @@
 			<Add option="-std=c++11" />
 			<Add option="-Wall" />
 			<Add option="-D_USE_MATH_DEFINES" />
+			<Add option="-D_DEMO" />
 			<Add directory="D:/libraries/SDL/SDL2-2.0.4/i686-w64-mingw32/include" />
 		</Compiler>
 		<Linker>

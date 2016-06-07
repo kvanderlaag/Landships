@@ -4,7 +4,7 @@ DestructibleBlock::DestructibleBlock(const float x, const float y, SDL_Renderer*
     RenderableObject("DestructibleBlock.png", 16, 16, x, y, 0, ren),
     mParent(*parent),
     mHealth(3),
-    mCollider(Collider(16, 16, x, y, 0, this)),
+    mCollider(Collider(16, 16, x, y, 0, this, false, true)),
     mContents(-1),
     mDieFrame(0),
     mDieAnimationFrames(3),

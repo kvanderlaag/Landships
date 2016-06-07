@@ -56,12 +56,16 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
     }
 
 
-    mvColliders.push_back(Collider(320,      8,          160,      4,          0, this));
-    mvColliders.push_back(Collider(320,      8,          160,      240 - 4,     0, this));
-    mvColliders.push_back(Collider(8,           8 * 28,     4,      240 / 2,          0, this));
-    mvColliders.push_back(Collider(8,           8 * 28,     8*40 - 4,   240 / 2,          0, this));
+    mvColliders.push_back(Collider(320,      8,          160,      4,          0, this, false, true));
+    mvColliders.push_back(Collider(320,      8,          160,      240 - 4,     0, this, false, true));
+    mvColliders.push_back(Collider(8,           8 * 28,     4,      240 / 2,          0, this, false, true));
+    mvColliders.push_back(Collider(8,           8 * 28,     8*40 - 4,   240 / 2,          0, this, false, true));
 
     std::uniform_int_distribution<int> rndTileDist(6, 17);
+
+    std::vector<Collider> passableNotShootable;
+    std::vector<Collider> shootableNotPassable;
+
 
     for (int row = 0; row < 30; ++row) {
         for (int col = 0; col < 40; ++col) {
@@ -99,6 +103,12 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
             } else if (c == DSTRBNC) {
                 mvDestructibleBlocks.push_back(new DestructibleBlock(col * 8, row * 8, mRenderer, this, true));
                 tiles[row][col] = EMPTY;
+            } else if (c > NORMAL_TILES && c <= NORMAL_TILES + CANNOT_PASS) {
+                shootableNotPassable.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this, false, false));
+                tiles[row][col] = c;
+            } else if (c > NORMAL_TILES + CANNOT_PASS && c <= NORMAL_TILES + CANNOT_SHOOT + CANNOT_PASS) {
+                passableNotShootable.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this, true, true));
+                tiles[row][col] = c;
             } else {
                 if (row != 0 && row != 29 && col != 0 && col != 39)
                     //mvColliders.push_back(Collider(8, 8, col * 8 + 4, row * 8 + 4, 0, this));
@@ -109,7 +119,13 @@ Map::Map(const std::string& filename, const std::string& texturefile, SDL_Render
 
     std::vector<Collider> combined = CombineColliders(tiles);
     for (Collider coll : combined) {
-            mvColliders.push_back(coll);
+        mvColliders.push_back(coll);
+    }
+    for (Collider coll : passableNotShootable) {
+        mvColliders.push_back(coll);
+    }
+    for (Collider coll : shootableNotPassable) {
+        mvColliders.push_back(coll);
     }
 
     inFile.close();
@@ -189,7 +205,7 @@ std::vector<Collider> Map::CombineColliders(unsigned char (&tiles)[30][40]) cons
         for (int col = 0; col < 40; ++col) {
             if (row == 0 || row == 29 || col == 0 || col == 39) {
                 tilesColliders[row][col] = 1;
-            } else if (tiles[row][col] != EMPTY) {
+            } else if (tiles[row][col] != EMPTY && tiles[row][col] <= NORMAL_TILES) {
                 tilesColliders[row][col] = -1;
             } else {
                 tilesColliders[row][col] = 0;
@@ -240,7 +256,7 @@ std::vector<Collider> Map::CombineColliders(unsigned char (&tiles)[30][40]) cons
                     }
                 }
 
-                vColliders.push_back(Collider(8 * tempW, 8 * tempH, (col * 8) + ( tempW * 4), (row * 8) + (tempH * 4), 0, this));
+                vColliders.push_back(Collider(8 * tempW, 8 * tempH, (col * 8) + ( tempW * 4), (row * 8) + (tempH * 4), 0, this, false, true));
                 colliderGroup++;
 
             }

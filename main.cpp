@@ -54,6 +54,7 @@ Mix_Chunk* sfxUnpause = NULL;
 Mix_Chunk* sfxReady = NULL;
 Mix_Chunk* sfxNotReady = NULL;
 std::default_random_engine generator(time(NULL));
+std::uniform_int_distribution<int> distTiles(0,MAX_TILESET);
 
 bool playersIn[4] = { false, false, false, false };
 int playersInCount = 0;
@@ -84,6 +85,8 @@ int ConfirmQuit();
 int main(int argc, char** argv) {
 
     freopen("error.log", "w", stdout);
+
+    generator = std::default_random_engine(time(0));
 
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
@@ -282,11 +285,20 @@ int main(int argc, char** argv) {
             Quit(0);
     }
 
+    #ifndef _DEMO
     if (DisplayControls() == -1) {
         Quit(0);
     }
+    #endif
 
     while (loopGame) {
+
+        #ifdef _DEMO
+        if (DisplayControls() == -1) {
+            Quit(0);
+        }
+        #endif
+
 
         Mix_FadeInMusic(menuMusic, -1, 1000);
 
@@ -295,6 +307,9 @@ int main(int argc, char** argv) {
             break;
         }
 
+        #ifdef _DEMO
+        Options* gameOptions = new Options(TIME_MATCH, 0, 0, 120, false);
+        #else // _DEMO
         Options* gameOptions = OptionsMenu();
         if (gameOptions == nullptr) {
             loopGame = false;
@@ -303,6 +318,8 @@ int main(int argc, char** argv) {
             delete gameOptions;
             continue;
         }
+        #endif // _DEMO
+
         Mix_FadeOutMusic(500);
         SDL_Delay(500);
         uint32_t gameTime = gameOptions->GetTime() * 1000;
@@ -314,9 +331,6 @@ int main(int argc, char** argv) {
             mapfilename = "default.d";
         #endif
 
-        generator = std::default_random_engine(time(0));
-
-        std::uniform_int_distribution<int> distTiles(0,MAX_TILESET);
         gRndTiles = distTiles(generator);
 
         Map m(mapfilename, gWallTileNames[gRndTiles], ren);
@@ -729,7 +743,7 @@ int main(int argc, char** argv) {
                     continue;
                 }
                 for (Collider* c : vStationary) {
-                    if (!c->GetOwner().IsDead()) {
+                    if (!c->GetOwner().IsDead() && !c->Passable()) {
                         p->CheckCollision(*c, frame_time);
                     }
                 }
@@ -921,8 +935,10 @@ int main(int argc, char** argv) {
                     }
 
                     for (Collider* c : vStationary) {
+                        if (!c->StopsShots())
+                            continue;
                         CollisionInfo coll = b.second->CheckCollision(*c, frame_time);
-                        if (b.second->IsDead() && (coll.Colliding() || coll.WillCollide()) ) {
+                        if (b.second->IsDead() && (coll.Colliding() || coll.WillCollide())) {
                             Utility::PlaySound(sfxBulletWall);
                             b.second->GetOwner().DestroyBullet();
                             NewExplosion(b.second->GetX(), b.second->GetY(), ren, vRenderable, vExplosions);
@@ -1379,6 +1395,13 @@ void NewExplosion(const float x, const float y, SDL_Renderer* ren, std::map<int,
 
 int Menu() {
     bool menuRunning = true;
+
+    #ifdef _DEMO
+    playersIn[0] = false;
+    playersIn[1] = false;
+    playersIn[2] = false;
+    playersIn[3] = false;
+    #endif // _DEMO
     std::vector<std::string> levelFiles;
 
     dirent* de = NULL;
@@ -1501,10 +1524,6 @@ int Menu() {
             }
         }
 
-        if (gInput->EnterHeld() && ticksSinceStart == 0) {
-            mapSelect = true;
-        }
-
         for (int i = 0; i < 4; ++i) {
             if (gInput->Player(i) == nullptr)
                 continue;
@@ -1559,6 +1578,10 @@ int Menu() {
             }
         }
 
+        if (gInput->EnterHeld() && ticksSinceStart == 0) {
+            mapSelect = true;
+        }
+
         int tempPlayersIn = 0;
         for (int i = 0; i < 4; ++i) {
             if (playersIn[i]) {
@@ -1568,7 +1591,7 @@ int Menu() {
         playersInCount = tempPlayersIn;
 
         #ifdef _DEBUG_BUILD
-        if (mapSelect && playersInCount > 0) {
+        if (mapSelect && playersInCount >= 0) {
         #else
         if (mapSelect && playersInCount > 1) {
         #endif
@@ -1829,9 +1852,9 @@ Options* OptionsMenu() {
 
     int gameType = SCORE_MATCH;
 
-    int score = std::min(10, MAX_SCORE);
+    int score = std::min(5, MAX_SCORE);
     int time = std::min(120, MAX_TIME);
-    int stock = std::min(10, MAX_STOCK);
+    int stock = std::min(3, MAX_STOCK);
 
     const int cursorRepeatV = MENU_REPEAT_VERT_TICKS;
     const int cursorRepeatH = MENU_REPEAT_HORIZ_TICKS;

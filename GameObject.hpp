@@ -24,6 +24,7 @@ public:
     virtual void SetAngle(float a);
 
     const bool IsDead() const;
+
     void Die();
 
 
@@ -32,6 +33,8 @@ protected:
     float angle;
     int width, height;
     bool dead;
+    bool mPassable;
+    bool mStopsShots;
 };
 
 #endif // _GAMEOBJECT_H
