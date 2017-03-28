@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1465329115 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
+1465332280 source:d:\users\kvand_000\documents\github\tanks\bullet.cpp
 	"Bullet.hpp"
 	<iostream>
 	<random>
@@ -539,7 +539,7 @@
 1465324215 source:d:\users\kvand_000\documents\github\tanks\map.cpp
 	"Map.hpp"
 
-1465323387 source:d:\users\kvand_000\documents\github\tanks\main.cpp
+1475351838 source:d:\users\kvand_000\documents\github\tanks\main.cpp
 	<SDL2/SDL.h>
 	<SDL2/SDL_image.h>
 	<SDL2/SDL_ttf.h>

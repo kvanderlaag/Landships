@@ -1593,7 +1593,7 @@ int Menu() {
         #ifdef _DEBUG_BUILD
         if (mapSelect && playersInCount >= 0) {
         #else
-        if (mapSelect && playersInCount > 1) {
+        if (mapSelect && playersInCount >= 1) {
         #endif
             mapfilename = levelFiles[mapSelected];
             return 0;
