@@ -5,7 +5,7 @@
 #include "RenderableObject.hpp"
 #include "DestructibleBlock.hpp"
 #include "Vector2D.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <fstream>
 #include <vector>
 #include <cstring>

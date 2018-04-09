@@ -2,8 +2,8 @@
 #define _PLAYERINPUT_H
 
 #include <string>
-#include <SDL2/SDL_joystick.h>
-#include <SDL2/SDL_haptic.h>
+#include <SDL_joystick.h>
+#include <SDL_haptic.h>
 
 #include <iostream>
 

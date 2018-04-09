@@ -6,7 +6,7 @@
 #include "Utility.hpp"
 #include "Map.hpp"
 #include "Collider.hpp"
-#include <SDL2/SDL_mixer.h>
+#include <SDL_mixer.h>
 #include "Bullet.hpp"
 
 #include <memory>

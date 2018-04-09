@@ -1,8 +1,8 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_mixer.h>
-#include <SDL2/SDL_haptic.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
+#include <SDL_mixer.h>
+#include <SDL_haptic.h>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -11,6 +11,7 @@
 #include <climits>
 #include <map>
 #include <ctime>
+#include <chrono>
 
 #include <dirent.h>
 
@@ -86,7 +87,8 @@ int main(int argc, char** argv) {
 
     freopen("error.log", "w", stdout);
 
-    generator = std::default_random_engine(time(0));
+    unsigned seed1 = std::chrono::system_clock::now().time_since_epoch().count();
+    generator = std::default_random_engine(seed1);
 
     uint32_t ticks = SDL_GetTicks();
     uint32_t old_time = SDL_GetTicks();
@@ -125,6 +127,7 @@ int main(int argc, char** argv) {
     #endif
     if (Mix_Init(MIX_INIT_OGG) != MIX_INIT_OGG) {
         std::cout << "Unable to initialize OGG playback. SDL_Error: " << Mix_GetError() << std::endl;
+        std::cout << Mix_GetError() << std::endl;
         Quit(4);
     }
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
@@ -1905,7 +1908,7 @@ Options* OptionsMenu() {
                 ticksSinceMove[i] = std::max((uint32_t) 0, ticksSinceMove[i] - frameTime);
             } else  {
                 if (gInput->Player(i)->UpHeld()) {
-                    if (gameType > SCORE_MATCH)
+                    if (gameType > STOCK_MATCH)
                             gameType--;
                     ticksSinceMove[i] = cursorRepeatV;
                     Utility::PlaySound(sfxMenu);
@@ -2285,6 +2288,9 @@ void Quit(int status) {
     #ifdef _DEBUG_BUILD
     std::cout << "SDL_Quit() successful" << std::endl;
     #endif // _DEBUG_BUILD
+    char c;
+    std::cin >> c;
+
     exit(status);
 
 }

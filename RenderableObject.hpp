@@ -5,7 +5,7 @@
 #include "Utility.hpp"
 #include <string>
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 extern SDL_Renderer* ren;
 

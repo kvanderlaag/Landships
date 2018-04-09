@@ -14,6 +14,7 @@
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-D_DEBUG_BUILD" />
+					<Add option="-D_DEBUG" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -32,14 +33,21 @@
 		</Build>
 		<Compiler>
 			<Add option="-Weffc++" />
-			<Add option="-std=c++11" />
 			<Add option="-Wall" />
+			<Add option="-std=c++11" />
 			<Add option="-D_USE_MATH_DEFINES" />
-			<Add directory="D:/libraries/SDL/SDL2-2.0.4/i686-w64-mingw32/include" />
+			<Add directory="foreign/sdl2/include/SDL2" />
+			<Add directory="foreign/sdl2_image/include/SDL2" />
+			<Add directory="foreign/sdl2_mixer/include/SDL2" />
+			<Add directory="foreign/sdl2_ttf/include/SDL2" />
 		</Compiler>
 		<Linker>
-			<Add option="-static -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lfreetype -lpng16 -lpng -lz -mwindows -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -lstdc++ -lgcc" />
-			<Add directory="D:/libraries/SDL/SDL2-2.0.4/i686-w64-mingw32/lib" />
+			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lfreetype -lfreetype -lpng16.dll -lz -lbz2 -mwindows -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -lstdc++" />
+			<Add directory="foreign/freetype" />
+			<Add directory="foreign/sdl2/lib" />
+			<Add directory="foreign/sdl2_image/lib" />
+			<Add directory="foreign/sdl2_mixer/lib" />
+			<Add directory="foreign/sdl2_ttf/lib" />
 		</Linker>
 		<Unit filename="Bullet.cpp" />
 		<Unit filename="Bullet.hpp" />

@@ -1,10 +1,8 @@
 SDL Initialized
-D:\Users\kvand_000\Documents\GitHub\Tanks\bin\Debug\
+D:\Projects\Landships\bin\Debug\
 IMG Initialized
 TTF Initialized
-Mixer Initialized
-Resources loaded
-Initialized joysticks.
+Unable to initialize OGG playback. SDL_Error: OGG support not available
 Mix_Quit() successful
 TTF_Quit() successful
 IMG_Quit() successful

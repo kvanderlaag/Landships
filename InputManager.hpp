@@ -1,9 +1,7 @@
 #ifndef _INPUTMANAGER_H
 #define _INPUTMANAGER_H
 
-#include <SDL2/SDL.h>
-//#include <SDL2/SDL_joystick.h>
-//#include <SDL2/SDL_events.h>
+#include <SDL.h>
 
 #include "PlayerInput.hpp"
 

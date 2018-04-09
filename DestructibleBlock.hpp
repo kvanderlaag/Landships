@@ -2,7 +2,7 @@
 #define _DESTRUCTIBLEBLOCK_H
 
 #include <random>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 
 #include "Collider.hpp"
